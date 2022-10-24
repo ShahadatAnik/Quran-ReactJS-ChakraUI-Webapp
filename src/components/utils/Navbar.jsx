@@ -14,7 +14,7 @@ function Logo(props) {
           fontSize="4xl"
           fontWeight="extrabold"
         >
-          Quran
+          ILMIYAH
         </Text>
       </Link>
     </Box>
