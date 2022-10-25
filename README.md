@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="https://github.com/ShahadatAnik/Quran-ReactJS-ChakraUI-Webapp/blob/master/public/android-chrome-192x192.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/ShahadatAnik/Quran-ReactJS-ChakraUI-Webapp/blob/master/public/apple-touch-icon.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">ILMIYAH</h3>
