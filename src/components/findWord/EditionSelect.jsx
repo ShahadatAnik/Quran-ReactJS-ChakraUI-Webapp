@@ -49,7 +49,7 @@ export default function EditionSelect({ setQuranEdition }) {
   useEffect(() => {
     fetchData();
     error?.message && console.log(error.message);
-  }, []);
+  }, [error?.message]);
 
   return (
     <>

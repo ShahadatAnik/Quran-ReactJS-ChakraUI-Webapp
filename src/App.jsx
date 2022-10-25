@@ -1,4 +1,4 @@
-import { ChakraProvider, Stack } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme/index';
 import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
 
