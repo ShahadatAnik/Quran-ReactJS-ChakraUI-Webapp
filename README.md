@@ -32,11 +32,11 @@ py typemonkey/main.py
 
 👤 **Shahadat Anik**
 
-* Website: https://shahadatanik.github.io/
-* GitHub: [@ShahadatAnik](https://github.com/ShahadatAnik)
+- Website: https://shahadatanik.github.io/
+- GitHub: [@ShahadatAnik](https://github.com/ShahadatAnik)
 
 ## Show your support
 
 Give a ⭐️ if this project helped you!
 
-***
+---
