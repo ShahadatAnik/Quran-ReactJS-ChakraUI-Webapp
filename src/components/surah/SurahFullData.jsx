@@ -6,7 +6,6 @@ import {
   Center,
   Spinner,
 } from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFatch';
 
