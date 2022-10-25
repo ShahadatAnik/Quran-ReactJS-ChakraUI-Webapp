@@ -16,11 +16,13 @@ function MySelect({ data, placeholder, setEdition, ...rest }) {
       size={['md', 'md', 'lg']}
       placeholder={placeholder}
     >
-      {data.map(edition => (
-        <option key={edition.identifier} value={edition.identifier}>
-          {edition.name}
-        </option>
-      ))}
+      {data
+        .sort((a, b) => a.language.localeCompare(b.language))
+        .map(edition => (
+          <option key={edition.identifier} value={edition.identifier}>
+            {edition.language} - {edition.englishName} - ({edition.name})
+          </option>
+        ))}
     </Select>
   );
 }
@@ -65,7 +67,7 @@ export default function EditionSelect({ setQuranEdition }) {
       <Stack direction={['column', 'column', 'row']} spacing={[2, 2, 4]}>
         <MySelect
           data={edition}
-          placeholder="Default: English"
+          placeholder="Select Quran Language To Search"
           setEdition={setQuranEdition}
         />
       </Stack>
