@@ -11,7 +11,7 @@ function Logo(props) {
             color: 'yellow.300',
           }}
           bgClip="text"
-          fontSize="4xl"
+          fontSize={['2xl', '2xl', '3xl']}
           fontWeight="extrabold"
         >
           ILMIYAH

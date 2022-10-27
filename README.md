@@ -9,7 +9,7 @@
   ILMIYAH >> A Daily Dose of Islamic Knowledge
     <br />
     <br />
-    <a href="https://pack-point.netlify.app/">View Demo</a>
+    <a href="https://ilmiyah.netlify.app/">View Demo</a>
   </p>
 </div>
 
