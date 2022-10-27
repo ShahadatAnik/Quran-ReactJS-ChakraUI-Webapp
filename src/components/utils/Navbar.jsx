@@ -36,7 +36,7 @@ const NavBar = props => {
 };
 
 const CloseIcon = () => (
-  <svg width="24" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+  <svg width="24" viewBox="0 0 18 18" xmlns="https://www.w3.org/2000/svg">
     <title>Close</title>
     <path
       fill="green.600"
@@ -49,7 +49,7 @@ const MenuIcon = () => (
   <svg
     width="24px"
     viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
+    xmlns="https://www.w3.org/2000/svg"
     fill="green.600"
   >
     <title>Menu</title>

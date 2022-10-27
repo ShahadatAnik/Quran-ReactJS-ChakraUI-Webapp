@@ -38,7 +38,7 @@ export default function SurahEditionSelect({
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://api.alquran.cloud/v1/edition');
+      const response = await fetch('https://api.alquran.cloud/v1/edition');
       const data = await response.json();
       setEdition(data.data);
       setIsLoading(false);

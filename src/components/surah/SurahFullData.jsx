@@ -60,7 +60,7 @@ export default function SurahFullData({
     loading: translationLoading,
     error: translationError,
   } = useFetch(
-    `http://api.alquran.cloud/v1/surah/${surahNumber}/editions/${surahTranslationEdition}`
+    `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/${surahTranslationEdition}`
   );
 
   const {
@@ -68,7 +68,7 @@ export default function SurahFullData({
     loading: arabicLoading,
     error: arabicError,
   } = useFetch(
-    `http://api.alquran.cloud/v1/surah/${surahNumber}/editions/${surahArabicEdition}`
+    `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/${surahArabicEdition}`
   );
 
   return (
