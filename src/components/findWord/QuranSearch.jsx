@@ -40,7 +40,7 @@ export default function QuranSearch({ quranEdition }) {
 
     try {
       fetch(
-        `https://api.alquran.cloud/v1/search/${searchWord}/all/${quranEdition}`,
+        `http://api.alquran.cloud/v1/search/${searchWord}/all/${quranEdition}`,
         { signal: abortCont.signal }
       )
         .then(res => {

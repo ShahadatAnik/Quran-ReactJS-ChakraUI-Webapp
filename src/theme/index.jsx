@@ -32,6 +32,10 @@ const theme = extendTheme({
   config,
   components,
   styles,
+  fonts: {
+    heading: ['Roboto', 'Hind Siliguri'], // <-- this is the font family
+    
+  },
 });
 
 export default theme;
