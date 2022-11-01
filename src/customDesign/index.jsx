@@ -1,5 +1,16 @@
-import React from 'react';
-import { Heading, Text, Box, useColorMode } from '@chakra-ui/react';
+import { useState, useRef } from 'react';
+import {
+  Heading,
+  Text,
+  Box,
+  useColorMode,
+  Flex,
+  Button,
+  Tooltip,
+  Spacer,
+  useToast,
+} from '@chakra-ui/react';
+import { BiShareAlt } from 'react-icons/bi';
 import './style.css';
 
 // Boshonto -> Heading
@@ -25,19 +36,67 @@ export function BanglaTitle({ children, ...rest }) {
   );
 }
 
-export function BanglaTime({ Date, Writer, children, ...rest }) {
+export function BanglaTime({
+  Date,
+  Writer,
+  windowLocation,
+  children,
+  ...rest
+}) {
+  const [copySuccess, setCopySuccess] = useState('শেয়ার করতে চান?');
+  const toast = useToast();
+
+  async function copyToClip() {
+    navigator.clipboard.writeText(windowLocation);
+    setCopySuccess('কপি করা হয়েছে!');
+    if (window.innerWidth < 500) {
+      alert('কপি করা হয়েছে!');
+    } else {
+      toast({
+        title: 'কপি করা হয়েছে!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }
   return (
-    <Text
-      mt={2}
-      align={'left'}
-      color={'gray.500'}
-      fontSize={['md', 'md', 'lg']}
-      fontFamily={['Boshonto']}
+    <Flex
+      alignItems="center"
+      gap={2}
+      justifyContent="center"
+      alignContent="center"
+      fontFamily={['SolaimanLipi']}
       {...rest}
     >
-      {Date} <span>&emsp;</span>/ <span>&emsp;</span>
-      {Writer}
-    </Text>
+      <Text
+        mt={2}
+        align={'left'}
+        color={'gray.500'}
+        fontSize={['md', 'md', 'lg']}
+        fontFamily={['Boshonto']}
+        {...rest}
+      >
+        {Date}
+      </Text>
+      {'>>'}
+      <Text
+        mt={2}
+        align={'left'}
+        color={'gray.500'}
+        fontSize={['md', 'md', 'lg']}
+        fontFamily={['Boshonto']}
+        {...rest}
+      >
+        {Writer}
+      </Text>
+      <Spacer />
+      <Tooltip label={copySuccess}>
+        <Button variant="ghost" color="current" onClick={() => copyToClip()}>
+          <BiShareAlt size="1.5em" color={'green.500'} />
+        </Button>
+      </Tooltip>
+    </Flex>
   );
 }
 
@@ -69,7 +128,6 @@ export function BanglaText({ Heading, children, ...rest }) {
           textAlign: 'justify',
           textJustify: 'inter-word',
           hyphens: 'auto',
-          
         }}
         {...rest}
       >
@@ -117,6 +175,11 @@ export function ArabicAyatAndTranslation({
           fontSize={['xl', 'xl', '2xl']}
           as="i"
           fontFamily={['BenSenHandwriting']}
+          sx={{
+            textAlign: 'justify',
+            textJustify: 'inter-word',
+            hyphens: 'auto',
+          }}
           {...rest}
         >
           {Translation}

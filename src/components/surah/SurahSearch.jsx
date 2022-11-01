@@ -27,9 +27,9 @@ export default function SurahSearch() {
       />
       <Grid
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(4, 1fr)']}
-        gap={6}
+        gap={[2, 2, 4]}
       >
-        {surah.map(surah => (
+        {surah.map((surah, index) => (
           <Link to={`/surahs/${surah.number}`}>
             <GridItem
               key={surah.number}
@@ -37,9 +37,9 @@ export default function SurahSearch() {
               p={4}
               m={2}
               borderRadius="md"
-              bg="green.500"
+              bg={index % 2 === 0 ? 'green.500' : 'gray.800'}
               color="yellow.300"
-              _hover={{ bg: 'green.600' }}
+              _hover={{ bg: index % 2 === 0 ? 'gray.800' : 'green.500' }}
               textAlign="center"
             >
               <Text fontSize="4xl" fontWeight="bold" color="yellow.300">

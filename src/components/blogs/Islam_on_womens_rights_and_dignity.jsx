@@ -5,12 +5,75 @@ import {
   ArabicAyatAndTranslation,
   BanglaTime,
 } from '../../customDesign';
-import { Box, Text, Container } from '@chakra-ui/react';
-export default function Islam_on_womens_rights_and_dignity() {
+import {
+  Box,
+  Text,
+  Container,
+  Button,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogCloseButton,
+  AlertDialogBody,
+  AlertDialogFooter,
+  useDisclosure,
+} from '@chakra-ui/react';
+
+function TransitionExample({ isOpen, onOpen, onClose, cancelRef, ...rest }) {
   return (
-    <Container maxW="container.md" as="section" justifyContent={'center'}>
+    <>
+      <Button onClick={onOpen}>Discard</Button>
+      <AlertDialog
+        motionPreset="slideInBottom"
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+
+        <AlertDialogContent>
+          <AlertDialogHeader>Discard Changes?</AlertDialogHeader>
+          <AlertDialogCloseButton />
+          <AlertDialogBody>
+            Are you sure you want to discard all of your notes? 44 words will be
+            deleted.
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button ref={cancelRef} onClick={onClose}>
+              OK
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+export default function Islam_on_womens_rights_and_dignity() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef();
+
+  return (
+    <Container
+      maxW="container.md"
+      as="section"
+      justifyContent={'center'}
+      onCopy={e => {
+        e.preventDefault();
+        onOpen();
+      }}
+      onCut={e => {
+        e.preventDefault();
+        onOpen();
+      }}
+    >
       <BanglaTitle>নারীর অধিকার ও মর্যাদায় ইসলাম</BanglaTitle>
-      <BanglaTime Date="01 November, 2022" Writer="মোঃ তানভীর হসসাইন" />
+      <BanglaTime
+        Date="01 November, 2022"
+        Writer="মোঃ তানভীর হসসাইন"
+        windowLocation={window.location.href}
+      />
 
       <BanglaText Heading={`ভূমিকা:`}>
         মহান আল্লাহর নিকট ইসলামই একমাত্র মনােনীত দ্বীন (আলে ইমরান ১৯)। আর এই
@@ -54,6 +117,22 @@ export default function Islam_on_womens_rights_and_dignity() {
         ইত্যাদি। কারাে অধিকার প্রদানের অর্থ হচ্ছে তার প্রাপ্য বা পাওনা যথাযথভাবে
         প্রদান
       </BanglaText>
+      <AlertDialog
+        motionPreset="slideInBottom"
+        leastDestructiveRef={cancelRef}
+        onClose={onClose}
+        isOpen={isOpen}
+        isCentered
+      >
+        <AlertDialogOverlay />
+        <AlertDialogContent>
+          <AlertDialogBody>
+            অনুমতি ব্যতিত ব্লগের কোনো পোস্ট কপি করে অন্যত্র প্রকাশ করা যাবে না।
+            করা হলে তা লেখকের হক নষ্ট করা হচ্ছে বলে গণ্য হবে।
+          </AlertDialogBody>
+          <AlertDialogCloseButton bg={'red.500'} />
+        </AlertDialogContent>
+      </AlertDialog>
     </Container>
   );
 }
