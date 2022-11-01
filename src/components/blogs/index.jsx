@@ -2,7 +2,6 @@ import {
   useColorMode,
   Box,
   Container,
-  Heading,
   Stack,
   Text,
   Link,
