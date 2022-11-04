@@ -121,15 +121,19 @@ export default function QuranSearch({ quranEdition }) {
 
   return (
     <Box mt={4}>
-      <Input
-        type="text"
-        autoFocus
-        placeholder={`Search in ${placeholder}`}
-        focusBorderColor={
-          useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
-        }
-        onChange={e => setSearchWord(e.target.value.trim())}
-      />
+      <Center mb={4}>
+        <Input
+          type="text"
+          autoFocus
+          placeholder={`Search in ${placeholder}`}
+          size={'lg'}
+          maxW={'lg'}
+          focusBorderColor={
+            useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
+          }
+          onChange={e => setSearchWord(e.target.value.trim())}
+        />
+      </Center>
       <Center>
         {isLoading && <div>Loading...</div>}
         {quranData.length > 0 ? (

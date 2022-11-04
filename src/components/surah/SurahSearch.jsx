@@ -1,7 +1,15 @@
 import { surahs } from './surahs';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Input, Text, Box, Grid, GridItem } from '@chakra-ui/react';
+import {
+  Input,
+  Text,
+  Box,
+  Grid,
+  GridItem,
+  Center,
+  useColorMode,
+} from '@chakra-ui/react';
 
 export default function SurahSearch() {
   const [surah, setSurah] = useState(surahs);
@@ -17,14 +25,21 @@ export default function SurahSearch() {
   };
 
   return (
-    <Box p={2}>
-      <Input
-        type="text"
-        placeholder="Surah Name"
-        autoFocus
-        focusBorderColor="green.500"
-        onChange={e => handleSearch(e.target.value)}
-      />
+    <Box p={2} mx={2}>
+      <Center mb={4}>
+        <Input
+          type="text"
+          placeholder="Surah Name"
+          autoFocus
+          focusBorderColor={
+            useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
+          }
+          size={'lg'}
+          maxW={'lg'}
+          alignSelf={'center'}
+          onChange={e => handleSearch(e.target.value)}
+        />
+      </Center>
       <Grid
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(4, 1fr)']}
         gap={[2, 2, 4]}
@@ -37,9 +52,9 @@ export default function SurahSearch() {
               p={4}
               m={2}
               borderRadius="md"
-              bg={index % 2 === 0 ? 'green.500' : 'gray.800'}
+              bg={index % 2 === 0 ? 'green.500' : 'green.700'}
               color="yellow.300"
-              _hover={{ bg: index % 2 === 0 ? 'gray.800' : 'green.500' }}
+              _hover={{ bg: 'green.600' }}
               textAlign="center"
             >
               <Text fontSize="4xl" fontWeight="bold" color="yellow.300">
