@@ -44,10 +44,7 @@ export default function QuranSearch({ quranEdition }) {
         { signal: abortCont.signal }
       )
         .then(res => {
-          if (res.statusText !== 'OK') {
-            setIsLoading(false);
-            throw Error('Could not fetch the data for that resource');
-          }
+          setIsLoading(false);
           return res.json();
         })
         .then(data => {

@@ -38,7 +38,7 @@ function Logo(props) {
             animation: `${wave} 10s ease-in-out infinite`,
           }}
           bgClip="text"
-          fontSize="4xl"
+          fontSize={['2xl', '2xl', '3xl']}
           fontWeight="extrabold"
         >
           ILMIYAH

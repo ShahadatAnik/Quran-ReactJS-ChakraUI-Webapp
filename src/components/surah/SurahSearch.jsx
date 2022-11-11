@@ -43,6 +43,7 @@ export default function SurahSearch() {
       <Grid
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(4, 1fr)']}
         gap={[2, 2, 4]}
+
       >
         {surah.map((surah, index) => (
           <Link to={`/surahs/${surah.number}`}>
@@ -62,6 +63,7 @@ export default function SurahSearch() {
               </Text>
               <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
                 {surah.number}. {surah.englishName}
+
               </Text>
               <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
                 {surah.revelationType} - {surah.numberOfAyahs}
