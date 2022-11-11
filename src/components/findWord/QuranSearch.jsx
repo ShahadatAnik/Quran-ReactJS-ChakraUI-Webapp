@@ -40,7 +40,7 @@ export default function QuranSearch({ quranEdition }) {
 
     try {
       fetch(
-        `https://api.alquran.cloud/v1/search/${searchWord}/all/${quranEdition}`,
+        `http://api.alquran.cloud/v1/search/${searchWord}/all/${quranEdition}`,
         { signal: abortCont.signal }
       )
         .then(res => {
@@ -62,6 +62,7 @@ export default function QuranSearch({ quranEdition }) {
     return () => abortCont.abort();
   }, [searchWord, quranEdition]);
 
+  // dynamic row size based on the number of ayahs
   const listRef = useRef();
 
   const sizeMap = useRef({});
@@ -69,6 +70,7 @@ export default function QuranSearch({ quranEdition }) {
     sizeMap.current = { ...sizeMap.current, [index]: size };
     listRef.current.resetAfterIndex(index);
   }, []);
+
   const getSize = index => sizeMap.current[index] || 50;
   const [windowWidth] = useWindowResize();
 
@@ -118,21 +120,25 @@ export default function QuranSearch({ quranEdition }) {
 
   return (
     <Box mt={4}>
-      <Input
-        type="text"
-        autoFocus
-        placeholder={`Search in ${placeholder}`}
-        focusBorderColor={
-          useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
-        }
-        onChange={e => setSearchWord(e.target.value.trim())}
-      />
+      <Center mb={4}>
+        <Input
+          type="text"
+          autoFocus
+          placeholder={`Search in ${placeholder}`}
+          size={'lg'}
+          maxW={'lg'}
+          focusBorderColor={
+            useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
+          }
+          onChange={e => setSearchWord(e.target.value.trim())}
+        />
+      </Center>
       <Center>
         {isLoading && <div>Loading...</div>}
         {quranData.length > 0 ? (
           <List
             ref={listRef}
-            height={window.innerHeight - 200}
+            height={window.innerHeight - 220}
             width="100%"
             itemCount={quranData.length}
             itemSize={getSize}

@@ -1,7 +1,15 @@
 import { surahs } from './surahs';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Input, Text, Box, Grid, GridItem } from '@chakra-ui/react';
+import {
+  Input,
+  Text,
+  Box,
+  Grid,
+  GridItem,
+  Center,
+  useColorMode,
+} from '@chakra-ui/react';
 
 export default function SurahSearch() {
   const [surah, setSurah] = useState(surahs);
@@ -17,17 +25,25 @@ export default function SurahSearch() {
   };
 
   return (
-    <Box p={2}>
-      <Input
-        type="text"
-        placeholder="Surah Name"
-        autoFocus
-        focusBorderColor="green.500"
-        onChange={e => handleSearch(e.target.value)}
-      />
+    <Box p={2} mx={2}>
+      <Center mb={4}>
+        <Input
+          type="text"
+          placeholder="Surah Name"
+          autoFocus
+          focusBorderColor={
+            useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
+          }
+          size={'lg'}
+          maxW={'lg'}
+          alignSelf={'center'}
+          onChange={e => handleSearch(e.target.value)}
+        />
+      </Center>
       <Grid
         templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(4, 1fr)']}
-        gap={[2, 2, 3]}
+        gap={[2, 2, 4]}
+
       >
         {surah.map((surah, index) => (
           <Link to={`/surahs/${surah.number}`}>
@@ -46,7 +62,8 @@ export default function SurahSearch() {
                 {surah.name}
               </Text>
               <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
-                {index + 1}. {surah.englishName}
+                {surah.number}. {surah.englishName}
+
               </Text>
               <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
                 {surah.revelationType} - {surah.numberOfAyahs}

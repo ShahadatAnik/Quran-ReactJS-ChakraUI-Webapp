@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFatch';
+import '../../customDesign/style.css';
 
 function Header({
   name,
@@ -18,31 +19,25 @@ function Header({
   ...rest
 }) {
   return (
-    <>
-      <Stack
-        spacing={1}
-        align="center"
-        p={2}
-        {...rest}
-        bg="green.500"
-        color="yellow.300"
-        rounded={10}
-      >
-        <Text
-          fontSize={['6xl', '4xl', '6xl']}
-          fontWeight="bold"
-          color="yellow.300"
-        >
-          {name}
-        </Text>
-        <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
-          {englishName} - {englishNameTranslation}
-        </Text>
-        <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
-          {revelationType} - {numberOfAyahs}
-        </Text>
-      </Stack>
-    </>
+    <Stack
+      spacing={1}
+      align="center"
+      p={2}
+      mx={2}
+      {...rest}
+      bg="green.500"
+      color="yellow.300"
+      rounded={10}
+      fontWeight="bold"
+    >
+      <Text fontSize={'6xl'}>{name}</Text>
+      <Text fontSize={['md', 'lg', 'xl']}>
+        {englishName} - {englishNameTranslation}
+      </Text>
+      <Text fontSize={['md', 'lg', 'xl']}>
+        {revelationType} - {numberOfAyahs}
+      </Text>
+    </Stack>
   );
 }
 
@@ -117,27 +112,27 @@ export default function SurahFullData({
               <Text fontSize={['xl', '2xl', '4xl']} fontWeight="bold">
                 {ayah.numberInSurah}
               </Text>
-              <Center w={['100%', '100%', '100%']}>
+              <Center w={'100%'}>
                 <Stack
                   direction={['column', 'column', 'column']}
                   align="center"
                   spacing={1}
                 >
                   <Text
-                    fontSize={['2xl', '2xl', '4xl']}
+                    fontSize={['3xl', '3xl', '4xl']}
                     fontWeight="bold"
-                    textAlign="justify"
                     color={colorMode === 'light' ? 'green.600' : 'yellow.300'}
                     sx={{
-                      direction: 'rtl',
+                      textDecoration: 'rtl',
                     }}
                   >
                     {ayah.text}
                   </Text>
                   <Text
                     fontSize={['md', 'lg', 'xl']}
-                    textAlign="justify"
                     color={colorMode === 'light' ? 'yellow.600' : 'green.200'}
+                    fontFamily={['Hind Siliguri']}
+                    mt={4}
                   >
                     {translation.data ? (
                       <>{translation.data[0].ayahs[index].text}</>

@@ -1,5 +1,26 @@
 import React from 'react';
-import { Link, Box, Flex, Text, Button, Stack } from '@chakra-ui/react';
+import {
+  Link,
+  Box,
+  Flex,
+  Text,
+  keyframes,
+  Stack,
+  ScaleFade,
+} from '@chakra-ui/react';
+
+const wave = keyframes`
+  0% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+
+  100% {
+    transform: rotate(5deg);
+  }
+`;
 
 function Logo(props) {
   return (
@@ -9,6 +30,12 @@ function Logo(props) {
           bgGradient="linear(to-r, yellow.300, green.500)"
           _hover={{
             color: 'yellow.300',
+            // wave animation
+          }}
+          sx={{
+            display: 'inline-block',
+            // wave animation
+            animation: `${wave} 10s ease-in-out infinite`,
           }}
           bgClip="text"
           fontSize={['2xl', '2xl', '3xl']}
@@ -27,7 +54,7 @@ const NavBar = props => {
   const toggle = () => setIsOpen(!isOpen);
 
   return (
-    <NavBarContainer {...props}>
+    <NavBarContainer isOpen={isOpen} {...props}>
       <Logo />
       <MenuToggle toggle={toggle} isOpen={isOpen} />
       <MenuLinks isOpen={isOpen} />
@@ -36,26 +63,39 @@ const NavBar = props => {
 };
 
 const CloseIcon = () => (
-  <svg width="24" viewBox="0 0 18 18" xmlns="https://www.w3.org/2000/svg">
+  <svg
+    width="24px"
+    fill="yellow.300"
+    viewBox="0 0 18 18"
+    xmlns="https://www.w3.org/2000/svg"
+  >
     <title>Close</title>
     <path
-      fill="green.600"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      fill="yellow.300"
       d="M9.00023 7.58599L13.9502 2.63599L15.3642 4.04999L10.4142 8.99999L15.3642 13.95L13.9502 15.364L9.00023 10.414L4.05023 15.364L2.63623 13.95L7.58623 8.99999L2.63623 4.04999L4.05023 2.63599L9.00023 7.58599Z"
     />
   </svg>
 );
 
 const MenuIcon = () => (
-  <svg
-    width="24px"
-    viewBox="0 0 20 20"
-    xmlns="https://www.w3.org/2000/svg"
-    fill="green.600"
-  >
+  <svg width="24px" viewBox="0 0 20 20" xmlns="https://www.w3.org/2000/svg">
     <title>Menu</title>
-    <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
+    <path fill="yellow.300" d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
   </svg>
 );
+
+const revealUp = keyframes`
+from {
+  transform: translate3d( -50px , -30px, 0);
+  opacity: 0;
+}
+to {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+`;
 
 const MenuToggle = ({ toggle, isOpen }) => {
   return (
@@ -91,8 +131,10 @@ const MenuItem = ({ children, isLast, to = '/', ...rest }) => {
 const MenuLinks = ({ isOpen }) => {
   return (
     <Box
+      rounded={'md'}
       display={{ base: isOpen ? 'block' : 'none', md: 'block' }}
       flexBasis={{ base: '100%', md: 'auto' }}
+      // animation={isOpen ? `${revealUp} 1s ease-in-out` : ''}
     >
       <Stack
         spacing={8}
@@ -123,7 +165,25 @@ const MenuLinks = ({ isOpen }) => {
   );
 };
 
-const NavBarContainer = ({ children, ...props }) => {
+const fromTop = keyframes`
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+`;
+
+const toTop = keyframes`
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+`;
+
+const NavBarContainer = ({ isOpen, children, ...props }) => {
   return (
     <Flex
       as="nav"
@@ -132,8 +192,12 @@ const NavBarContainer = ({ children, ...props }) => {
       wrap="wrap"
       w="100%"
       mb={2}
-      p={2}
+      px={2}
+      py={1}
       bg={'green.500'}
+      roundedBottom={'md'}
+      // animation open from top
+      animation={isOpen ? `${fromTop} ease 1s forwards` : ``}
       {...props}
     >
       {children}
