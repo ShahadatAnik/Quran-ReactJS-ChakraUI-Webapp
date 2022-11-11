@@ -4,7 +4,7 @@ import { usePlaceholder } from '../hooks/usePlaceholder';
 import { useWindowResize } from '../hooks/useWindowResize';
 import { useColorMode } from '@chakra-ui/react';
 
-import { Stack, Input, Text, Box, Center, Highlight } from '@chakra-ui/react';
+import { Stack, Input, Text, Box, Center, Highlight, Spinner } from '@chakra-ui/react';
 
 function Header({ name, englishName, numberOfAyahs, ...rest }) {
   return (
@@ -134,7 +134,15 @@ export default function QuranSearch({ quranEdition }) {
         />
       </Center>
       <Center>
-        {isLoading && <div>Loading...</div>}
+        {isLoading && (
+          <Spinner
+            thickness="4px"
+            speed=".65s"
+            emptyColor="transparent"
+            color="green.500"
+            size="md"
+          />
+        )}
         {quranData.length > 0 ? (
           <List
             ref={listRef}
