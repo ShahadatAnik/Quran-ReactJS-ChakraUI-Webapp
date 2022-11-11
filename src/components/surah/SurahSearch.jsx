@@ -61,7 +61,7 @@ export default function SurahSearch() {
                 {surah.name}
               </Text>
               <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
-                {surah.englishName}
+                {surah.number}. {surah.englishName}
               </Text>
               <Text fontSize={['md', 'lg', 'xl']} fontWeight="bold">
                 {surah.revelationType} - {surah.numberOfAyahs}

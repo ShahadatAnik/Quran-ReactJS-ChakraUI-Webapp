@@ -65,6 +65,7 @@ export default function QuranSearch({ quranEdition }) {
     return () => abortCont.abort();
   }, [searchWord, quranEdition]);
 
+  // dynamic row size based on the number of ayahs
   const listRef = useRef();
 
   const sizeMap = useRef({});
@@ -72,6 +73,7 @@ export default function QuranSearch({ quranEdition }) {
     sizeMap.current = { ...sizeMap.current, [index]: size };
     listRef.current.resetAfterIndex(index);
   }, []);
+
   const getSize = index => sizeMap.current[index] || 50;
   const [windowWidth] = useWindowResize();
 
@@ -139,7 +141,7 @@ export default function QuranSearch({ quranEdition }) {
         {quranData.length > 0 ? (
           <List
             ref={listRef}
-            height={window.innerHeight - 200}
+            height={window.innerHeight - 220}
             width="100%"
             itemCount={quranData.length}
             itemSize={getSize}

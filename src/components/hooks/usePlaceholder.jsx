@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 export function usePlaceholder(code) {
   const languageCode = {
+    ar: ['Arabic'],
     ab: ['Abkhaz'],
     aa: ['Afar'],
     af: ['Afrikaans'],
@@ -189,7 +190,7 @@ export function usePlaceholder(code) {
     za: ['Zhuang, Chuang'],
     zu: ['Zulu'],
   };
-  
+
   return {
     placeholder: languageCode[code],
   };

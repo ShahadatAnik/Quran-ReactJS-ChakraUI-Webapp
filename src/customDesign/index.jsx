@@ -138,10 +138,26 @@ export function BanglaText({ Heading, children, ...rest }) {
   );
 }
 
+export function BulletPoint({ children, ...rest }) {
+  return (
+    <Box
+      as="span"
+      display="inline-block"
+      color={useColorMode().colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+      fontFamily="Hind Siliguri"
+      fontWeight="bold"
+      {...rest}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export function ArabicAyatAndTranslation({
   Arabic,
   Translation,
-  Reference,
+  Surah,
+  Ayat,
   children,
   ...rest
 }) {
@@ -196,7 +212,8 @@ export function ArabicAyatAndTranslation({
         fontFamily={['BenSenHandwriting']}
         {...rest}
       >
-        {'>> ' + Reference}
+        {/* {'(সুরাঃ ' + Surah + ', আয়াতঃ ' + Ayat + ')'} */}
+        {'(' + Surah + ' : ' + Ayat + ')'}
       </Text>
       {children}
     </Box>
