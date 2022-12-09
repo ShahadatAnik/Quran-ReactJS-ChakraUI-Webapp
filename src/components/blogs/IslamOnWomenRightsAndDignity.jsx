@@ -7,21 +7,17 @@ import {
   BulletPoint,
 } from '../../customDesign';
 import {
-  Box,
-  Text,
   Container,
-  Button,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogCloseButton,
   AlertDialogBody,
-  AlertDialogFooter,
   useDisclosure,
 } from '@chakra-ui/react';
 
-export default function Islam_on_womens_rights_and_dignity() {
+export default function IslamOnWomenRightsAndDignity() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
 

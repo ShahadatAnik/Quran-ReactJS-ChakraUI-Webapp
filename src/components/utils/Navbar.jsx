@@ -120,6 +120,7 @@ const MenuItem = ({ children, isLast, to = '/', ...rest }) => {
         px={3}
         py={1}
         rounded="md"
+        border={'.5px solid #F6E05E'}
         {...rest}
       >
         {children}
@@ -145,8 +146,9 @@ const MenuLinks = ({ isOpen }) => {
         pt={[4, 4, 0, 0]}
       >
         <MenuItem to="/">Home</MenuItem>
-        <MenuItem to="/surahs">Surahs</MenuItem>
-        <MenuItem to="/find-word-from-quran">Quran Word Search</MenuItem>
+        <MenuItem to="/Surah">Surah</MenuItem>
+        <MenuItem to="/Find-Word-In-Quran">Search in Quran</MenuItem>
+        <MenuItem to="/About-Writers">About Writers</MenuItem>
         {/* <MenuItem to="/signup" isLast>
           <Button
             size="sm"

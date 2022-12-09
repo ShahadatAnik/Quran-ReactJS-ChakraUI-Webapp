@@ -22,12 +22,13 @@ import './style.css';
 // BenSenHandwriting -> Quran Bangla ayat
 
 export function BanglaTitle({ children, ...rest }) {
+  const { colorMode } = useColorMode();
   return (
     <Heading
       as={'h1'}
       align={'center'}
       fontSize={['4xl', '4xl', '6xl']}
-      color={useColorMode().colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+      color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
       fontFamily={['Boshonto']}
       {...rest}
     >
@@ -101,10 +102,11 @@ export function BanglaTime({
 }
 
 export function BanglaHeading({ children, ...rest }) {
+  const { colorMode } = useColorMode();
   return (
     <Text
       mt={4}
-      color={useColorMode().colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+      color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
       fontSize={['3xl', '3xl', '4xl']}
       fontFamily={['Boshonto']}
       {...rest}
@@ -114,10 +116,10 @@ export function BanglaHeading({ children, ...rest }) {
   );
 }
 
-export function BanglaText({ Heading, children, ...rest }) {
+export function BanglaText({ Heading, TabNeeded, children, ...rest }) {
   return (
-    <>
-      {Heading && <BanglaHeading>{Heading}</BanglaHeading>}
+    <Box mb={8}>
+      {Heading ? <BanglaHeading>{Heading}</BanglaHeading> : null}
       <Text
         fontSize={['2xl', '2xl', '3xl']}
         letterSpacing="wide"
@@ -131,19 +133,20 @@ export function BanglaText({ Heading, children, ...rest }) {
         }}
         {...rest}
       >
-        {Heading?.length > 0 ? null : <span>&emsp;</span>}
+        {TabNeeded ? <span>&emsp;</span> : null}
         {children}
       </Text>
-    </>
+    </Box>
   );
 }
 
 export function BulletPoint({ children, ...rest }) {
+  const { colorMode } = useColorMode();
   return (
     <Box
       as="span"
       display="inline-block"
-      color={useColorMode().colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+      color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
       fontFamily="Hind Siliguri"
       fontWeight="bold"
       {...rest}
@@ -158,12 +161,15 @@ export function ArabicAyatAndTranslation({
   Translation,
   Surah,
   Ayat,
+  Hadith,
   children,
   ...rest
 }) {
+  const { colorMode } = useColorMode();
+
   return (
     <Box
-      bg={useColorMode().colorMode === 'light' ? 'gray.200' : 'gray.600'}
+      bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
       align={'center'}
       rounded={'md'}
       p={2}
@@ -173,19 +179,18 @@ export function ArabicAyatAndTranslation({
       fontFamily={['Galada']}
       {...rest}
     >
-      <Text
-        justifyContent={['center', 'center', 'left']}
-        fontSize={['3xl', '3xl', '4xl']}
-        fontWeight="bold"
-        fontFamily={['CharukolaUltraLight']}
-        color={
-          useColorMode().colorMode === 'light' ? 'yellow.600' : 'yellow.300'
-        }
-        {...rest}
-      >
-        {Arabic}
-      </Text>
-      {Translation && (
+      {Arabic ? (
+        <Text
+          justifyContent={['center', 'center', 'left']}
+          fontSize={['3xl', '3xl', '4xl']}
+          fontWeight="bold"
+          color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+          {...rest}
+        >
+          {Arabic}
+        </Text>
+      ) : null}
+      {Translation ? (
         <Text
           justifyContent={['center', 'center', 'left']}
           fontSize={['xl', 'xl', '2xl']}
@@ -200,20 +205,76 @@ export function ArabicAyatAndTranslation({
         >
           {Translation}
         </Text>
-      )}
+      ) : null}
       <Text
         justifyContent={['center', 'center', 'left']}
         fontSize={['xl', 'xl', '2xl']}
-        color={
-          useColorMode().colorMode === 'light' ? 'yellow.600' : 'yellow.300'
-        }
+        color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
         as="i"
         ml={2}
         fontFamily={['BenSenHandwriting']}
         {...rest}
       >
         {/* {'(সুরাঃ ' + Surah + ', আয়াতঃ ' + Ayat + ')'} */}
-        {'(' + Surah + ' : ' + Ayat + ')'}
+        {Surah && Ayat && '(' + Surah + ' : ' + Ayat + ')'}
+        {Hadith && '(' + Hadith + ')'}
+      </Text>
+      {children}
+    </Box>
+  );
+}
+
+export function Hadith({ Arabic, Bangla, References, children, ...rest }) {
+  const { colorMode } = useColorMode();
+  return (
+    <Box
+      bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+      align={'center'}
+      rounded={'md'}
+      p={2}
+      mt={2}
+      mb={2}
+      fontSize={['md', 'md', 'xl']}
+      fontFamily={['Galada']}
+      {...rest}
+    >
+      {Arabic ? (
+        <Text
+          justifyContent={['center', 'center', 'left']}
+          fontSize={['3xl', '3xl', '4xl']}
+          fontWeight="bold"
+          color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+          {...rest}
+        >
+          {Arabic}
+        </Text>
+      ) : null}
+      {Bangla ? (
+        <Text
+          justifyContent={['center', 'center', 'left']}
+          fontSize={['xl', 'xl', '2xl']}
+          as="i"
+          fontFamily={['BenSenHandwriting']}
+          sx={{
+            textAlign: 'justify',
+            textJustify: 'inter-word',
+            hyphens: 'auto',
+          }}
+          {...rest}
+        >
+          {Bangla}
+        </Text>
+      ) : null}
+      <Text
+        justifyContent={['center', 'center', 'left']}
+        fontSize={['xl', 'xl', '2xl']}
+        color={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
+        as="i"
+        ml={2}
+        fontFamily={['BenSenHandwriting']}
+        {...rest}
+      >
+        {References ? '(' + References + ')' : null}
       </Text>
       {children}
     </Box>
