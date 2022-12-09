@@ -10,7 +10,6 @@ import {
 import { BanglaHeading } from '../../customDesign';
 import { writersData } from './writersData';
 
-
 export default function Index() {
   const { colorMode } = useColorMode();
 
@@ -28,7 +27,15 @@ export default function Index() {
             bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
           >
             <BanglaHeading as={'h1'}>{writer.writer}</BanglaHeading>
-            <Text mt={2}>{writer.about}</Text>
+            {writer.about.split('####').map(item => (
+              <Text mt={2} fontSize="xl"
+              sx={{
+                textAlign: 'justify',
+              }}
+              >
+                {item}
+              </Text>
+            ))}
             <Text mt={2}>
               {writer?.links.map(l => (
                 <IconButton
@@ -37,7 +44,7 @@ export default function Index() {
                   icon={l.icon}
                   isExternal
                   size="lg"
-                  // variant="ghost"
+                  variant="ghost"
                   marginRight={2}
                 />
               ))}

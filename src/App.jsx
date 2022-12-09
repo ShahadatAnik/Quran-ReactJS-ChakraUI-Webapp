@@ -13,6 +13,8 @@ import Home from './components/blogs/index';
 import AboutWriters from './components/aboutWritters/index';
 import IslamOnWomenRightsAndDignity from './components/blogs/IslamOnWomenRightsAndDignity';
 import WomanHahahaShamePassing from './components/blogs/WomanHahahaShamePassing';
+import DuaForProphetPart1 from './components/blogs/DuaForProphetPart1';
+import DuaForProphetPart2 from './components/blogs/DuaForProphetPart2';
 
 function App() {
   return (
@@ -52,6 +54,16 @@ function App() {
             exact
             path="/Woman-Hahaha-Shame-Passing"
             element={<WomanHahahaShamePassing />}
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-1"
+            element={<DuaForProphetPart1 />}
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-2"
+            element={<DuaForProphetPart2 />}
           />
           <Route
             exact
