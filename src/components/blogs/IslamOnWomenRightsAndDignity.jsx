@@ -7,21 +7,17 @@ import {
   BulletPoint,
 } from '../../customDesign';
 import {
-  Box,
-  Text,
   Container,
-  Button,
   AlertDialog,
   AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogCloseButton,
   AlertDialogBody,
-  AlertDialogFooter,
   useDisclosure,
 } from '@chakra-ui/react';
 
-export default function Islam_on_womens_rights_and_dignity() {
+export default function IslamOnWomenRightsAndDignity() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
 
@@ -148,7 +144,7 @@ export default function Islam_on_womens_rights_and_dignity() {
         এ জাতীয় অমানবিক ও অমানুষিক যুলুম অত্যাচার নারী জাতির উপর করা হ’ত।
       </BanglaText>
 
-      <BanglaText Heading={`বিভিন্ন ধর্ম ও সভ্যতায় নারী :`}>
+      <BanglaText Heading={`বিভিন্ন ধর্ম ও সভ্যতায় নারী:`}>
         বিভিন্ন ধর্ম ও সভ্যতায় নারীদের অবস্থান নিম্নে তুলে ধরা হ’ল-
         <ul
           style={{
@@ -238,7 +234,7 @@ export default function Islam_on_womens_rights_and_dignity() {
         </ul>
       </BanglaText>
 
-      <BanglaText Heading={`বর্তমান বিশ্বে নারীর অধিকার ও মর্যাদা : `}>
+      <BanglaText Heading={`বর্তমান বিশ্বে নারীর অধিকার ও মর্যাদা:`}>
         বর্তমান বিশ্বেও নারীর যথাযথ অধিকার দেওয়া হচ্ছে না। তাদের ন্যায়সঙ্গত
         অধিকার হ’তে তাদেরকে বঞ্চিত করার মাধ্যমে তাদের উপর অত্যাচার করা হচ্ছে।
         পাশ্চাত্যবাদীরা নারী স্বাধীনতার নামে নারীদেরকে ঘরছাড়া করেছে। ইসলাম

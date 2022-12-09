@@ -112,18 +112,22 @@ export default function SurahFullData({
               <Text fontSize={['xl', '2xl', '4xl']} fontWeight="bold">
                 {ayah.numberInSurah}
               </Text>
-              <Center w={'100%'}>
+              <Center flex="1">
                 <Stack
                   direction={['column', 'column', 'column']}
                   align="center"
                   spacing={1}
+                  flex="1"
+                  sx={{
+                    textAlign: 'justify',
+                  }}
                 >
                   <Text
                     fontSize={['3xl', '3xl', '4xl']}
                     fontWeight="bold"
                     color={colorMode === 'light' ? 'green.600' : 'yellow.300'}
                     sx={{
-                      textDecoration: 'rtl',
+                      direction: 'rtl',
                     }}
                   >
                     {ayah.text}

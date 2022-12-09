@@ -1,21 +1,26 @@
 import React from 'react';
+import { BiUpArrowCircle } from 'react-icons/bi';
 import {
   useColorMode,
   useColorModeValue,
   IconButton,
   Tooltip,
 } from '@chakra-ui/react';
-import { FaMoon, FaSun } from 'react-icons/fa';
 
-export const ColorModeSwitcher = props => {
-  const { toggleColorMode } = useColorMode();
-  const text = useColorModeValue('dark', 'light');
-  const SwitchIcon = useColorModeValue(FaMoon, FaSun);
+export const BackToTop = props => {
+  // back to top
+  const backToTop = () => {
+    // smooth scroll to top
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
 
   return (
     <Tooltip
-      label={`Switch to ${text} mode`}
-      aria-label={`Switch to ${text} mode`}
+      label={`Back to top`}
+      aria-label={`Back to top`}
       fontSize="sm"
       bg={useColorModeValue('gray.100', 'gray.900')}
       color="current"
@@ -24,11 +29,10 @@ export const ColorModeSwitcher = props => {
       <IconButton
         size="md"
         fontSize="lg"
-        aria-label={`Switch to ${text} mode`}
         bg={useColorModeValue('gray.100', 'gray.900')}
         color="current"
-        onClick={toggleColorMode}
-        icon={<SwitchIcon />}
+        onClick={backToTop}
+        icon={<BiUpArrowCircle />}
         {...props}
       />
     </Tooltip>

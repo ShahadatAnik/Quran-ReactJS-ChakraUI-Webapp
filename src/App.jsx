@@ -1,6 +1,7 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme/index';
 import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
+import { BackToTop } from './theme/BackToTop';
 
 import SurahSearch from './components/surah/SurahSearch';
 import NotFoundPage from './components/utils/NotFoundPage';
@@ -9,7 +10,9 @@ import IndividualSurah from './components/surah/index';
 import FindWord from './components/findWord/index';
 import NavBar from './components/utils/Navbar';
 import Home from './components/blogs/index';
-import Islam_on_womens_rights_and_dignity from './components/blogs/Islam_on_womens_rights_and_dignity';
+import AboutWriters from './components/aboutWritters/index';
+import IslamOnWomenRightsAndDignity from './components/blogs/IslamOnWomenRightsAndDignity';
+import WomanHahahaShamePassing from './components/blogs/WomanHahahaShamePassing';
 
 function App() {
   return (
@@ -24,16 +27,31 @@ function App() {
           zIndex: '9999',
         }}
       />
+      <BackToTop
+        justifySelf="flex-end"
+        sx={{
+          position: 'fixed',
+          bottom: '5rem',
+          right: '1rem',
+          zIndex: '9999',
+        }}
+      />
       <BrowserRouter>
         <Routes>
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/" element={<Home />} />
-          <Route exact path="/surahs" element={<SurahSearch />} />
-          <Route exact path="/find-word-from-quran" element={<FindWord />} />
+          <Route path="/About-Writers" element={<AboutWriters />} />
+          <Route exact path="/Surah" element={<SurahSearch />} />
+          <Route exact path="/Find-Word-In-Quran" element={<FindWord />} />
           <Route
             exact
-            path="/Islam_on_womens_rights_and_dignity"
-            element={<Islam_on_womens_rights_and_dignity />}
+            path="/Islam-On-Women-Rights-And-Dignity"
+            element={<IslamOnWomenRightsAndDignity />}
+          />
+          <Route
+            exact
+            path="/Woman-Hahaha-Shame-Passing"
+            element={<WomanHahahaShamePassing />}
           />
           <Route
             exact
