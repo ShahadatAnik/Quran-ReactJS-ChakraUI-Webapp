@@ -169,7 +169,7 @@ export function ArabicAyatAndTranslation({
 
   return (
     <Box
-      bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+      bg={colorMode === 'light' ? 'gray.200' : 'gray.700'}
       align={'center'}
       rounded={'md'}
       p={2}
@@ -228,7 +228,7 @@ export function Hadith({ Arabic, Bangla, References, children, ...rest }) {
   const { colorMode } = useColorMode();
   return (
     <Box
-      bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+      bg={colorMode === 'light' ? 'gray.200' : 'gray.700'}
       align={'center'}
       rounded={'md'}
       p={2}

@@ -1,20 +1,50 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import { Center, ChakraProvider, Spinner } from '@chakra-ui/react';
 import theme from './theme/index';
+
 import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
 import { BackToTop } from './theme/BackToTop';
-
-import SurahSearch from './components/surah/SurahSearch';
-import NotFoundPage from './components/utils/NotFoundPage';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import IndividualSurah from './components/surah/index';
-import FindWord from './components/findWord/index';
 import NavBar from './components/utils/Navbar';
-import Home from './components/blogs/index';
-import AboutWriters from './components/aboutWritters/index';
-import IslamOnWomenRightsAndDignity from './components/blogs/IslamOnWomenRightsAndDignity';
-import WomanHahahaShamePassing from './components/blogs/WomanHahahaShamePassing';
-import DuaForProphetPart1 from './components/blogs/DuaForProphetPart1';
-import DuaForProphetPart2 from './components/blogs/DuaForProphetPart2';
+
+function LoadingIcon() {
+  return (
+    <Center>
+      <Spinner
+        thickness="6px"
+        speed=".65s"
+        emptyColor="transparent"
+        color="green.500"
+        size="xl"
+      />
+    </Center>
+  );
+}
+
+const NotFoundPage = lazy(() => import('./components/utils/NotFoundPage'));
+
+const Home = lazy(() => import('./components/blogs/index'));
+const SurahSearch = lazy(() => import('./components/surah/SurahSearch'));
+const IndividualSurah = lazy(() => import('./components/surah/index'));
+const FindWord = lazy(() => import('./components/findWord/index'));
+const AboutWriters = lazy(() => import('./components/aboutWritters/index'));
+
+const IslamOnWomenRightsAndDignity = lazy(() =>
+  import('./components/blogs/IslamOnWomenRightsAndDignity')
+);
+const WomanHahahaShamePassing = lazy(() =>
+  import('./components/blogs/WomanHahahaShamePassing')
+);
+const DuaForProphetPart1 = lazy(() =>
+  import('./components/blogs/DuaForProphetPart1')
+);
+const DuaForProphetPart2 = lazy(() =>
+  import('./components/blogs/DuaForProphetPart2')
+);
+const DuaForProphetPart3 = lazy(() =>
+  import('./components/blogs/DuaForProphetPart3')
+);
 
 function App() {
   return (
@@ -40,35 +70,95 @@ function App() {
       />
       <BrowserRouter>
         <Routes>
-          <Route path="*" element={<NotFoundPage />} />
           <Route path="/" element={<Home />} />
-          <Route path="/About-Writers" element={<AboutWriters />} />
-          <Route exact path="/Surah" element={<SurahSearch />} />
-          <Route exact path="/Find-Word-In-Quran" element={<FindWord />} />
           <Route
-            exact
-            path="/Islam-On-Women-Rights-And-Dignity"
-            element={<IslamOnWomenRightsAndDignity />}
+            path="/*"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <NotFoundPage />
+              </Suspense>
+            }
           />
           <Route
-            exact
-            path="/Woman-Hahaha-Shame-Passing"
-            element={<WomanHahahaShamePassing />}
+            path="/About-Writers"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <AboutWriters />
+              </Suspense>
+            }
           />
+
           <Route
             exact
-            path="/Dua-For-Prophet-Part-1"
-            element={<DuaForProphetPart1 />}
-          />
-          <Route
-            exact
-            path="/Dua-For-Prophet-Part-2"
-            element={<DuaForProphetPart2 />}
+            path="/Surah"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <SurahSearch />
+              </Suspense>
+            }
           />
           <Route
             exact
             path="/surahs/:surahNumber"
-            element={<IndividualSurah />}
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <IndividualSurah />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Find-Word-In-Quran"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <FindWord />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Islam-On-Women-Rights-And-Dignity"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <IslamOnWomenRightsAndDignity />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Woman-Hahaha-Shame-Passing"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <WomanHahahaShamePassing />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-1"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <DuaForProphetPart1 />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-2"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <DuaForProphetPart2 />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-3"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <DuaForProphetPart3 />
+              </Suspense>
+            }
           />
         </Routes>
       </BrowserRouter>
