@@ -22,9 +22,16 @@ export const blogData = [
   },
   {
     number: 4,
-    name: 'দরুদ সমাধানের বারুদ: দ্বিতীয়  পর্ব',
+    name: 'দরুদ সমাধানের বারুদ: দ্বিতীয় পর্ব',
     englishName: 'Dua-For-Prophet-Part-2',
     date: '07 December, 2022',
+    writer: 'Nusus',
+  },
+  {
+    number: 5,
+    name: 'দরুদ সমাধানের বারুদ: তৃতীয় পর্ব',
+    englishName: 'Dua-For-Prophet-Part-3',
+    date: '09 December, 2022',
     writer: 'Nusus',
   },
 ];

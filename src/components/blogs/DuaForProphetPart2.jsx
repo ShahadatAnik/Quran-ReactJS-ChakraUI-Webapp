@@ -2,7 +2,6 @@ import React from 'react';
 import {
   BanglaTitle,
   BanglaText,
-  ArabicAyatAndTranslation,
   BanglaTime,
   Hadith,
 } from '../../customDesign';
