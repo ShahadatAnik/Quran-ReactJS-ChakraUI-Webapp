@@ -45,6 +45,12 @@ const DuaForProphetPart2 = lazy(() =>
 const DuaForProphetPart3 = lazy(() =>
   import('./components/blogs/DuaForProphetPart3')
 );
+const DuaForProphetPart4 = lazy(() =>
+  import('./components/blogs/DuaForProphetPart4')
+);
+const DuaForProphetPart5 = lazy(() =>
+  import('./components/blogs/DuaForProphetPart5')
+);
 
 function App() {
   return (
@@ -157,6 +163,24 @@ function App() {
             element={
               <Suspense fallback={<LoadingIcon />}>
                 <DuaForProphetPart3 />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-4"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <DuaForProphetPart4 />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Dua-For-Prophet-Part-5"
+            element={
+              <Suspense fallback={<LoadingIcon />}>
+                <DuaForProphetPart5 />
               </Suspense>
             }
           />

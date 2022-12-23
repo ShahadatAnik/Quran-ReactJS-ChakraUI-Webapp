@@ -224,7 +224,7 @@ export function ArabicAyatAndTranslation({
   );
 }
 
-export function Hadith({ Arabic, Bangla, References, children, ...rest }) {
+export function Hadith({ Arabic, Bangla, References = '', children, ...rest }) {
   const { colorMode } = useColorMode();
   return (
     <Box
