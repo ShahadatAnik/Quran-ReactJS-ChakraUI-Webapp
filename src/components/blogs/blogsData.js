@@ -34,4 +34,18 @@ export const blogData = [
     date: '09 December, 2022',
     writer: 'Nusus',
   },
+  {
+    number: 6,
+    name: 'দরুদ সমাধানের বারুদ: চতুর্থ পর্ব',
+    englishName: 'Dua-For-Prophet-Part-4',
+    date: '11 December, 2022',
+    writer: 'Nusus',
+  },
+  {
+    number: 7,
+    name: 'দরুদ সমাধানের বারুদ: পঞ্চম পর্ব',
+    englishName: 'Dua-For-Prophet-Part-5',
+    date: '14 December, 2022',
+    writer: 'Nusus',
+  },
 ];
