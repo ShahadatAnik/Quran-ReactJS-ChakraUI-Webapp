@@ -1,26 +1,13 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import { Center, ChakraProvider, Spinner } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme/index';
 
 import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
 import { BackToTop } from './theme/BackToTop';
+import { Loader } from './theme/Loader';
 import NavBar from './components/utils/Navbar';
-
-function LoadingIcon() {
-  return (
-    <Center>
-      <Spinner
-        thickness="6px"
-        speed=".65s"
-        emptyColor="transparent"
-        color="green.500"
-        size="xl"
-      />
-    </Center>
-  );
-}
 
 const NotFoundPage = lazy(() => import('./components/utils/NotFoundPage'));
 
@@ -53,6 +40,22 @@ const DuaForProphetPart5 = lazy(() =>
 );
 
 function App() {
+  // after some scrolling, show the button
+  const [showScroll, setShowScroll] = useState(false);
+
+  const checkScrollTop = () => {
+    if (!showScroll && window.pageYOffset > 500) {
+      setShowScroll(true);
+    } else if (showScroll && window.pageYOffset <= 500) {
+      setShowScroll(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', checkScrollTop);
+    return () => window.removeEventListener('scroll', checkScrollTop);
+  }, [showScroll]);
+
   return (
     <ChakraProvider theme={theme}>
       <NavBar />
@@ -65,22 +68,24 @@ function App() {
           zIndex: '9999',
         }}
       />
-      <BackToTop
-        justifySelf="flex-end"
-        sx={{
-          position: 'fixed',
-          bottom: '5rem',
-          right: '1rem',
-          zIndex: '9999',
-        }}
-      />
+      {showScroll && (
+        <BackToTop
+          justifySelf="flex-end"
+          sx={{
+            position: 'fixed',
+            bottom: '5rem',
+            right: '1rem',
+            zIndex: '9999',
+          }}
+        />
+      )}
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route
             path="/*"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <NotFoundPage />
               </Suspense>
             }
@@ -88,7 +93,7 @@ function App() {
           <Route
             path="/About-Writers"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <AboutWriters />
               </Suspense>
             }
@@ -98,7 +103,7 @@ function App() {
             exact
             path="/Surah"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <SurahSearch />
               </Suspense>
             }
@@ -107,7 +112,7 @@ function App() {
             exact
             path="/surahs/:surahNumber"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <IndividualSurah />
               </Suspense>
             }
@@ -116,7 +121,7 @@ function App() {
             exact
             path="/Find-Word-In-Quran"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <FindWord />
               </Suspense>
             }
@@ -125,7 +130,7 @@ function App() {
             exact
             path="/Islam-On-Women-Rights-And-Dignity"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <IslamOnWomenRightsAndDignity />
               </Suspense>
             }
@@ -134,7 +139,7 @@ function App() {
             exact
             path="/Woman-Hahaha-Shame-Passing"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <WomanHahahaShamePassing />
               </Suspense>
             }
@@ -143,7 +148,7 @@ function App() {
             exact
             path="/Dua-For-Prophet-Part-1"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <DuaForProphetPart1 />
               </Suspense>
             }
@@ -152,7 +157,7 @@ function App() {
             exact
             path="/Dua-For-Prophet-Part-2"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <DuaForProphetPart2 />
               </Suspense>
             }
@@ -161,7 +166,7 @@ function App() {
             exact
             path="/Dua-For-Prophet-Part-3"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <DuaForProphetPart3 />
               </Suspense>
             }
@@ -170,7 +175,7 @@ function App() {
             exact
             path="/Dua-For-Prophet-Part-4"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <DuaForProphetPart4 />
               </Suspense>
             }
@@ -179,7 +184,7 @@ function App() {
             exact
             path="/Dua-For-Prophet-Part-5"
             element={
-              <Suspense fallback={<LoadingIcon />}>
+              <Suspense fallback={<Loader />}>
                 <DuaForProphetPart5 />
               </Suspense>
             }
