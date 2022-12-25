@@ -49,4 +49,16 @@ export const writersData = [
       },
     ],
   },
+  {
+    number: 3,
+    writer: 'ড. খোন্দকার আব্দুল্লাহ জাহাঙ্গীর রাহিমাহুল্লাহ',
+    about: `Khatib: Masjidul Jum'a complex , Pollobi, Mirpur, Dhaka`,
+    links: [
+      {
+        name: 'Facebook',
+        icon: <FaFacebook />,
+        link: 'https://www.facebook.com/abdulhimdsaifullah',
+      },
+    ],
+  },
 ];

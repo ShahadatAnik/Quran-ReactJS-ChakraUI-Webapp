@@ -38,6 +38,9 @@ const DuaForProphetPart4 = lazy(() =>
 const DuaForProphetPart5 = lazy(() =>
   import('./components/blogs/DuaForProphetPart5')
 );
+const MuslimsSayingMerryChristmas = lazy(() =>
+  import('./components/blogs/MuslimsSayingMerryChristmas')
+);
 
 function App() {
   // after some scrolling, show the button
@@ -186,6 +189,15 @@ function App() {
             element={
               <Suspense fallback={<Loader />}>
                 <DuaForProphetPart5 />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/For-Muslims-saying-MerryChristmas-means-accepting-the-divinity-of-Isa"
+            element={
+              <Suspense fallback={<Loader />}>
+                <MuslimsSayingMerryChristmas />
               </Suspense>
             }
           />

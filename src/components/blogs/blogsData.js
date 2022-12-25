@@ -48,4 +48,11 @@ export const blogData = [
     date: '14 December, 2022',
     writer: 'Nusus',
   },
+  {
+    number: 8,
+    name: 'মুসলমানদের জন্যে “মেরি ক্রিসমাস” বলার মানে হচ্ছে ঈসা (আঃ) এর দেবত্ব মেনে নেয়া',
+    englishName: 'For-Muslims-saying-MerryChristmas-means-accepting-the-divinity-of-Isa',
+    date: '25 December, 2022',
+    writer: 'ড. খোন্দকার আব্দুল্লাহ জাহাঙ্গীর রাহিমাহুল্লাহ',
+  },
 ];
