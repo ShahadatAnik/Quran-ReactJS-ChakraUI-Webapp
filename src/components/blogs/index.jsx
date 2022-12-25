@@ -1,15 +1,13 @@
 import {
   useColorMode,
   Box,
-  GridItem,
-  Grid,
   Stack,
   Text,
   Link,
 } from '@chakra-ui/react';
 import { BanglaHeading } from '../../customDesign';
 import { blogData } from './blogsData';
-import Footer from '../utils/footer';
+// import Footer from '../utils/footer';
 export default function Index() {
   const { colorMode } = useColorMode();
   return (
@@ -70,7 +68,7 @@ export default function Index() {
           </Link>
         ))}
       </Grid> */}
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   );
 }

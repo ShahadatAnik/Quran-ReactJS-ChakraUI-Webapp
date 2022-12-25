@@ -3,7 +3,6 @@ import {
   BanglaTitle,
   BanglaText,
   BanglaTime,
-  ArabicAyatAndTranslation,
   Hadith,
 } from '../../customDesign';
 import {

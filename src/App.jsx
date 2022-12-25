@@ -8,6 +8,7 @@ import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
 import { BackToTop } from './theme/BackToTop';
 import { Loader } from './theme/Loader';
 import NavBar from './components/utils/Navbar';
+import Footer from './components/utils/footer';
 
 const NotFoundPage = lazy(() => import('./components/utils/NotFoundPage'));
 
@@ -203,6 +204,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
+      <Footer />
     </ChakraProvider>
   );
 }
