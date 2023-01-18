@@ -130,6 +130,16 @@ export default function SurahFullData({
     `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/${surahArabicEdition}`
   );
 
+  const {
+    data: audioFetch,
+    loading: audioLoading,
+    error: audioError,
+  } = useFetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.alafasy`);
+
+  const audio = audioFetch?.data?.ayahs;
+  // audio?.map((item, index) => console.log(item.audio));
+  console.log(audio);
+
   return (
     <Box>
       <Navigation position="left" surahNumber={surahNumber} />
@@ -217,6 +227,24 @@ export default function SurahFullData({
                       />
                     )}
                   </Text>
+                  {audio ? (
+                    <audio controls>
+                      <source
+                        src={`
+                        ${audio[index].audioSecondary[0]}
+                        `}
+                        type="audio/mp3"
+                      />
+                    </audio>
+                  ) : (
+                    <Spinner
+                      thickness="4px"
+                      speed=".65s"
+                      emptyColor="transparent"
+                      color="green.500"
+                      size="md"
+                    />
+                  )}
                 </Stack>
               </Center>
             </Stack>
