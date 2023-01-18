@@ -5,10 +5,13 @@ import {
   Box,
   Center,
   Spinner,
+  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFatch';
 import '../../customDesign/style.css';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 function Header({
   name,
@@ -41,12 +44,73 @@ function Header({
   );
 }
 
+function Navigation({ icon, name, path, surahNumber, position, ...rest }) {
+  const { colorMode } = useColorMode();
+  var num = 0,
+    placement,
+    label,
+    style = {};
+  const SwitchIcon = position === 'left' ? FaArrowLeft : FaArrowRight;
+
+  if (position === 'left') {
+    num = parseInt(`${surahNumber}`) - 1;
+    style = {
+      left: '0.1rem',
+    };
+    placement = 'left';
+    label = 'Previous Surah';
+    if (num === 0) {
+      num = 114;
+    }
+  }
+
+  if (position === 'right') {
+    num = parseInt(`${surahNumber}`) + 1;
+    style = {
+      right: '0.1rem',
+    };
+    placement = 'right';
+    label = 'Next Surah';
+    if (num === 115) {
+      num = 1;
+    }
+  }
+
+  return (
+    <Tooltip
+      hasArrow
+      closeDelay={300}
+      placement={placement}
+      label={label}
+      fontSize="md"
+      bg={colorMode === 'light' ? 'yellow.600' : 'yellow.300'}
+    >
+      <IconButton
+        icon={<SwitchIcon size="20px" />}
+        as="a"
+        color={colorMode === 'light' ? 'yellow.600' : 'yellow.300'}
+        fontWeight="bold"
+        rounded={10}
+        variant="ghost"
+        sx={{
+          position: 'fixed',
+          bottom: '50%',
+          zIndex: '9999',
+          ...style,
+        }}
+        href={`/surahs/${num}`}
+        {...rest}
+      />
+    </Tooltip>
+  );
+}
+
 export default function SurahFullData({
   surahTranslationEdition,
   surahArabicEdition,
 }) {
   const { surahNumber } = useParams();
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
 
   // chakra ui mode
 
@@ -66,8 +130,21 @@ export default function SurahFullData({
     `https://api.alquran.cloud/v1/surah/${surahNumber}/editions/${surahArabicEdition}`
   );
 
+  const {
+    data: audioFetch,
+    loading: audioLoading,
+    error: audioError,
+  } = useFetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.alafasy`);
+
+  const audio = audioFetch?.data?.ayahs;
+  // audio?.map((item, index) => console.log(item.audio));
+  console.log(audio);
+
   return (
     <Box>
+      <Navigation position="left" surahNumber={surahNumber} />
+      <Navigation position="right" surahNumber={surahNumber} />
+
       {arabicLoading && (
         <Center>
           <Spinner
@@ -150,6 +227,24 @@ export default function SurahFullData({
                       />
                     )}
                   </Text>
+                  {audio ? (
+                    <audio controls>
+                      <source
+                        src={`
+                        ${audio[index].audioSecondary[0]}
+                        `}
+                        type="audio/mp3"
+                      />
+                    </audio>
+                  ) : (
+                    <Spinner
+                      thickness="4px"
+                      speed=".65s"
+                      emptyColor="transparent"
+                      color="green.500"
+                      size="md"
+                    />
+                  )}
                 </Stack>
               </Center>
             </Stack>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, Box, Flex, Text, keyframes, Stack } from '@chakra-ui/react';
+import './navbar.css';
 
 const wave = keyframes`
   0% {
@@ -21,10 +22,10 @@ function Logo(props) {
         <Text
           bg="yellow.300"
           // bgGradient="linear(to-r, yellow.300, green.500)"
-          _hover={{
-            color: 'yellow.300',
-            // wave animation
-          }}
+          // _hover={{
+          //   color: 'yellow.300',
+          //   // wave animation
+          // }}
           sx={{
             display: 'inline-block',
             // wave animation
@@ -123,6 +124,12 @@ const MenuItem = ({ children, isLast, to = '/', ...rest }) => {
 };
 
 const MenuLinks = ({ isOpen }) => {
+  const navitems = [
+    { name: 'Home', link: '/' },
+    { name: 'Surah', link: '/Surah' },
+    { name: 'Search in Quran', link: '/Find-Word-In-Quran' },
+    { name: 'About Writers', link: '/About-Writers' },
+  ];
   return (
     <Box
       rounded={'md'}
@@ -138,10 +145,27 @@ const MenuLinks = ({ isOpen }) => {
         direction={['column', 'row', 'row', 'row']}
         pt={[4, 4, 0, 0]}
       >
-        <MenuItem to="/">Home</MenuItem>
+        {navitems.map((item, index) => (
+          <a
+            key={index}
+            className="nav-link nav-link-ltr"
+            href={item.link}
+            style={{
+              borderBottom:
+                item.link === window.location.pathname
+                  ? '3px solid #F6E05E'
+                  : '',
+              // paddingBottom: '0px',
+            }}
+          >
+            {item.name}
+          </a>
+        ))}
+
+        {/* <MenuItem to="/">Home</MenuItem>
         <MenuItem to="/Surah">Surah</MenuItem>
         <MenuItem to="/Find-Word-In-Quran">Search in Quran</MenuItem>
-        <MenuItem to="/About-Writers">About Writers</MenuItem>
+        <MenuItem to="/About-Writers">About Writers</MenuItem> */}
         {/* <MenuItem to="/signup" isLast>
           <Button
             size="sm"
