@@ -92,7 +92,7 @@ export function BanglaTime({
         {Writer}
       </Text>
       <Spacer />
-      <Tooltip label={copySuccess}>
+      <Tooltip label={copySuccess} hasArrow closeDelay={300} placement="left">
         <Button variant="ghost" color="current" onClick={() => copyToClip()}>
           <BiShareAlt size="1.5em" color={'green.500'} />
         </Button>

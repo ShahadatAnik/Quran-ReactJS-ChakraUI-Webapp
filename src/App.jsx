@@ -68,7 +68,7 @@ function App() {
         sx={{
           position: 'fixed',
           bottom: '1rem',
-          right: '1rem',
+          right: '0.1rem',
           zIndex: '9999',
         }}
       />
@@ -78,7 +78,7 @@ function App() {
           sx={{
             position: 'fixed',
             bottom: '5rem',
-            right: '1rem',
+            right: '0.1rem',
             zIndex: '9999',
           }}
         />
