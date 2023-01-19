@@ -16,6 +16,8 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
+import ProgressBar from '../utils/ProgressBar';
+
 export default function IslamOnWomenRightsAndDignity() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = React.useRef();
@@ -34,6 +36,7 @@ export default function IslamOnWomenRightsAndDignity() {
         onOpen();
       }}
     >
+      <ProgressBar />
       <BanglaTitle>নারীর অধিকার ও মর্যাদায় ইসলাম</BanglaTitle>
       <BanglaTime
         Date="12 November, 2022"

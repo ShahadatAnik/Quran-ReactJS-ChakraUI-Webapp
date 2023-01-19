@@ -1,5 +1,6 @@
 import { Box, Heading, Text, Button } from '@chakra-ui/react';
 
+
 export default function NotFoundPage() {
   return (
     <Box textAlign="center" py={10} px={6}>

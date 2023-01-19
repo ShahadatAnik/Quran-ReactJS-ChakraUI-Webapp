@@ -9,11 +9,13 @@ import { BackToTop } from './theme/BackToTop';
 import { Loader } from './theme/Loader';
 import NavBar from './components/utils/Navbar';
 import Footer from './components/utils/footer';
+import ProgressBar from './components/utils/ProgressBar';
 
 const NotFoundPage = lazy(() => import('./components/utils/NotFoundPage'));
 
 const Home = lazy(() => import('./components/blogs/index'));
 const SurahSearch = lazy(() => import('./components/surah/SurahSearch'));
+const AyahSearch = lazy(() => import('./components/ayah/index'));
 const IndividualSurah = lazy(() => import('./components/surah/index'));
 const FindWord = lazy(() => import('./components/findWord/index'));
 const AboutWriters = lazy(() => import('./components/aboutWritters/index'));
@@ -63,6 +65,7 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <NavBar />
+      <ProgressBar />
       <ColorModeSwitcher
         justifySelf="flex-end"
         sx={{
@@ -118,6 +121,15 @@ function App() {
             element={
               <Suspense fallback={<Loader />}>
                 <IndividualSurah />
+              </Suspense>
+            }
+          />
+          <Route
+            exact
+            path="/Ayah"
+            element={
+              <Suspense fallback={<Loader />}>
+                <AyahSearch />
               </Suspense>
             }
           />
