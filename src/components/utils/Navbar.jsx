@@ -127,6 +127,7 @@ const MenuLinks = ({ isOpen }) => {
   const navitems = [
     { name: 'Home', link: '/' },
     { name: 'Surah', link: '/Surah' },
+    { name: 'Ayah', link: '/Ayah' },
     { name: 'Search in Quran', link: '/Find-Word-In-Quran' },
     { name: 'About Writers', link: '/About-Writers' },
   ];
