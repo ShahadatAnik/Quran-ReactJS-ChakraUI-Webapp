@@ -4,26 +4,32 @@ import { usePlaceholder } from '../hooks/usePlaceholder';
 import { useWindowResize } from '../hooks/useWindowResize';
 import { useColorMode } from '@chakra-ui/react';
 
-import { Stack, Input, Text, Box, Center, Highlight, Spinner } from '@chakra-ui/react';
+import {
+  Stack,
+  Input,
+  Text,
+  Box,
+  Center,
+  Highlight,
+  Spinner,
+} from '@chakra-ui/react';
 
-function Header({ name, englishName, numberOfAyahs, ...rest }) {
+function Header({ name, englishName, englishNameTranslation, ...rest }) {
   return (
     <Stack
       spacing={1}
-      m={2}
       align="center"
       p={2}
-      color="green.500"
-      bg="yellow.300"
-      rounded={10}
-      direction="column"
+      mx={2}
       {...rest}
+      bg="gray.00"
+      color="yellow.300"
+      rounded={10}
+      fontWeight="bold"
     >
-      <Text fontSize={['xl', 'xl', '2xl']} fontWeight="bold">
-        {name}
-      </Text>
-      <Text fontSize={['md', 'lg', 'sm']} fontWeight="bold">
-        {englishName} - {numberOfAyahs}
+      <Text fontSize={'6xl'}>{name}</Text>
+      <Text fontSize={['md', 'lg', 'xl']}>
+        {englishName} - {englishNameTranslation}
       </Text>
     </Stack>
   );
@@ -75,12 +81,41 @@ export default function QuranSearch({ quranEdition }) {
   const [windowWidth] = useWindowResize();
 
   const Row = ({ index, setSize, windowWidth }) => {
+    const { colorMode } = useColorMode();
     const rowRef = useRef();
 
     useEffect(() => {
       setSize(index, rowRef.current.getBoundingClientRect().height);
     }, [setSize, index, windowWidth]);
 
+    const showHeader = index => {
+      if (index === 0) {
+        return (
+          <Header
+            name={quranData[index]?.surah.name}
+            number={quranData[index]?.surah.number}
+            englishName={quranData[index]?.surah.englishName}
+            englishNameTranslation={
+              quranData[index]?.surah.englishNameTranslation
+            }
+          />
+        );
+      } else if (
+        quranData[index - 1] &&
+        quranData[index - 1].surah.name != quranData[index].surah.name
+      ) {
+        return (
+          <Header
+            name={quranData[index]?.surah.name}
+            number={quranData[index]?.surah.number}
+            englishName={quranData[index]?.surah.englishName}
+            englishNameTranslation={
+              quranData[index]?.surah.englishNameTranslation
+            }
+          />
+        );
+      }
+    };
     return (
       <div
         ref={rowRef}
@@ -89,30 +124,54 @@ export default function QuranSearch({ quranEdition }) {
           flexDirection: 'column',
         }}
       >
+        {showHeader(index)}
         <Stack
-          direction="column"
-          key={quranData[index]?.number}
-          spacing={1}
-          m={2}
+          key={index}
+          direction={['column', 'column', 'row']}
+          spacing={[2, 2, 4]}
           align="center"
-          p={2}
-          bg="green.500"
-          color="yellow.300"
-          rounded={10}
+          flex="1"
+          p={4}
+          m={2}
+          bg={
+            colorMode === 'light'
+              ? index % 2 === 0
+                ? 'gray.100'
+                : 'gray.200'
+              : index % 2 === 0
+              ? 'gray.700'
+              : ''
+          }
+          rounded="lg"
         >
-          <Header
-            name={quranData[index]?.surah.name}
-            englishName={quranData[index]?.surah.englishName}
-            numberOfAyahs={quranData[index]?.numberInSurah}
-          />
-          <Text fontSize={['md', 'md', 'lg']} fontWeight="bold">
-            <Highlight
-              query={searchWord}
-              styles={{ px: '1', py: '0', rounded: 'full', bg: 'red.100' }}
-            >
-              {quranData[index]?.text}
-            </Highlight>
+          <Text fontSize={['2xl', '2xl', '4xl']} fontWeight="bold">
+            {quranData[index]?.numberInSurah}
           </Text>
+          <Center flex="1">
+            <Stack
+              direction={['column', 'column', 'column']}
+              align="center"
+              spacing={1}
+              flex="1"
+              sx={{
+                textAlign: 'justify',
+              }}
+            >
+              <Text
+                fontSize={['xl', 'xl', '2xl']}
+                color={colorMode === 'light' ? 'yellow.600' : 'green.200'}
+                fontFamily={['Hind Siliguri']}
+                mt={4}
+              >
+                <Highlight
+                  query={searchWord}
+                  styles={{ px: '1', py: '0', rounded: 'full', bg: 'red.100' }}
+                >
+                  {quranData[index]?.text}
+                </Highlight>
+              </Text>
+            </Stack>
+          </Center>
         </Stack>
       </div>
     );

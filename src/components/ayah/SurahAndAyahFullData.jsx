@@ -27,7 +27,7 @@ function Header({
       p={2}
       mx={2}
       {...rest}
-      bg="green.500"
+      bg="gray.00"
       color="yellow.300"
       rounded={10}
       fontWeight="bold"
@@ -103,66 +103,56 @@ export default function SurahAndAyahFullData({
         revelationType={ayahArabic?.surah?.revelationType}
         numberOfAyahs={ayahArabic?.surah?.numberOfAyahs}
       />
-      <Stack
-        direction={['column', 'column', 'row']}
-        spacing={[2, 2, 4]}
-        align="center"
-        flex="1"
-        p={4}
-        m={2}
-        // bg={colorMode === 'light' ? 'gray.200' : 'gray.700'}
-        rounded="lg"
-      >
-        <Text fontSize={['xl', '2xl', '4xl']} fontWeight="bold">
-          Ayah - {ayahArabic?.numberInSurah}
-        </Text>
-        <Center flex="1">
-          <Stack
-            direction={['column', 'column', 'column']}
-            align="center"
-            spacing={1}
-            flex="1"
+
+      <Center flex="1">
+        <Stack
+          direction={['column', 'column', 'column']}
+          align="center"
+          spacing={1}
+          flex="1"
+          p={2}
+          my={10}
+          sx={{
+            textAlign: 'justify',
+          }}
+        >
+          <Text
+            fontSize={['3xl', '3xl', '4xl']}
+            fontWeight="bold"
+            color={colorMode === 'light' ? 'green.600' : 'yellow.300'}
             sx={{
-              textAlign: 'justify',
+              direction: 'rtl',
             }}
           >
-            <Text
-              fontSize={['3xl', '3xl', '4xl']}
-              fontWeight="bold"
-              color={colorMode === 'light' ? 'green.600' : 'yellow.300'}
-              sx={{
-                direction: 'rtl',
-              }}
-            >
-              {ayahArabic?.text}
-            </Text>
-            <Text
-              fontSize={['md', 'lg', 'xl']}
-              color={colorMode === 'light' ? 'yellow.600' : 'green.200'}
-              fontFamily={['Hind Siliguri']}
-              mt={4}
-            >
-              {ayahTranslationData?.data ? (
-                <>{ayahTranslationData?.data?.text}</>
-              ) : (
-                <Spinner
-                  thickness="4px"
-                  speed=".65s"
-                  emptyColor="transparent"
-                  color="green.500"
-                  size="md"
-                />
-              )}
-            </Text>
+            {ayahArabic?.text}
+          </Text>
+          <Text
+            fontSize={['md', 'lg', 'xl']}
+            color={colorMode === 'light' ? 'yellow.600' : 'green.200'}
+            fontFamily={['Hind Siliguri']}
+            mt={4}
+          >
+            {ayahTranslationData?.data ? (
+              <>{ayahTranslationData?.data?.text}</>
+            ) : (
+              <Spinner
+                thickness="4px"
+                speed=".65s"
+                emptyColor="transparent"
+                color="green.500"
+                size="md"
+              />
+            )}
+          </Text>
 
-            {/* <audio controls>
+          {/* <audio controls>
               <source
                 src={`${ayahArabic?.audioSecondary[0]}`}
                 type="audio/mp3"
               />
             </audio> */}
 
-            {/* {audioFetch ? (
+          {/* {audioFetch ? (
               <audio controls>
                 <source
                   src={`
@@ -180,9 +170,8 @@ export default function SurahAndAyahFullData({
                 size="md"
               />
             )} */}
-          </Stack>
-        </Center>
-      </Stack>
+        </Stack>
+      </Center>
     </>
   );
 }
