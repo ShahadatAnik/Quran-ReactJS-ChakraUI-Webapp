@@ -28,7 +28,7 @@ function Header({
       p={2}
       mx={2}
       {...rest}
-      bg="green.500"
+      bg="gray.00"
       color="yellow.300"
       rounded={10}
       fontWeight="bold"

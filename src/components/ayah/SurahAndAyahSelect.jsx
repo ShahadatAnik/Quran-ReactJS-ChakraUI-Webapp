@@ -96,7 +96,7 @@ export default function SurahAndAyahSelect({
           {/* map for number of ayah */}
           {Array.from(Array(numberOfAyahs).keys()).map(item => (
             <option key={item + 1} value={item + 1}>
-              {item + 1}
+              Ayah - {item + 1}
             </option>
           ))}
         </Select>
