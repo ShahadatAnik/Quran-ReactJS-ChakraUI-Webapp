@@ -38,6 +38,7 @@ export default function QuranSearch({ quranEdition }) {
   const [quranData, setQuranData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchWord, setSearchWord] = useState('');
+  const { colorMode } = useColorMode();
 
   const { placeholder } = usePlaceholder(quranEdition.split('.')[0]);
 
@@ -186,9 +187,7 @@ export default function QuranSearch({ quranEdition }) {
           placeholder={`Search in ${placeholder}`}
           size={'lg'}
           maxW={'lg'}
-          focusBorderColor={
-            useColorMode().colorMode === 'light' ? 'green.500' : 'yellow.300'
-          }
+          focusBorderColor={colorMode === 'light' ? 'green.500' : 'yellow.300'}
           onChange={e => setSearchWord(e.target.value.trim())}
         />
       </Center>
@@ -202,7 +201,7 @@ export default function QuranSearch({ quranEdition }) {
             size="md"
           />
         )}
-        {quranData.length > 0 ? (
+        {quranData.length > 0 && searchWord !== '' ? (
           <List
             ref={listRef}
             height={window.innerHeight - 220}
@@ -222,9 +221,17 @@ export default function QuranSearch({ quranEdition }) {
             )}
           </List>
         ) : (
-          <Text fontSize={['md', 'md', 'lg']} fontWeight="bold" mt={5}>
-            No results found
-          </Text>
+          <Center>
+            <Text
+              marginY={12}
+              padding={5}
+              fontSize={['2xl', '2xl', '4xl']}
+              fontWeight="bold"
+              color={colorMode === 'light' ? 'red.700' : 'red.400'}
+            >
+              No Results Found
+            </Text>
+          </Center>
         )}
       </Center>
     </Box>

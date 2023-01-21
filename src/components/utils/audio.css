@@ -1,0 +1,14 @@
+audio::-webkit-media-controls-panel {
+    background-color: #000;
+    color: #fff;
+    background: linear-gradient(90deg, #38a169 0%, #f6e05e 100%);
+}
+
+audio::-webkit-media-controls-current-time-display {
+    color: #f6e05e;
+    size: 1.5em;
+}
+
+audio::-webkit-media-controls-time-remaining-display {
+    color: #f6e05e;
+}
