@@ -11,6 +11,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { useFetch } from '../hooks/useFatch';
 import '../../customDesign/style.css';
+import '../utils/audio.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 function Header({
@@ -138,7 +139,13 @@ export default function SurahFullData({
 
   const audio = audioFetch?.data?.ayahs;
   // audio?.map((item, index) => console.log(item.audio));
-  console.log(audio);
+
+  const audioPlay = audio => {
+    audio.map((item, index) => {
+      var audio = new Audio(item.audio);
+      audio.play();
+    });
+  };
 
   return (
     <Box>
@@ -181,8 +188,8 @@ export default function SurahFullData({
                     ? 'gray.100'
                     : 'gray.200'
                   : index % 2 === 0
-                  ? 'gray.700'
-                  : ''
+                  ? ''
+                  : 'gray.700'
               }
               rounded="lg"
             >
@@ -200,7 +207,7 @@ export default function SurahFullData({
                   }}
                 >
                   <Text
-                    fontSize={['3xl', '3xl', '4xl']}
+                    fontSize={['4xl', '4xl', '4xl']}
                     fontWeight="bold"
                     color={colorMode === 'light' ? 'green.600' : 'yellow.300'}
                     sx={{
@@ -210,7 +217,7 @@ export default function SurahFullData({
                     {ayah.text}
                   </Text>
                   <Text
-                    fontSize={['md', 'lg', 'xl']}
+                    fontSize={['xl', '2xl', '2xl']}
                     color={colorMode === 'light' ? 'yellow.600' : 'green.200'}
                     fontFamily={['Hind Siliguri']}
                     mt={4}
@@ -228,7 +235,20 @@ export default function SurahFullData({
                     )}
                   </Text>
                   {audio ? (
-                    <audio controls>
+                    <audio
+                      controls
+                      // handel the audio if another ayah is clicked then pause the previous one
+                      // onPlay={() => {
+                      //   audio.map((item, index) => {
+                      //     if (
+                      //       item.audioSecondary[0] !==
+                      //       audio[index].audioSecondary[0]
+                      //     ) {
+                      //       audio.pause();
+                      //     }
+                      //   });
+                      // }}
+                    >
                       <source
                         src={`
                         ${audio[index].audioSecondary[0]}

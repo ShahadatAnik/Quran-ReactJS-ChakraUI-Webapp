@@ -1,16 +1,7 @@
-import {
-  Stack,
-  Text,
-  useColorMode,
-  Box,
-  Center,
-  Spinner,
-  IconButton,
-  Tooltip,
-} from '@chakra-ui/react';
+import { Stack, Text, useColorMode, Center, Spinner } from '@chakra-ui/react';
 import { useFetch } from '../hooks/useFatch';
 import '../../customDesign/style.css';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import '../utils/audio.css';
 
 function Header({
   name,
@@ -64,17 +55,6 @@ export default function SurahAndAyahFullData({
     `https://api.alquran.cloud/v1/ayah/${surah}:${ayah}/${surahTranslationEdition}`
   );
 
-  const ayahArabic = ayahArabicData?.data;
-  const {
-    data: audioFetch,
-    loading: audioLoading,
-    error: audioError,
-  } = useFetch(
-    `https://cdn.islamic.network/quran/audio/64/ar.alafasy/${ayahArabic?.number}.mp3`
-  );
-
-  console.log(audioFetch);
-
   if (ayah === 0) {
     return (
       <Center>
@@ -91,24 +71,26 @@ export default function SurahAndAyahFullData({
     );
   }
 
-  console.log(ayahArabic?.audioSecondary[0]);
+  console.log(ayahArabicData?.data?.audioSecondary[0]);
 
   return (
     <>
       <Header
-        name={ayahArabic?.surah?.name}
-        number={ayahArabic?.surah?.number}
-        englishName={ayahArabic?.surah?.englishName}
-        englishNameTranslation={ayahArabic?.surah?.englishNameTranslation}
-        revelationType={ayahArabic?.surah?.revelationType}
-        numberOfAyahs={ayahArabic?.surah?.numberOfAyahs}
+        name={ayahArabicData?.data?.surah?.name}
+        number={ayahArabicData?.data?.surah?.number}
+        englishName={ayahArabicData?.data?.surah?.englishName}
+        englishNameTranslation={
+          ayahArabicData?.data?.surah?.englishNameTranslation
+        }
+        revelationType={ayahArabicData?.data?.surah?.revelationType}
+        numberOfAyahs={ayahArabicData?.data?.surah?.numberOfAyahs}
       />
 
       <Center flex="1">
         <Stack
           direction={['column', 'column', 'column']}
           align="center"
-          spacing={1}
+          spacing={3}
           flex="1"
           p={2}
           my={10}
@@ -124,7 +106,7 @@ export default function SurahAndAyahFullData({
               direction: 'rtl',
             }}
           >
-            {ayahArabic?.text}
+            {ayahArabicData?.data?.text}
           </Text>
           <Text
             fontSize={['md', 'lg', 'xl']}
@@ -145,31 +127,22 @@ export default function SurahAndAyahFullData({
             )}
           </Text>
 
-          {/* <audio controls>
+          {ayahArabicData?.data?.audioSecondary[0] ? (
+            <audio controls key={ayahArabicData?.data?.audioSecondary[0]}>
               <source
-                src={`${ayahArabic?.audioSecondary[0]}`}
+                src={`${ayahArabicData?.data?.audioSecondary[0]}`}
                 type="audio/mp3"
               />
-            </audio> */}
-
-          {/* {audioFetch ? (
-              <audio controls>
-                <source
-                  src={`
-                        ${audioFetch}
-                        `}
-                  type="audio/mp3"
-                />
-              </audio>
-            ) : (
-              <Spinner
-                thickness="4px"
-                speed=".65s"
-                emptyColor="transparent"
-                color="green.500"
-                size="md"
-              />
-            )} */}
+            </audio>
+          ) : (
+            <Spinner
+              thickness="4px"
+              speed=".65s"
+              emptyColor="transparent"
+              color="green.500"
+              size="md"
+            />
+          )}
         </Stack>
       </Center>
     </>
