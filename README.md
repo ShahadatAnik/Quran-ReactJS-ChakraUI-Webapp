@@ -13,21 +13,6 @@
   </p>
 </div>
 
-<!-- ![gif](https://us-east-1.tixte.net/uploads/anik.needs.rest/pp.gif) -->
-
-<!-- ***
-## Install
-
-```sh
-git clone https://github.com/dhravya/typemonkey && pip install -r typemonkey/requirements.txt
-```
-
-## Usage
-
-```sh
-py typemonkey/main.py
-``` -->
-
 ## Author
 
 👤 **Shahadat Anik**

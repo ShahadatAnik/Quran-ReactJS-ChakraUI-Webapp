@@ -1,9 +1,10 @@
-import { Box, Container } from '@chakra-ui/react';
+import { Box } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
+import { useColorMode } from '@chakra-ui/react';
 
 function ProgressBar() {
   const progressRef = useRef(null);
-
+  const { colorMode } = useColorMode();
   useEffect(() => {
     const updateProgress = () => {
       const winScroll =
@@ -26,7 +27,7 @@ function ProgressBar() {
       right="0"
       zIndex="9999"
       height="4px"
-      bg="green.500"
+      bg="none"
       overflow="hidden"
       roundedRight="md"
     >
@@ -35,7 +36,7 @@ function ProgressBar() {
         top="0"
         left="0"
         height="100%"
-        bg="yellow.300"
+        bg={colorMode === 'light' ? 'yellow.500' : 'yellow.300'}
         ref={progressRef}
         roundedRight="md"
         // a simple transition from left to right
