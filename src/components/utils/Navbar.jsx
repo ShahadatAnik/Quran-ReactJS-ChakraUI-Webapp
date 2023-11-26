@@ -1,5 +1,5 @@
+import { Box, Flex, Link, Stack, Text, keyframes } from '@chakra-ui/react';
 import React from 'react';
-import { Link, Box, Flex, Text, keyframes, Stack } from '@chakra-ui/react';
 import './navbar.css';
 
 const wave = keyframes`
@@ -17,18 +17,12 @@ const wave = keyframes`
 
 function Logo(props) {
   return (
-    <Box as="a" {...props}>
+    <Box {...props}>
       <Link color={'green.500'} href="/">
         <Text
           bg="yellow.300"
-          // bgGradient="linear(to-r, yellow.300, green.500)"
-          // _hover={{
-          //   color: 'yellow.300',
-          //   // wave animation
-          // }}
           sx={{
             display: 'inline-block',
-            // wave animation
             animation: `${wave} 2s ease-in-out infinite`,
           }}
           bgClip="text"

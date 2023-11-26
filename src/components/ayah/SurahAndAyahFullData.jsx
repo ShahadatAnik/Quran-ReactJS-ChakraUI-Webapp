@@ -71,8 +71,6 @@ export default function SurahAndAyahFullData({
     );
   }
 
-  console.log(ayahArabicData?.data?.audioSecondary[0]);
-
   return (
     <>
       <Header

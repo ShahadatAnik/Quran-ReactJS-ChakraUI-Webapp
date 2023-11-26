@@ -70,7 +70,7 @@ export default function SurahEditionSelect({
 
   useEffect(() => {
     fetchData();
-    error?.message && console.log(error.message);
+    error?.message && console.warn(error.message);
   }, [error?.message]);
 
   return (

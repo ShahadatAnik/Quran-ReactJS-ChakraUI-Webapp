@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Select, Stack, Center, Spinner } from '@chakra-ui/react';
+import { Center, Select, Spinner, Stack } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
 
 function MySelect({ data, placeholder, setEdition, ...rest }) {
   const handleChange = event => {
@@ -48,7 +48,7 @@ export default function EditionSelect({ setQuranEdition }) {
 
   useEffect(() => {
     fetchData();
-    error?.message && console.log(error.message);
+    error?.message && console.warn(error.message);
   }, [error?.message]);
 
   return (

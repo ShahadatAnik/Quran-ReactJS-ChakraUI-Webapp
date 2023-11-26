@@ -1,9 +1,11 @@
 import {
-  useColorMode,
-  Box,
-  Stack,
-  Text,
+  Card,
+  CardBody,
+  CardHeader,
   Link,
+  SimpleGrid,
+  Text,
+  useColorMode,
 } from '@chakra-ui/react';
 import { BanglaHeading } from '../../customDesign';
 import { blogData } from './blogsData';
@@ -11,64 +13,30 @@ import { blogData } from './blogsData';
 export default function Index() {
   const { colorMode } = useColorMode();
   return (
-    <Box as="section">
-      <Box p={4}>
-        <Stack direction="column" spacing={4}>
-          {blogData.map(blog => (
-            <Link
-              rel="noopener noreferrer"
-              key={blog.number}
-              href={`/${blog.englishName}`}
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Box
-                shadow={'lg'}
-                rounded={'md'}
-                p={4}
-                bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
-              >
-                <BanglaHeading as={'h1'}>{blog.name}</BanglaHeading>
-                <Text mt={2}>
-                  {blog.date} <span>&emsp;</span>/ <span>&emsp;</span>
-                  {blog.writer}
-                </Text>
-              </Box>
-            </Link>
-          ))}
-        </Stack>
-      </Box>
-      {/* <Grid
-        templateColumns={['repeat(1, 1fr)', 'repeat(2, 1fr)', 'repeat(2, 1fr)']}
-        gap={[2, 2, 4]}
-      >
-        {blogData.map((blog, index) => (
+    <SimpleGrid columns={[1, 2, 3]} spacing={4} mx={2}>
+      {blogData.map(blog => (
+        <Card
+          key={blog.number}
+          bg={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+        >
           <Link
             rel="noopener noreferrer"
             key={blog.number}
             href={`/${blog.englishName}`}
             _hover={{ textDecoration: 'none' }}
           >
-            <GridItem
-              key={blog.number}
-              boxShadow={['md', 'md', 'lg']}
-              p={4}
-              m={2}
-              borderRadius="md"
-              bg={index % 2 === 0 ? 'green.500' : 'green.700'}
-              color="yellow.300"
-              _hover={{ bg: 'green.600' }}
-              textAlign="center"
-            >
+            <CardHeader>
               <BanglaHeading as={'h1'}>{blog.name}</BanglaHeading>
-                <Text mt={2}>
-                  {blog.date} <span>&emsp;</span>/ <span>&emsp;</span>
-                  {blog.writer}
-                </Text>
-            </GridItem>
+            </CardHeader>
+            <CardBody>
+              <Text>
+                {blog.date} <span>&emsp;</span>/ <span>&emsp;</span>
+                {blog.writer}
+              </Text>
+            </CardBody>
           </Link>
-        ))}
-      </Grid> */}
-      {/* <Footer /> */}
-    </Box>
+        </Card>
+      ))}
+    </SimpleGrid>
   );
 }
