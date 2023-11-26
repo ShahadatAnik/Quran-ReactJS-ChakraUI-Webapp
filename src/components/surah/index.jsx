@@ -7,8 +7,7 @@ export default function Index() {
   const [surahTranslationEdition, setSurahTranslationEdition] =
     useState('bn.bengali');
   const [surahArabicEdition, setSurahArabicEdition] = useState('quran-simple');
-
-  console.log(surahTranslationEdition, surahArabicEdition);
+  
   return (
     <Stack spacing={4} p={2}>
       <SurahEditionSelect

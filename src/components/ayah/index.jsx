@@ -9,9 +9,6 @@ export default function Index() {
   const [surah, setSurah] = useState(0);
   const [ayah, setAyah] = useState(0);
 
-  console.log(surahTranslationEdition);
-  console.log(surah, ayah);
-
   return (
     <Stack spacing={4} p={2}>
       <SurahAndAyahSelect

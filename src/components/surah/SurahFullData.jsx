@@ -1,18 +1,18 @@
 import {
-  Stack,
-  Text,
-  useColorMode,
   Box,
   Center,
-  Spinner,
   IconButton,
+  Spinner,
+  Stack,
+  Text,
   Tooltip,
+  useColorMode,
 } from '@chakra-ui/react';
-import { useParams } from 'react-router-dom';
-import { useFetch } from '../hooks/useFatch';
-import '../../customDesign/style.css';
-import '../utils/audio.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
+import '../../customDesign/style.css';
+import { useFetch } from '../hooks/useFatch';
+import '../utils/audio.css';
 
 function Header({
   name,
@@ -138,7 +138,6 @@ export default function SurahFullData({
   } = useFetch(`https://api.alquran.cloud/v1/surah/${surahNumber}/ar.alafasy`);
 
   const audio = audioFetch?.data?.ayahs;
-  // audio?.map((item, index) => console.log(item.audio));
 
   const audioPlay = audio => {
     audio.map((item, index) => {

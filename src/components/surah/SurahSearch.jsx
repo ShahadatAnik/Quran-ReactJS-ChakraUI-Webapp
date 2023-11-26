@@ -1,15 +1,15 @@
-import { surahs } from '../utils/surahs';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  Input,
-  Text,
   Box,
+  Center,
   Grid,
   GridItem,
-  Center,
+  Input,
+  Text,
   useColorMode,
 } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { surahs } from '../utils/surahs';
 
 export default function SurahSearch() {
   const [surah, setSurah] = useState(surahs);
@@ -45,7 +45,7 @@ export default function SurahSearch() {
         gap={[2, 2, 4]}
       >
         {surah.map((surah, index) => (
-          <Link to={`/surahs/${surah.number}`}>
+          <Link to={`/surahs/${surah.number}`} key={surah.number}>
             <GridItem
               key={surah.number}
               boxShadow={['md', 'md', 'lg']}
