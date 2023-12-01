@@ -120,10 +120,10 @@ const MenuItem = ({ children, isLast, to = '/', ...rest }) => {
 const MenuLinks = ({ isOpen }) => {
   const navitems = [
     { name: 'Home', link: '/' },
-    { name: 'Surah', link: '/Surah' },
-    { name: 'Ayah', link: '/Ayah' },
-    { name: 'Search in Quran', link: '/Find-Word-In-Quran' },
-    { name: 'About Writers', link: '/About-Writers' },
+    { name: 'surah', link: '/surah' },
+    { name: 'ayah', link: '/ayah' },
+    { name: 'Search in Quran', link: '/find-word' },
+    { name: 'About Writers', link: '/about-writers' },
   ];
   return (
     <Box
