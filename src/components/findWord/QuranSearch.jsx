@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useColorMode } from '@chakra-ui/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { VariableSizeList as List } from 'react-window';
 import { usePlaceholder } from '../hooks/usePlaceholder';
 import { useWindowResize } from '../hooks/useWindowResize';
-import { useColorMode } from '@chakra-ui/react';
 
 import {
-  Stack,
-  Input,
-  Text,
   Box,
   Center,
   Highlight,
+  Input,
   Spinner,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
 
 function Header({ name, englishName, englishNameTranslation, ...rest }) {
