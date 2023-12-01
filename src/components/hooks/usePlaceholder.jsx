@@ -9,7 +9,6 @@ export function usePlaceholder(code) {
     ak: ['Akan'],
     sq: ['Albanian'],
     am: ['Amharic'],
-    ar: ['Arabic'],
     an: ['Aragonese'],
     hy: ['Armenian'],
     as: ['Assamese'],

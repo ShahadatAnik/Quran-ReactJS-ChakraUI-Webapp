@@ -1,15 +1,15 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme/index';
 
-import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
-import { BackToTop } from './theme/BackToTop';
-import { Loader } from './theme/Loader';
-import NavBar from './components/utils/Navbar';
 import Footer from './components/utils/footer';
+import NavBar from './components/utils/Navbar';
 import ProgressBar from './components/utils/ProgressBar';
+import { BackToTop } from './theme/BackToTop';
+import { ColorModeSwitcher } from './theme/ColorModeSwitcher';
+import { Loader } from './theme/Loader';
 
 const NotFoundPage = lazy(() => import('./components/utils/NotFoundPage'));
 
@@ -98,7 +98,7 @@ function App() {
             }
           />
           <Route
-            path="/About-Writers"
+            path="/about-writers"
             element={
               <Suspense fallback={<Loader />}>
                 <AboutWriters />
@@ -108,7 +108,7 @@ function App() {
 
           <Route
             exact
-            path="/Surah"
+            path="/surah"
             element={
               <Suspense fallback={<Loader />}>
                 <SurahSearch />
@@ -117,7 +117,7 @@ function App() {
           />
           <Route
             exact
-            path="/surahs/:surahNumber"
+            path="/surah/:surahNumber"
             element={
               <Suspense fallback={<Loader />}>
                 <IndividualSurah />
@@ -126,7 +126,7 @@ function App() {
           />
           <Route
             exact
-            path="/Ayah"
+            path="/ayah"
             element={
               <Suspense fallback={<Loader />}>
                 <AyahSearch />
@@ -135,7 +135,7 @@ function App() {
           />
           <Route
             exact
-            path="/Find-Word-In-Quran"
+            path="/find-word"
             element={
               <Suspense fallback={<Loader />}>
                 <FindWord />
@@ -144,7 +144,7 @@ function App() {
           />
           <Route
             exact
-            path="/Islam-On-Women-Rights-And-Dignity"
+            path="/islam-on-women-rights-and-dignity"
             element={
               <Suspense fallback={<Loader />}>
                 <IslamOnWomenRightsAndDignity />
@@ -153,7 +153,7 @@ function App() {
           />
           <Route
             exact
-            path="/Woman-Hahaha-Shame-Passing"
+            path="/woman-hahaha-shame-passing"
             element={
               <Suspense fallback={<Loader />}>
                 <WomanHahahaShamePassing />
@@ -162,7 +162,7 @@ function App() {
           />
           <Route
             exact
-            path="/Dua-For-Prophet-Part-1"
+            path="/dua-for-prophet-part-1"
             element={
               <Suspense fallback={<Loader />}>
                 <DuaForProphetPart1 />
@@ -171,7 +171,7 @@ function App() {
           />
           <Route
             exact
-            path="/Dua-For-Prophet-Part-2"
+            path="/dua-for-prophet-part-2"
             element={
               <Suspense fallback={<Loader />}>
                 <DuaForProphetPart2 />
@@ -180,7 +180,7 @@ function App() {
           />
           <Route
             exact
-            path="/Dua-For-Prophet-Part-3"
+            path="/dua-for-prophet-part-3"
             element={
               <Suspense fallback={<Loader />}>
                 <DuaForProphetPart3 />
@@ -189,7 +189,7 @@ function App() {
           />
           <Route
             exact
-            path="/Dua-For-Prophet-Part-4"
+            path="/dua-for-prophet-part-4"
             element={
               <Suspense fallback={<Loader />}>
                 <DuaForProphetPart4 />
@@ -198,7 +198,7 @@ function App() {
           />
           <Route
             exact
-            path="/Dua-For-Prophet-Part-5"
+            path="/dua-for-prophet-part-5"
             element={
               <Suspense fallback={<Loader />}>
                 <DuaForProphetPart5 />
@@ -207,7 +207,7 @@ function App() {
           />
           <Route
             exact
-            path="/For-Muslims-saying-MerryChristmas-means-accepting-the-divinity-of-Isa"
+            path="/for-muslims-saying-merry-christmas-means-accepting-the-divinity-of-isa"
             element={
               <Suspense fallback={<Loader />}>
                 <MuslimsSayingMerryChristmas />
