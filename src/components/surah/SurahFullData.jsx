@@ -47,35 +47,23 @@ function Header({
 
 function Navigation({ icon, name, path, surahNumber, position, ...rest }) {
   const { colorMode } = useColorMode();
-  var num = 0,
-    placement,
-    label,
-    style = {};
+  let num =
+    position === 'left'
+      ? parseInt(`${surahNumber}`) - 1
+      : parseInt(`${surahNumber}`) + 1;
+  let style = position === 'left' ? { left: '0.1rem' } : { right: '0.1rem' };
+  let placement = position;
+  let label = position === 'left' ? 'Previous Surah' : 'Next Surah';
+
+  if (position === 'left' && num === 0) {
+    num = 114;
+  }
+
+  if (position === 'right' && num === 115) {
+    num = 1;
+  }
+
   const SwitchIcon = position === 'left' ? FaArrowLeft : FaArrowRight;
-
-  if (position === 'left') {
-    num = parseInt(`${surahNumber}`) - 1;
-    style = {
-      left: '0.1rem',
-    };
-    placement = 'left';
-    label = 'Previous Surah';
-    if (num === 0) {
-      num = 114;
-    }
-  }
-
-  if (position === 'right') {
-    num = parseInt(`${surahNumber}`) + 1;
-    style = {
-      right: '0.1rem',
-    };
-    placement = 'right';
-    label = 'Next Surah';
-    if (num === 115) {
-      num = 1;
-    }
-  }
 
   return (
     <Tooltip
@@ -99,7 +87,7 @@ function Navigation({ icon, name, path, surahNumber, position, ...rest }) {
           zIndex: '9999',
           ...style,
         }}
-        href={`/surahs/${num}`}
+        href={`/surah/${num}`}
         {...rest}
       />
     </Tooltip>
