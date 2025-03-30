@@ -117,6 +117,20 @@ export default function QuranSearch({ quranEdition }) {
         );
       }
     };
+
+    if (isLoading) {
+      return (
+        <Center>
+          <Spinner
+            thickness="4px"
+            speed="0.65s"
+            emptyColor="gray.200"
+            color="blue.500"
+            size="xl"
+          />
+        </Center>
+      );
+    }
     return (
       <div
         ref={rowRef}
@@ -201,7 +215,7 @@ export default function QuranSearch({ quranEdition }) {
             size="md"
           />
         )}
-        {quranData.length > 0 && searchWord !== '' ? (
+        {quranData?.length > 0 && searchWord !== '' ? (
           <List
             ref={listRef}
             height={window.innerHeight - 220}
