@@ -4,10 +4,14 @@
  *   - public/llms.txt       site summary for AI assistants and answer engines (llmstxt.org)
  *
  * Runs before `vite build` (see the "build" script). The output is git-ignored.
+ *
+ * Images are cached: each one is re-rendered only when its page data or the code and fonts
+ * that draw it change (keys in node_modules/.cache/og-images.json, so they never ship).
+ * Pass --force to render them all.
  * Bangla and Arabic are shaped with HarfBuzz (scripts/lib/shape-text.ts), since neither
  * satori nor resvg shapes them correctly.
  */
-import { mkdir, rm } from "node:fs/promises"
+import { mkdir, readdir, rm } from "node:fs/promises"
 import { join } from "node:path"
 import type { LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
@@ -356,15 +360,59 @@ function llmsTxt() {
   ].join("\n")
 }
 
+// ---------- cache ----------
+
+/** Everything besides a page's own data that changes how its card looks. */
+const DRAWING_INPUTS = [
+  "scripts/generate-og-images.tsx",
+  "scripts/lib/render.ts",
+  "scripts/lib/shape-text.ts",
+  "src/components/logo-mark.tsx",
+  "src/content/writers.ts",
+  "src/lib/bangla.ts",
+  "src/lib/pages.ts",
+  "src/lib/seo.ts",
+  "src/lib/site.ts",
+  // Pinned versions of satori, resvg, HarfBuzz and the fonts.
+  "bun.lock",
+]
+
+const hash = (...parts: string[]) => {
+  const hasher = new Bun.CryptoHasher("sha256")
+  for (const part of parts) hasher.update(part)
+  return hasher.digest("hex").slice(0, 16)
+}
+
+const drawing = hash(
+  ...(await Promise.all(DRAWING_INPUTS.map((path) => Bun.file(join(root, path)).text())))
+)
+const ogDir = join(publicDir, "og")
+const cacheFile = join(root, "node_modules", ".cache", "og-images.json")
+const force = process.argv.includes("--force")
+const previous: Record<string, string> = force
+  ? {}
+  : await Bun.file(cacheFile)
+      .json()
+      .catch(() => ({}))
+
+/** Renders a card unless the PNG on disk was made from the same inputs. */
+async function cachedCard(slug: string, data: unknown, card: () => ReactNode) {
+  const key = hash(drawing, JSON.stringify(data) ?? "")
+  const unchanged =
+    previous[slug] === key && (await Bun.file(join(publicDir, ogImagePath(slug))).exists())
+  if (!unchanged) await renderCard(card(), slug)
+  return { slug, key, rendered: !unchanged }
+}
+
 // ---------- run ----------
 
-await rm(join(publicDir, "og"), { recursive: true, force: true })
-await mkdir(join(publicDir, "og"), { recursive: true })
+await mkdir(ogDir, { recursive: true })
+await mkdir(join(root, "node_modules", ".cache"), { recursive: true })
 
-const written = await Promise.all([
-  renderCard(<HomeCard />, "home"),
-  ...pages.map((page) => {
-    const card =
+const results = await Promise.all([
+  cachedCard("home", "home", () => <HomeCard />),
+  ...pages.map((page) =>
+    cachedCard(pageSlug(page), page, () =>
       page.kind === "surah" ? (
         <SurahCard page={page} />
       ) : page.kind === "post" ? (
@@ -372,9 +420,19 @@ const written = await Promise.all([
       ) : (
         <AppCard page={page} />
       )
-    return renderCard(card, pageSlug(page))
-  }),
+    )
+  ),
 ])
+
+// Drop images of pages that no longer exist.
+const current = new Set(results.map((r) => ogImagePath(r.slug).split("/").pop()))
+for (const name of await readdir(ogDir)) {
+  if (name.endsWith(".png") && !current.has(name)) await rm(join(ogDir, name))
+}
+await Bun.write(cacheFile, JSON.stringify(Object.fromEntries(results.map((r) => [r.slug, r.key]))))
 await Bun.write(join(publicDir, "llms.txt"), llmsTxt())
 
-console.log(`[seo] ${written.length} Open Graph images in public/og, plus public/llms.txt`)
+const rendered = results.filter((r) => r.rendered).length
+console.log(
+  `[seo] ${results.length} Open Graph images in public/og (${rendered} rendered, ${results.length - rendered} unchanged), plus public/llms.txt`
+)

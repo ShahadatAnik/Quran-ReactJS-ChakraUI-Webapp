@@ -46,10 +46,9 @@ function SectionHeading({
 function Home() {
   return (
     <>
-      {/* Pulled up under the transparent header (3.5rem), so the pattern runs behind it. */}
-      <section className="relative -mt-14 overflow-hidden border-b border-border/60">
+      <section className="relative overflow-hidden border-b border-border/60">
         <div aria-hidden="true" className="khatam-pattern absolute inset-0" />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pt-30 pb-14 text-center sm:px-6 md:pt-38 md:pb-20">
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pt-16 pb-14 text-center sm:px-6 md:pt-24 md:pb-20">
           <p lang="bn" className="font-display text-5xl leading-tight text-gold md:text-7xl">
             {site.nameBn}
           </p>

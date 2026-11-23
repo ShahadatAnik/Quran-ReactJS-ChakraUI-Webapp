@@ -3,14 +3,22 @@
  *
  *   bun run build && bun scripts/verify-site.ts [--screenshots <dir>]
  *
- * Starts scripts/serve-dist.ts and checks, for the home page and every registry page:
+ * Starts scripts/serve-dist.ts and checks, for the home page and every registry page (four at
+ * a time per mode, light and dark side by side, each as soon as the app has hydrated):
  *   - HTTP 200, exactly one <h1>, the canonical URL, a loading OG image, valid JSON-LD
  *   - no console errors or hydration warnings, in light (desktop) and dark (mobile) mode
  *   - no horizontal overflow at 360px wide
  * plus the 404 page, the old-URL redirects, and page transitions on client navigation.
  */
 import { join } from "node:path"
-import { type Browser, chromium, type Page } from "playwright-core"
+import {
+  type Browser,
+  type ConsoleMessage,
+  chromium,
+  type Page,
+  type Request,
+  type Response,
+} from "playwright-core"
 import { ogImagePath, pageSlug, pages } from "../src/lib/pages"
 import { site } from "../src/lib/site"
 
@@ -43,33 +51,60 @@ let chromePath: string | undefined
 for (const p of chromePaths) if (await Bun.file(p).exists()) chromePath = p
 const browser: Browser = await chromium.launch({ executablePath: chromePath, headless: true })
 
-/** Collects console errors, page errors and hydration warnings on a page. */
+/** Pages checked at the same time in each mode (light and dark also run side by side). */
+const CONCURRENCY = 4
+
+/**
+ * Collects console errors, page errors and hydration warnings on a page, until `stop()`
+ * removes the listeners again (pages are reused for many paths).
+ */
 function watchConsole(page: Page) {
   const problems: string[] = []
-  page.on("console", (message) => {
+  // Only this site's own files count: third-party requests (the Quran API, or scripts that
+  // browser extensions and local ad blockers inject) can fail for reasons outside the build.
+  const ownFile = (url: string) => url.startsWith(origin)
+  const onConsole = (message: ConsoleMessage) => {
     const text = message.text()
     // Failed requests are reported below with their URL (the 404 page's own document
     // legitimately answers 404, which Chrome also logs as a console error).
     if (text.startsWith("Failed to load resource")) return
     if (message.type() === "error" || /hydrat/i.test(text)) problems.push(`console: ${text}`)
-  })
-  // Only this site's own files count: third-party requests (the Quran API, or scripts that
-  // browser extensions and local ad blockers inject) can fail for reasons outside the build.
-  const ownFile = (url: string) => url.startsWith(origin)
-  page.on("response", (response) => {
+  }
+  const onResponse = (response: Response) => {
     const isDocument = response.request().resourceType() === "document"
     if (response.status() >= 400 && !isDocument && ownFile(response.url())) {
       problems.push(`HTTP ${response.status()}: ${response.url()}`)
     }
-  })
-  page.on("requestfailed", (request) => {
+  }
+  const onRequestFailed = (request: Request) => {
     // Audio prefetches can be cancelled when the page changes; anything else is a problem.
     if (request.resourceType() !== "media" && ownFile(request.url())) {
       problems.push(`request failed: ${request.url()} (${request.failure()?.errorText})`)
     }
-  })
-  page.on("pageerror", (error) => problems.push(`pageerror: ${error.message}`))
-  return problems
+  }
+  const onPageError = (error: Error) => problems.push(`pageerror: ${error.message}`)
+  page.on("console", onConsole)
+  page.on("response", onResponse)
+  page.on("requestfailed", onRequestFailed)
+  page.on("pageerror", onPageError)
+  const stop = () => {
+    page.off("console", onConsole)
+    page.off("response", onResponse)
+    page.off("requestfailed", onRequestFailed)
+    page.off("pageerror", onPageError)
+  }
+  return { problems, stop }
+}
+
+/**
+ * Waits until the app has hydrated (it marks <html data-hydrated>), then two more frames so
+ * effects that run on mount have settled. Much quicker than waiting for the network to idle.
+ */
+async function hydrated(page: Page) {
+  await page.waitForFunction(() => "hydrated" in document.documentElement.dataset)
+  await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)))
+  )
 }
 
 const allPaths = ["/", ...pages.map((p) => p.path)]
@@ -77,9 +112,10 @@ const ogPath = (path: string) =>
   path === "/" ? ogImagePath("home") : ogImagePath(pageSlug({ path }))
 
 async function checkPage(page: Page, path: string, mode: "light" | "dark") {
-  const problems = watchConsole(page)
-  const response = await page.goto(`${origin}${path}`, { waitUntil: "networkidle" })
+  const { problems, stop } = watchConsole(page)
+  const response = await page.goto(`${origin}${path}`, { waitUntil: "load" })
   if (response?.status() !== 200) fail(`${path}: status ${response?.status()}`)
+  await hydrated(page)
 
   const result = await page.evaluate(() => ({
     h1: document.querySelectorAll("h1").length,
@@ -113,32 +149,44 @@ async function checkPage(page: Page, path: string, mode: "light" | "dark") {
   }
   if (result.overflow > 0) fail(`${path} (${mode}): ${result.overflow}px horizontal overflow`)
   if (result.dark !== (mode === "dark")) fail(`${path}: expected ${mode} theme`)
+  stop()
   for (const problem of problems) fail(`${path} (${mode}): ${problem}`)
 }
 
 // ---------- every page, light desktop and dark mobile ----------
 
-for (const mode of ["light", "dark"] as const) {
-  console.log(`\n${mode === "light" ? "Light, 1280px" : "Dark, 360px"}: ${allPaths.length} pages`)
-  const context = await browser.newContext(
-    mode === "light"
-      ? { colorScheme: "light", viewport: { width: 1280, height: 900 } }
-      : { colorScheme: "dark", viewport: { width: 360, height: 780 }, isMobile: true }
-  )
-  const page = await context.newPage()
-  for (const path of allPaths) await checkPage(page, path, mode)
-  await context.close()
-}
+console.log(`\nLight 1280px and dark 360px: ${allPaths.length} pages each`)
+await Promise.all(
+  (["light", "dark"] as const).map(async (mode) => {
+    const context = await browser.newContext(
+      mode === "light"
+        ? { colorScheme: "light", viewport: { width: 1280, height: 900 } }
+        : { colorScheme: "dark", viewport: { width: 360, height: 780 }, isMobile: true }
+    )
+    const queue = [...allPaths]
+    await Promise.all(
+      Array.from({ length: CONCURRENCY }, async () => {
+        const page = await context.newPage()
+        for (let path = queue.shift(); path !== undefined; path = queue.shift()) {
+          await checkPage(page, path, mode)
+        }
+      })
+    )
+    await context.close()
+  })
+)
 
 // ---------- OG images ----------
 
 console.log("\nOpen Graph images")
-for (const path of allPaths) {
-  const response = await fetch(`${origin}${ogPath(path)}`)
-  if (response.status !== 200 || response.headers.get("content-type") !== "image/png") {
-    fail(`${ogPath(path)}: ${response.status} ${response.headers.get("content-type")}`)
-  }
-}
+await Promise.all(
+  allPaths.map(async (path) => {
+    const response = await fetch(`${origin}${ogPath(path)}`)
+    if (response.status !== 200 || response.headers.get("content-type") !== "image/png") {
+      fail(`${ogPath(path)}: ${response.status} ${response.headers.get("content-type")}`)
+    }
+  })
+)
 
 {
   const manifest = await fetch(`${origin}/site.webmanifest`)
@@ -154,7 +202,7 @@ console.log("\n404 page and old URLs")
 {
   const context = await browser.newContext()
   const page = await context.newPage()
-  const problems = watchConsole(page)
+  const { problems } = watchConsole(page)
   const response = await page.goto(`${origin}/this-page-does-not-exist`, {
     waitUntil: "networkidle",
   })
@@ -185,7 +233,7 @@ console.log("\nClient navigation")
 {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } })
   const page = await context.newPage()
-  const problems = watchConsole(page)
+  const { problems } = watchConsole(page)
   await page.goto(`${origin}/`, { waitUntil: "networkidle" })
   await page.evaluate(() => {
     const w = window as unknown as { transitions: number }

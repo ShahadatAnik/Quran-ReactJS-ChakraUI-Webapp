@@ -4,7 +4,7 @@ import geistFont from "@fontsource-variable/geist/files/geist-latin-wght-normal.
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { createRootRoute, HeadContent, ScriptOnce, Scripts } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import type { ReactNode } from "react"
+import { type ReactNode, useEffect } from "react"
 import { AudioPlayer } from "@/components/audio-player"
 import { BackToTop } from "@/components/back-to-top"
 import { ReaderProvider } from "@/components/reader-provider"
@@ -111,8 +111,20 @@ function RootDocument({ children }: { children: ReactNode }) {
           config={{ position: "bottom-left" }}
           plugins={[{ name: "TanStack Router", render: <TanStackRouterDevtoolsPanel /> }]}
         />
+        <HydrationMarker />
         <Scripts />
       </body>
     </html>
   )
+}
+
+/**
+ * Marks <html> with `data-hydrated` once the app has hydrated, so scripts/verify-site.ts can
+ * check each page as soon as it is interactive instead of waiting for the network to go idle.
+ */
+function HydrationMarker() {
+  useEffect(() => {
+    document.documentElement.dataset.hydrated = ""
+  }, [])
+  return null
 }

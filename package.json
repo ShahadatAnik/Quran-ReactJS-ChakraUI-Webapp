@@ -24,7 +24,8 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "test:watch": "bun test --watch",
-    "validate": "bun run check && bun run typecheck && bun run test && bun run build",
+    "check:fast": "bun run check && bun run typecheck && bun run test",
+    "validate": "bun run check:fast && bun run build",
     "serve:dist": "bun scripts/serve-dist.ts",
     "verify": "bun scripts/verify-site.ts"
   },

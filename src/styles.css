@@ -293,25 +293,6 @@
   }
 }
 
-/* Home page: the header starts transparent over the hero pattern and gains its background,
-   blur and border over the first 4rem of scrolling. Pure CSS, so a reload part-way down shows
-   the right state at once; without scroll-driven animations it is simply always solid. */
-@supports (animation-timeline: scroll()) {
-  .site-header[data-blend] {
-    animation: header-blend linear both;
-    animation-timeline: scroll(root block);
-    animation-range: 0 4rem;
-  }
-}
-@keyframes header-blend {
-  /* Only the start is given; it ends at the header's normal look. */
-  from {
-    background-color: transparent;
-    border-color: transparent;
-    backdrop-filter: none;
-  }
-}
-
 /* The ayah a permalink points at gets a brief highlight. */
 @keyframes ayah-flash {
   from {
