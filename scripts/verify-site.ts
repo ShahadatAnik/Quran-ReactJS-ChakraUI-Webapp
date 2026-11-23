@@ -140,6 +140,14 @@ for (const path of allPaths) {
   }
 }
 
+{
+  const manifest = await fetch(`${origin}/site.webmanifest`)
+  const type = manifest.headers.get("content-type") ?? ""
+  if (manifest.status !== 200 || !type.startsWith("application/manifest+json")) {
+    fail(`/site.webmanifest: ${manifest.status} ${type}`)
+  }
+}
+
 // ---------- 404 and redirects ----------
 
 console.log("\n404 page and old URLs")

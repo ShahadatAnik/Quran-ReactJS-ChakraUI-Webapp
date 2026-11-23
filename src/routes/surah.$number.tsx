@@ -85,14 +85,12 @@ function SurahRoute() {
         </div>
       }
       actions={
-        // Arabic name above the button on wide screens; side by side on phones.
-        <div className="flex w-full items-center justify-between gap-4 md:w-auto md:flex-col md:items-end">
-          <p
-            lang="ar"
-            dir="rtl"
-            className="font-arabic text-4xl leading-[1.4] text-gold md:text-5xl"
-          >
-            {surah.arabic}
+        // Wide screens: Arabic name above the button, at the right. Phones: the button lines up
+        // under the title (past the 48px number and 16px gap) and the name sits at the right.
+        <div className="flex w-full flex-row-reverse items-center justify-between gap-4 pl-16 md:w-auto md:flex-col md:items-end md:pl-0">
+          <p lang="ar" dir="rtl" className="h-9 text-4xl text-gold md:h-12 md:text-5xl">
+            {/* Amiri sits low in its line box; this centres the word on the button's line. */}
+            <span className="arabic-glyph-centred">{surah.arabic}</span>
           </p>
           <SurahPlayButton surah={surah.number} />
         </div>

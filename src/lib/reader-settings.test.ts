@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test"
 import {
+  arabicSizeScript,
   defaultReaderSettings,
   parseLastRead,
   parseReaderSettings,
+  READER_STORAGE_KEY,
   type ReaderSettings,
   settingsOverrides,
   surahProgress,
@@ -12,8 +14,8 @@ describe("settingsOverrides", () => {
   test("keeps only the settings that differ from the defaults", () => {
     expect(settingsOverrides(defaultReaderSettings)).toEqual({})
     expect(
-      settingsOverrides({ ...defaultReaderSettings, arabicSize: "lg", reciter: "ar.husary" })
-    ).toEqual({ arabicSize: "lg", reciter: "ar.husary" })
+      settingsOverrides({ ...defaultReaderSettings, arabicSize: "sm", reciter: "ar.husary" })
+    ).toEqual({ arabicSize: "sm", reciter: "ar.husary" })
   })
 
   test("a stored copy of the defaults follows a later change of default", () => {
@@ -72,4 +74,24 @@ test("surahProgress", () => {
   expect(surahProgress({ surah: 1, ayah: 7 })).toBe(100)
   expect(surahProgress({ surah: 2, ayah: 143 })).toBe(50)
   expect(surahProgress({ surah: 999, ayah: 1 })).toBe(0)
+})
+
+describe("arabicSizeScript", () => {
+  const run = (stored: string | null): string | undefined => {
+    delete document.documentElement.dataset.arabicSize
+    if (stored === null) localStorage.removeItem(READER_STORAGE_KEY)
+    else localStorage.setItem(READER_STORAGE_KEY, stored)
+    new Function(arabicSizeScript)()
+    return document.documentElement.dataset.arabicSize
+  }
+
+  test("puts the saved size on <html> before the app loads", () => {
+    expect(run(JSON.stringify({ arabicSize: "sm" }))).toBe("sm")
+  })
+
+  test("leaves the default alone when nothing valid is saved", () => {
+    expect(run(null)).toBeUndefined()
+    expect(run(JSON.stringify({ arabicSize: "huge" }))).toBeUndefined()
+    expect(run("not json")).toBeUndefined()
+  })
 })

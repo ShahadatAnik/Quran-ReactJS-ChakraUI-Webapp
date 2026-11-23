@@ -1,33 +1,71 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowUpRight } from "lucide-react"
-import { getWriter } from "@/content/writers"
+import { ArrowRight } from "lucide-react"
+import { posts } from "@/content/posts"
+import { getWriter, writers } from "@/content/writers"
 import { formatBanglaDate, toBanglaDigits } from "@/lib/bangla"
 import type { Page, PostPage, SurahPage } from "@/lib/pages"
+import { AYAH_COUNT } from "@/lib/surahs"
 import { cn } from "@/lib/utils"
 
 const cardClass =
   "group relative flex h-full flex-col gap-3 rounded-xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 outline-none transition-[box-shadow,background-color] hover:bg-accent/40 hover:ring-primary/40 focus-visible:ring-3 focus-visible:ring-ring/60"
 
+/**
+ * What each main destination is called in Arabic, shown large as the card's emblem, and a
+ * one-line fact about it.
+ */
+const destinations: Record<string, { arabic: string; fact: string }> = {
+  "/surah": { arabic: "السُّوَر", fact: `114 surahs · ${AYAH_COUNT.toLocaleString("en")} ayahs` },
+  "/ayah": { arabic: "آيَة", fact: "Any ayah, e.g. 2:255" },
+  "/search": { arabic: "بَحْث", fact: "40+ languages" },
+  "/blog": { arabic: "مَقَالَات", fact: `${posts.length} articles in Bangla` },
+  "/writers": { arabic: "كُتَّاب", fact: `${writers.length} writers` },
+}
+
 /** Card linking to any registry page; surahs and articles get their own layout. */
 export function PageCard({ page, className }: { page: Page; className?: string }) {
   if (page.kind === "surah") return <SurahCard page={page} className={className} />
   if (page.kind === "post") return <PostCard page={page} className={className} />
-  const Icon = page.icon
+  const destination = destinations[page.path]
   return (
-    <Link {...page.link} className={cn(cardClass, className)}>
-      <div className="flex items-center justify-between">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/20">
-          <Icon className="size-5" aria-hidden="true" />
-        </div>
-        <ArrowUpRight
+    <Link
+      {...page.link}
+      className={cn(
+        "group relative isolate flex h-full min-h-56 flex-col overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 transition-[box-shadow] outline-none hover:ring-gold/50 focus-visible:ring-3 focus-visible:ring-ring/60",
+        className
+      )}
+    >
+      {/* Star lattice fading out from the top-right corner; it brightens on hover. */}
+      <div
+        aria-hidden="true"
+        className="khatam-corner absolute -top-4 -right-4 -z-10 size-48 opacity-50 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none"
+      />
+      {destination ? (
+        <span
           aria-hidden="true"
-          className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none"
-        />
-      </div>
-      <div className="space-y-1">
-        <h3 className="font-medium">{page.title}</h3>
+          lang="ar"
+          dir="rtl"
+          className="self-end font-arabic text-5xl leading-[1.5] text-gold transition-transform duration-500 ease-out group-hover:-translate-y-0.5 motion-reduce:transition-none"
+        >
+          {destination.arabic}
+        </span>
+      ) : null}
+      <div className="mt-auto space-y-1.5 pt-4">
+        {destination ? (
+          <p className="text-xs font-medium tracking-wide text-gold uppercase">
+            {destination.fact}
+          </p>
+        ) : null}
+        <h3 className="text-lg font-semibold tracking-tight">{page.title}</h3>
         <p className="text-sm text-pretty text-muted-foreground">{page.summary}</p>
       </div>
+      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
+        Open
+        <ArrowRight
+          aria-hidden="true"
+          className="size-4 transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
+        />
+      </span>
     </Link>
   )
 }

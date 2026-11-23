@@ -1,6 +1,6 @@
 /**
  * Serves dist/client the way Netlify does, for checking a production build locally:
- *   1. the 301 redirects from netlify.toml
+ *   1. the 301 redirects from netlify.toml, and its Content-Type headers for exact paths
  *   2. the exact file, then <path>.html, then <path>/index.html
  *   3. otherwise /_shell.html with status 404
  *
@@ -26,6 +26,20 @@ async function readRedirects(): Promise<Map<string, string>> {
 
 const redirects = await readRedirects()
 
+/** Content-Type set by `[[headers]]` blocks for an exact path (not a wildcard). */
+async function readContentTypes(): Promise<Map<string, string>> {
+  const toml = await Bun.file(join(import.meta.dir, "..", "netlify.toml")).text()
+  const types = new Map<string, string>()
+  for (const block of toml.split("[[headers]]").slice(1)) {
+    const path = /for\s*=\s*"([^"]+)"/.exec(block)?.[1]
+    const type = /Content-Type\s*=\s*"([^"]+)"/.exec(block)?.[1]
+    if (path && type && !path.includes("*")) types.set(path, type)
+  }
+  return types
+}
+
+const contentTypes = await readContentTypes()
+
 async function file(path: string) {
   // Stay inside dist/client whatever the request path is.
   const resolved = normalize(join(root, path))
@@ -48,7 +62,10 @@ const server = Bun.serve({
         : [decoded, `${decoded.replace(/\/$/, "")}.html`, join(decoded, "index.html")]
     for (const candidate of candidates) {
       const found = await file(candidate).catch(() => undefined)
-      if (found && (await found.stat()).isFile()) return new Response(found)
+      if (found && (await found.stat()).isFile()) {
+        const type = contentTypes.get(candidate)
+        return new Response(found, type ? { headers: { "content-type": type } } : undefined)
+      }
     }
     const shell = await file("/_shell.html")
     return new Response(shell ?? "Not found", {

@@ -170,32 +170,33 @@
 }
 
 @layer components {
-  /* Arabic ayah text; the size follows the reader setting (data-size on an ancestor). */
+  /* Arabic ayah text. Its size follows the reader setting, which a script puts on <html> as
+     data-arabic-size before the first paint; without it, the default (large) applies. */
   .ayah-arabic {
-    font-size: 1.75rem;
+    font-size: 2.15rem;
     line-height: 2.1;
     text-align: right;
   }
-  [data-arabic-size="sm"] .ayah-arabic {
+  :root[data-arabic-size="sm"] .ayah-arabic {
     font-size: 1.45rem;
   }
-  [data-arabic-size="lg"] .ayah-arabic {
-    font-size: 2.15rem;
+  :root[data-arabic-size="md"] .ayah-arabic {
+    font-size: 1.75rem;
   }
-  [data-arabic-size="xl"] .ayah-arabic {
+  :root[data-arabic-size="xl"] .ayah-arabic {
     font-size: 2.6rem;
   }
   @media (min-width: 48rem) {
     .ayah-arabic {
-      font-size: 2rem;
-    }
-    [data-arabic-size="sm"] .ayah-arabic {
-      font-size: 1.6rem;
-    }
-    [data-arabic-size="lg"] .ayah-arabic {
       font-size: 2.5rem;
     }
-    [data-arabic-size="xl"] .ayah-arabic {
+    :root[data-arabic-size="sm"] .ayah-arabic {
+      font-size: 1.6rem;
+    }
+    :root[data-arabic-size="md"] .ayah-arabic {
+      font-size: 2rem;
+    }
+    :root[data-arabic-size="xl"] .ayah-arabic {
       font-size: 3rem;
     }
   }
@@ -213,13 +214,21 @@
 
   /* A faint lattice of eight-point stars (khatam) behind the hero, in the brand gold.
      The tile is a mask, intersected with a fade, so it takes the theme colour. */
-  .khatam-pattern {
+  .khatam-pattern,
+  .khatam-corner {
     background-color: color-mix(in oklch, var(--gold) 45%, transparent);
     mask:
       url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2756%27 height=%2756%27 viewBox=%270 0 56 56%27%3E%3Cg fill=%27none%27 stroke=%27black%27 stroke-width=%271%27%3E%3Crect x=%2718%27 y=%2718%27 width=%2720%27 height=%2720%27/%3E%3Crect x=%2718%27 y=%2718%27 width=%2720%27 height=%2720%27 transform=%27rotate(45 28 28)%27/%3E%3C/g%3E%3C/svg%3E")
       0 0 / 56px 56px,
-      radial-gradient(ellipse at 50% 0%, black 0%, transparent 72%);
+      radial-gradient(var(--khatam-fade));
     mask-composite: intersect;
+  }
+  .khatam-pattern {
+    --khatam-fade: ellipse at 50% 0%, black 0%, transparent 72%;
+  }
+  /* The same lattice fading out from a card's top-right corner. */
+  .khatam-corner {
+    --khatam-fade: circle at 100% 0%, black 0%, transparent 70%;
   }
 }
 
@@ -247,25 +256,32 @@
   }
 }
 
-/* Reading progress along the top edge, driven by the page scroll (no JavaScript).
-   Browsers without scroll-driven animations simply don't show it. */
-.scroll-progress {
+/* Reading progress through a surah, along the bottom of the sticky surah bar. It follows
+   the list of ayahs (.surah-reading), not the whole page: empty when the first ayah reaches
+   the top of the screen, full when the last one is in view. Pure CSS (a view timeline
+   shared through timeline-scope); browsers without scroll-driven animations don't show it.
+   It moves only as the reader scrolls, so it stays on with reduced motion. */
+.surah-progress {
   display: none;
 }
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .scroll-progress {
-      display: block;
-      position: fixed;
-      inset: 0 0 auto;
-      z-index: 50;
-      height: 3px;
-      background: linear-gradient(90deg, var(--primary), var(--gold));
-      transform-origin: 0 50%;
-      animation: scroll-progress linear both;
-      animation-timeline: scroll(root block);
-      pointer-events: none;
-    }
+@supports (animation-timeline: view()) and (timeline-scope: none) {
+  body {
+    timeline-scope: --surah-reading;
+  }
+  .surah-reading {
+    view-timeline: --surah-reading block;
+    /* The site header (3.5rem) and the sticky surah bar (3rem) cover the top of the screen. */
+    view-timeline-inset: 6.5rem 0;
+  }
+  .surah-progress {
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    transform-origin: 0 50%;
+    animation: scroll-progress linear both;
+    animation-timeline: --surah-reading;
+    animation-range: contain 0% contain 100%;
+    pointer-events: none;
   }
 }
 @keyframes scroll-progress {
@@ -274,6 +290,25 @@
   }
   to {
     transform: scaleX(1);
+  }
+}
+
+/* Home page: the header starts transparent over the hero pattern and gains its background,
+   blur and border over the first 4rem of scrolling. Pure CSS, so a reload part-way down shows
+   the right state at once; without scroll-driven animations it is simply always solid. */
+@supports (animation-timeline: scroll()) {
+  .site-header[data-blend] {
+    animation: header-blend linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 4rem;
+  }
+}
+@keyframes header-blend {
+  /* Only the start is given; it ends at the header's normal look. */
+  from {
+    background-color: transparent;
+    border-color: transparent;
+    backdrop-filter: none;
   }
 }
 

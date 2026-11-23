@@ -1,3 +1,5 @@
+import amiriFont from "@fontsource/amiri-quran/files/amiri-quran-arabic-400-normal.woff2?url"
+import hindFont from "@fontsource/hind-siliguri/files/hind-siliguri-bengali-400-normal.woff2?url"
 import geistFont from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { createRootRoute, HeadContent, ScriptOnce, Scripts } from "@tanstack/react-router"
@@ -11,6 +13,7 @@ import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider, themeScript } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { arabicSizeScript } from "@/lib/reader-settings"
 import { site } from "@/lib/site"
 import appCss from "../styles.css?url"
 
@@ -40,13 +43,15 @@ export const Route = createRootRoute({
           ]),
     ],
     links: [
-      {
+      // Fonts used above the fold on most pages, fetched alongside the stylesheet. Without
+      // this, ayahs first paint in a fallback Arabic font and grow when Amiri Quran arrives.
+      ...[geistFont, amiriFont, hindFont].map((href) => ({
         rel: "preload",
-        href: geistFont,
+        href,
         as: "font",
         type: "font/woff2",
-        crossOrigin: "anonymous",
-      },
+        crossOrigin: "anonymous" as const,
+      })),
       { rel: "stylesheet", href: appCss },
       // Audio streams from this CDN; connect early so the first play starts faster.
       { rel: "preconnect", href: "https://cdn.islamic.network", crossOrigin: "anonymous" },
@@ -65,6 +70,7 @@ function RootDocument({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <ScriptOnce>{themeScript}</ScriptOnce>
+        <ScriptOnce>{arabicSizeScript}</ScriptOnce>
         <HeadContent />
         {/* Rendered here, not in head(): head() dedupes meta by name, which would drop one. */}
         <meta
@@ -88,7 +94,6 @@ function RootDocument({ children }: { children: ReactNode }) {
               >
                 Skip to content
               </a>
-              <div aria-hidden="true" className="scroll-progress" />
               <div className="relative flex min-h-svh flex-col">
                 <SiteHeader />
                 <main id="main" tabIndex={-1} className="flex flex-1 flex-col outline-none">
