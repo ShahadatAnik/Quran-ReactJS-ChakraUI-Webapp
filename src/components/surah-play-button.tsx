@@ -19,7 +19,7 @@ export function SurahPlayButton({
   const audio = useAudio()
   const loaded = audio.track?.surah === surah
   const playing = loaded && audio.playing
-  const label = playing ? "Pause" : compact ? "Play" : loaded ? "Resume" : "Play surah"
+  const label = playing ? "Pause" : loaded && !compact ? "Resume" : "Play"
 
   return (
     <Button

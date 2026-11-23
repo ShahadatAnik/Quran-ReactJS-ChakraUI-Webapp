@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowRight, BookOpen, Search } from "lucide-react"
 import { ContinueReading } from "@/components/continue-reading"
+import { DuaOfTheDay } from "@/components/dua-of-the-day"
 import { PageCard, PostCard, SurahCard } from "@/components/page-card"
 import { useFrequentSurahs } from "@/components/reading-history"
 import { Button } from "@/components/ui/button"
@@ -117,18 +118,30 @@ function Home() {
       </section>
 
       <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-14 sm:px-6">
+        <DuaOfTheDay />
+
         <section aria-labelledby="explore-heading">
           <SectionHeading
             id="explore-heading"
             title="Explore"
             description="Everything on ILMIYAH, one click away. Press Ctrl+K anywhere to jump."
           />
+          {/* Bento: Surahs as the large tile, the other four as a 2×2 block beside it. */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {appPages
               .filter((page) => page.path !== "/writers")
-              .map((page) => (
-                <PageCard key={page.path} page={page} />
-              ))}
+              .map((page, index) =>
+                index === 0 ? (
+                  <PageCard
+                    key={page.path}
+                    page={page}
+                    featured
+                    className="sm:col-span-2 lg:row-span-2"
+                  />
+                ) : (
+                  <PageCard key={page.path} page={page} />
+                )
+              )}
           </div>
         </section>
 

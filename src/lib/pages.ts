@@ -1,8 +1,19 @@
 import type { LucideIcon } from "lucide-react"
-import { BookOpen, BookOpenText, Feather, Hash, Newspaper, Search, UsersRound } from "lucide-react"
+import {
+  BookOpen,
+  BookOpenText,
+  Feather,
+  HandHeart,
+  Hash,
+  Newspaper,
+  Search,
+  UsersRound,
+} from "lucide-react"
+import { type Dua, duaCategory, duas } from "@/content/duas"
 import { getPost, type Post, posts } from "@/content/posts"
 import { getWriter } from "@/content/writers"
-import { type Surah, surahs } from "@/lib/surahs"
+import { duaReference } from "@/lib/duas"
+import { getSurah, type Surah, surahs } from "@/lib/surahs"
 
 export type Section = "Quran" | "Articles" | "About"
 export const sections: readonly Section[] = ["Quran", "Articles", "About"]
@@ -14,8 +25,9 @@ export interface Faq {
 
 /** Typed link target for <Link {...page.link} />. */
 export type PageLink =
-  | { to: "/surah" | "/ayah" | "/search" | "/blog" | "/writers" }
+  | { to: "/surah" | "/ayah" | "/duas" | "/search" | "/blog" | "/writers" }
   | { to: "/surah/$number"; params: { number: string } }
+  | { to: "/duas/$slug"; params: { slug: string } }
   | { to: "/blog/$slug"; params: { slug: string } }
 
 interface BasePage {
@@ -59,8 +71,13 @@ export interface PostPage extends BasePage {
 export interface IndexPage extends BasePage {
   kind: "index"
 }
+export interface DuaPage extends GuidedPage {
+  kind: "dua"
+  dua: Dua
+  surah: Surah
+}
 
-export type Page = AppPage | SurahPage | PostPage | IndexPage
+export type Page = AppPage | SurahPage | PostPage | IndexPage | DuaPage
 
 export const SEO_TITLE_MAX = 45
 export const META_DESCRIPTION_RANGE = [140, 160] as const
@@ -131,6 +148,23 @@ const ayahPage: AppPage = {
         "The Bangla translation is by Muhiuddin Khan and the default reciter is Mishary Rashid Alafasy. You can change both in Reader settings, the sliders icon at the top of every page.",
     },
   ],
+}
+
+const duasPage: IndexPage = {
+  kind: "index",
+  path: "/duas",
+  link: { to: "/duas" },
+  title: "Duas from the Quran",
+  summary: "Duas and well-known ayahs from the Quran, such as Ayat al-Kursi.",
+  description:
+    "Duas from the Quran and well-known ayahs such as Ayat al-Kursi, each in Arabic with Bangla translation and audio, with its place in the Quran.",
+  section: "Quran",
+  icon: HandHeart,
+  keywords: ["dua", "doa", "supplication", "ayatul kursi", "দোয়া", "দুআ"],
+  seoTitle: "Duas from the Quran in Arabic & Bangla",
+  metaDescription:
+    "Duas and well-known ayahs from the Quran, such as Ayat al-Kursi and the end of Al-Baqarah, in Arabic with Bangla translation and audio, with references.",
+  lang: "en",
 }
 
 const searchPage: AppPage = {
@@ -296,6 +330,86 @@ export const surahPages: readonly SurahPage[] = surahs.map(surahPageOf)
 
 export const getSurahPage = (n: number) => surahPages[n - 1]
 
+// ---------- dua pages ----------
+
+function duaPageOf(dua: Dua): DuaPage {
+  const surah = getSurah(dua.surah) as Surah
+  const ref = duaReference(dua)
+  const { title } = dua
+  const count = dua.to - dua.from + 1
+  const ayahWord = count === 1 ? "ayah" : "ayahs"
+  const isSurah = count === surah.ayahs
+  const from = isSurah ? "" : ` from Surah ${surah.name}`
+  const place =
+    count === 1
+      ? `ayah ${dua.from} of Surah ${surah.name} (${ref})`
+      : isSurah
+        ? `the whole of Surah ${surah.name}, surah ${surah.number} of the Quran (${ref})`
+        : `ayahs ${dua.from} to ${dua.to} of Surah ${surah.name} (${ref})`
+  return {
+    kind: "dua",
+    dua,
+    surah,
+    path: `/duas/${dua.slug}`,
+    link: { to: "/duas/$slug", params: { slug: dua.slug } },
+    title,
+    summary: `${surah.name} ${ref} · ${duaCategory(dua.category).title}`,
+    description: `${title}${from} (${ref}), in Arabic with Bangla translation and audio recitation.`,
+    section: "Quran",
+    icon: HandHeart,
+    keywords: [dua.titleBn, ref, surah.name, surah.arabic, "dua", "দোয়া"],
+    seoTitle: fitLength(
+      [
+        `${title} (${ref}) in Arabic & Bangla`,
+        `${title} in Arabic & Bangla`,
+        `${title} (${ref})`,
+        title,
+      ],
+      0,
+      SEO_TITLE_MAX
+    ),
+    metaDescription: fitLength(
+      [
+        `Read ${title}${from} (${ref}) in Arabic with Bangla translation and verse-by-verse audio recitation. Free, with no ads or sign-up.`,
+        `Read ${title}${from} (${ref}) in Arabic with Bangla translation and audio recitation. Free, with no ads or sign-up.`,
+        `Read ${title}${from} (${ref}) in Arabic with Bangla translation and audio. Free, no ads.`,
+        `Read ${title}${from} (${ref}) in Arabic with Bangla translation and verse-by-verse audio recitation by Mishary Alafasy. Free, with no ads or sign-up.`,
+        `Read ${title}${from} (${ref}), a dua from the Quran, in Arabic with Bangla translation and verse-by-verse audio recitation by Mishary Alafasy. Free and ad-free.`,
+      ],
+      ...META_DESCRIPTION_RANGE
+    ),
+    lang: "en",
+    howTo: [
+      `Read the Arabic with the Bangla translation below it.${dua.startsAtWord ? " The dua is part of a longer ayah, so its words are highlighted." : ""}`,
+      `Press Play to hear the ${ayahWord} recited${count > 1 ? " one after another" : ""}. Playback stops at the end of the dua.`,
+      `Open Read in context to see the ayahs around it in Surah ${surah.name}.`,
+      "Use the link button on an ayah to copy its permanent link, or share this page.",
+    ],
+    faqs: [
+      {
+        question: `Where is ${title} in the Quran?`,
+        answer: `It is ${place}.${dua.startsAtWord ? " The dua is the part of the ayah highlighted on this page." : ""}`,
+      },
+      ...(dua.saidBy
+        ? [
+            {
+              question: `Who says this dua in the Quran?`,
+              answer: `In the Quran's account in Surah ${surah.name}, these words are the dua of ${dua.saidBy}.`,
+            },
+          ]
+        : []),
+      {
+        question: `Is Surah ${surah.name} Meccan or Medinan?`,
+        answer: `Surah ${surah.name}, surah ${surah.number} of the Quran, is a ${surah.revelation} surah of ${surah.ayahs} ayahs.`,
+      },
+    ],
+  }
+}
+
+export const duaPages: readonly DuaPage[] = duas.map(duaPageOf)
+
+export const getDuaPage = (slug: string) => duaPages.find((p) => p.dua.slug === slug)
+
 // ---------- article pages ----------
 
 function postPageOf(post: Post): PostPage {
@@ -327,18 +441,26 @@ export const getPostPage = (slug: string) => {
 // ---------- registry ----------
 
 /** Main destinations, in navigation order. */
-export const appPages = [surahIndexPage, ayahPage, searchPage, blogPage, writersPage] as const
+export const appPages = [
+  surahIndexPage,
+  ayahPage,
+  duasPage,
+  searchPage,
+  blogPage,
+  writersPage,
+] as const
 
 export const pageByPath = {
   surahs: surahIndexPage,
   ayah: ayahPage,
+  duas: duasPage,
   search: searchPage,
   blog: blogPage,
   writers: writersPage,
 } as const
 
 /** Every indexable page except the home page (sitemap, OG images, llms.txt). */
-export const pages: readonly Page[] = [...appPages, ...surahPages, ...postPages]
+export const pages: readonly Page[] = [...appPages, ...duaPages, ...surahPages, ...postPages]
 
 /** File name of a page's Open Graph image, e.g. "surah-2" for /surah/2. */
 export const pageSlug = (page: Pick<Page, "path">) => page.path.slice(1).replaceAll("/", "-")
@@ -360,6 +482,15 @@ export function relatedPages(page: Page, limit = 6): Page[] {
         .slice(0, limit)
         .map((x) => surahPages[x - 1])
         .filter((p): p is SurahPage => p !== undefined)
+    }
+    case "dua": {
+      // Same category first, then the rest of the duas, then the surah it is from.
+      const sameCategory = duaPages.filter(
+        (p) => p.dua.category === page.dua.category && p.path !== page.path
+      )
+      const rest = duaPages.filter((p) => !sameCategory.includes(p) && p.path !== page.path)
+      const surah = surahPages[page.surah.number - 1]
+      return [...sameCategory, ...rest].slice(0, limit - 1).concat(surah ? [surah] : [])
     }
     case "post": {
       const series = page.post.series

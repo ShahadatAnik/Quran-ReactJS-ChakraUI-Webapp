@@ -46,12 +46,14 @@ interface AudioState {
   playing: boolean
   /** Waiting for audio data. */
   buffering: boolean
-  /** Keep playing the following ayahs to the end of the surah. */
+  /** Keep playing the following ayahs to the end of the surah (or to `until`). */
   continuous: boolean
+  /** Last ayah to play when continuous, for a range such as a dua; null for the surah's end. */
+  until: number | null
 }
 
 interface AudioControls {
-  play: (track: AudioTrack, options?: { continuous?: boolean }) => void
+  play: (track: AudioTrack, options?: { continuous?: boolean; until?: number }) => void
   toggle: () => void
   stop: () => void
   step: (delta: 1 | -1) => void
@@ -68,7 +70,19 @@ interface AudioTime {
 const AudioStateContext = createContext<(AudioState & AudioControls) | null>(null)
 const AudioTimeContext = createContext<AudioTime>({ current: 0, duration: 0 })
 
-const idle: AudioState = { track: null, playing: false, buffering: false, continuous: false }
+const idle: AudioState = {
+  track: null,
+  playing: false,
+  buffering: false,
+  continuous: false,
+  until: null,
+}
+
+/** The last ayah continuous playback of `track` goes to: the range's end, or the surah's. */
+function lastAyah(track: AudioTrack, until: number | null): number {
+  const count = getSurah(track.surah)?.ayahs ?? 0
+  return until === null ? count : Math.min(until, count)
+}
 
 /**
  * The next ayah starts loading at 90% of the current one, or 5 seconds before its end if that
@@ -124,10 +138,9 @@ function useAudioEngine(reciterId: string) {
 
   /** The next ayah to buffer while playing through a surah, if there is one. */
   const nextTrack = (): AudioTrack | null => {
-    const { track, continuous } = stateRef.current
+    const { track, continuous, until } = stateRef.current
     if (!track || !continuous) return null
-    const count = getSurah(track.surah)?.ayahs ?? 0
-    return track.ayah < count ? { surah: track.surah, ayah: track.ayah + 1 } : null
+    return track.ayah < lastAyah(track, until) ? { surah: track.surah, ayah: track.ayah + 1 } : null
   }
 
   /** Starts buffering the next ayah once most of the current one has played. */
@@ -146,7 +159,7 @@ function useAudioEngine(reciterId: string) {
   }
 
   const load = useCallback(
-    (track: AudioTrack, continuous: boolean) => {
+    (track: AudioTrack, continuous: boolean, until: number | null) => {
       const url = ayahAudioUrl(track.surah, track.ayah, reciterRef.current)
       const previous = audioRef.current
       const preloaded = preloadRef.current?.url === url ? preloadRef.current.audio : null
@@ -161,7 +174,7 @@ function useAudioEngine(reciterId: string) {
         audio = getAudio()
         audio.src = url
       }
-      setState({ track, playing: true, buffering: audio.readyState < 3, continuous })
+      setState({ track, playing: true, buffering: audio.readyState < 3, continuous, until })
       setTime({ current: 0, duration: audio.duration || 0 })
       const start = (element: HTMLAudioElement) =>
         element.play().catch((error: unknown) => {
@@ -198,11 +211,11 @@ function useAudioEngine(reciterId: string) {
 
   const step = useCallback(
     (delta: 1 | -1) => {
-      const { track, continuous } = stateRef.current
+      const { track, continuous, until } = stateRef.current
       if (!track) return
       const count = getSurah(track.surah)?.ayahs ?? 0
       const ayah = track.ayah + delta
-      if (ayah >= 1 && ayah <= count) load({ surah: track.surah, ayah }, continuous)
+      if (ayah >= 1 && ayah <= count) load({ surah: track.surah, ayah }, continuous, until)
     },
     [load]
   )
@@ -219,9 +232,8 @@ function useAudioEngine(reciterId: string) {
     },
     durationchange: onTime,
     ended: () => {
-      const { track, continuous } = stateRef.current
-      const count = track ? (getSurah(track.surah)?.ayahs ?? 0) : 0
-      if (track && continuous && track.ayah < count) step(1)
+      const { track, continuous, until } = stateRef.current
+      if (track && continuous && track.ayah < lastAyah(track, until)) step(1)
       else setState(idle)
     },
     error: (audio) => {
@@ -262,7 +274,7 @@ function useAudioEngine(reciterId: string) {
 
   const controls = useMemo<AudioControls>(
     () => ({
-      play: (track, options) => load(track, options?.continuous ?? false),
+      play: (track, options) => load(track, options?.continuous ?? false, options?.until ?? null),
       toggle: () => {
         const audio = audioRef.current
         if (!audio || !stateRef.current.track) return

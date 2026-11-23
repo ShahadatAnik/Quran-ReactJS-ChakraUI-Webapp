@@ -16,7 +16,12 @@ import { appPages } from "@/lib/pages"
 /** Main navigation: every app page except Writers, which lives in the footer. */
 const nav = appPages.filter((page) => page.path !== "/writers")
 
-const navLabel = (title: string) => (title === "Search the Quran" ? "Search" : title)
+/** Short labels for the navigation. */
+const navLabels: Record<string, string> = {
+  "Search the Quran": "Search",
+  "Duas from the Quran": "Duas",
+}
+const navLabel = (title: string) => navLabels[title] ?? title
 
 export function SiteHeader() {
   return (

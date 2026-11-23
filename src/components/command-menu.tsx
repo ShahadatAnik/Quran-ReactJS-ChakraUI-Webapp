@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router"
 import {
   BookOpenText,
   CornerDownRight,
+  HandHeart,
   History,
   House,
   Monitor,
@@ -26,7 +27,8 @@ import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { useModHotkey } from "@/hooks/use-hotkey"
 import { useMounted } from "@/hooks/use-mounted"
 import { commandFilter } from "@/lib/command-filter"
-import { appPages, postPages, surahPages } from "@/lib/pages"
+import { duaReference } from "@/lib/duas"
+import { appPages, duaPages, postPages, surahPages } from "@/lib/pages"
 import { ayahId, getSurah, parseAyahReference } from "@/lib/surahs"
 
 function useIsMac() {
@@ -128,6 +130,22 @@ export function CommandMenu() {
                 <History />
                 Reading history
               </CommandItem>
+            </CommandGroup>
+            <CommandGroup heading="Duas">
+              {duaPages.map((page) => (
+                <CommandItem
+                  key={page.path}
+                  value={page.title}
+                  keywords={[...page.keywords]}
+                  onSelect={() => run(() => navigate(page.link))}
+                >
+                  <HandHeart />
+                  <span className="truncate">{page.title}</span>
+                  <span className="ml-auto shrink-0 text-xs text-muted-foreground tabular-nums">
+                    {duaReference(page.dua)}
+                  </span>
+                </CommandItem>
+              ))}
             </CommandGroup>
             <CommandGroup heading="Surahs">
               {surahPages.map((page) => (

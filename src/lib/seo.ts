@@ -2,12 +2,14 @@ import { getWriter } from "@/content/writers"
 import {
   type AppPage,
   appPages,
+  type DuaPage,
   type IndexPage,
   ogImagePath,
   type Page,
   type PostPage,
   pageSlug,
   type SurahPage,
+  surahPages,
 } from "@/lib/pages"
 import { site } from "@/lib/site"
 
@@ -208,6 +210,47 @@ function surahSeo(page: SurahPage) {
   }
 }
 
+function duaSeo(page: DuaPage) {
+  const url = absoluteUrl(page.path)
+  const surahUrl = absoluteUrl(surahPages[page.surah.number - 1]?.path ?? "/surah")
+  return {
+    ...pageHead(page),
+    scripts: [
+      jsonLd([
+        {
+          "@type": "WebPage",
+          "@id": `${url}#page`,
+          name: page.title,
+          alternateName: page.dua.titleBn,
+          headline: page.seoTitle,
+          description: page.metaDescription,
+          url,
+          image: absoluteUrl(ogImagePath(pageSlug(page))),
+          inLanguage: ["ar", "bn", "en"],
+          isAccessibleForFree: true,
+          isPartOf: { "@id": ids.website },
+          about: {
+            "@type": "Chapter",
+            name: `Surah ${page.surah.name}`,
+            url: surahUrl,
+            position: page.surah.number,
+            isPartOf: { "@id": ids.quran },
+          },
+          publisher: { "@id": ids.author },
+        },
+        breadcrumbs([
+          { name: "Duas", path: "/duas" },
+          { name: page.title, path: page.path },
+        ]),
+        faqPage(page.faqs),
+        quranNode,
+        websiteNode,
+        authorNode,
+      ]),
+    ],
+  }
+}
+
 function appSeo(page: AppPage) {
   const url = absoluteUrl(page.path)
   return {
@@ -319,5 +362,7 @@ export function pageSeo(page: Exclude<Page, IndexPage>) {
       return postSeo(page)
     case "app":
       return appSeo(page)
+    case "dua":
+      return duaSeo(page)
   }
 }

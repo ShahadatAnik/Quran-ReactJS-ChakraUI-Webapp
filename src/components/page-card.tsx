@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router"
+import { duaCategory, duas } from "@/content/duas"
 import { posts } from "@/content/posts"
 import { getWriter, writers } from "@/content/writers"
 import { formatBanglaDate, toBanglaDigits } from "@/lib/bangla"
-import type { Page, PostPage, SurahPage } from "@/lib/pages"
+import { duaOpening, duaSource } from "@/lib/duas"
+import type { DuaPage, Page, PostPage, SurahPage } from "@/lib/pages"
 import { AYAH_COUNT } from "@/lib/surahs"
 import { cn } from "@/lib/utils"
 
@@ -17,34 +19,54 @@ const destinations: Record<string, { arabic: string; fact: string }> = {
   "/surah": { arabic: "السُّوَر", fact: `114 surahs · ${AYAH_COUNT.toLocaleString("en")} ayahs` },
   "/ayah": { arabic: "آيَة", fact: "Any ayah, e.g. 2:255" },
   "/search": { arabic: "بَحْث", fact: "40+ languages" },
+  "/duas": { arabic: "دُعَاء", fact: `${duas.length} duas & ayahs` },
   "/blog": { arabic: "مَقَالَات", fact: `${posts.length} articles in Bangla` },
   "/writers": { arabic: "كُتَّاب", fact: `${writers.length} writers` },
 }
 
-/** Card linking to any registry page; surahs and articles get their own layout. */
-export function PageCard({ page, className }: { page: Page; className?: string }) {
+/**
+ * Card linking to any registry page; surahs and articles get their own layout. `featured`
+ * is the large tile of the home page's bento grid: bigger Arabic and text.
+ */
+export function PageCard({
+  page,
+  className,
+  featured = false,
+}: {
+  page: Page
+  className?: string
+  featured?: boolean
+}) {
   if (page.kind === "surah") return <SurahCard page={page} className={className} />
   if (page.kind === "post") return <PostCard page={page} className={className} />
+  if (page.kind === "dua") return <DuaCard page={page} className={className} />
   const destination = destinations[page.path]
   return (
     <Link
       {...page.link}
       className={cn(
         "group relative isolate flex h-full min-h-56 flex-col overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 transition-[box-shadow] outline-none hover:ring-gold/50 focus-visible:ring-3 focus-visible:ring-ring/60",
+        featured && "p-6 md:p-8",
         className
       )}
     >
       {/* Star lattice fading out from the top-right corner; it brightens on hover. */}
       <div
         aria-hidden="true"
-        className="khatam-corner absolute -top-4 -right-4 -z-10 size-48 opacity-50 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none"
+        className={cn(
+          "khatam-corner absolute -top-4 -right-4 -z-10 opacity-50 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none",
+          featured ? "size-96" : "size-48"
+        )}
       />
       {destination ? (
         <span
           aria-hidden="true"
           lang="ar"
           dir="rtl"
-          className="self-end font-arabic text-5xl leading-[1.5] text-gold transition-transform duration-500 ease-out group-hover:-translate-y-0.5 motion-reduce:transition-none"
+          className={cn(
+            "self-end font-arabic leading-[1.5] text-gold transition-transform duration-500 ease-out group-hover:-translate-y-0.5 motion-reduce:transition-none",
+            featured ? "text-7xl md:text-8xl" : "text-5xl"
+          )}
         >
           {destination.arabic}
         </span>
@@ -55,11 +77,22 @@ export function PageCard({ page, className }: { page: Page; className?: string }
             {destination.fact}
           </p>
         ) : null}
-        <h3 className="text-lg font-semibold tracking-tight">{page.title}</h3>
-        {/* Always three lines tall, so titles and descriptions line up across a row. */}
-        <p className="line-clamp-3 min-h-[3lh] text-sm text-pretty text-muted-foreground">
-          {page.summary}
-        </p>
+        <h3
+          className={cn(
+            "font-semibold tracking-tight",
+            featured ? "text-2xl md:text-3xl" : "text-lg"
+          )}
+        >
+          {page.title}
+        </h3>
+        {featured ? (
+          <p className="max-w-md text-base text-pretty text-muted-foreground">{page.description}</p>
+        ) : (
+          // Always three lines tall, so titles and descriptions line up across a row.
+          <p className="line-clamp-3 min-h-[3lh] text-sm text-pretty text-muted-foreground">
+            {page.summary}
+          </p>
+        )}
       </div>
     </Link>
   )
@@ -131,6 +164,33 @@ export function PostCard({ page, className }: { page: PostPage; className?: stri
         <time dateTime={post.date}>{formatBanglaDate(post.date)}</time> ·{" "}
         {getWriter(post.writer).name}
       </p>
+    </Link>
+  )
+}
+
+/** A dua or well-known ayah: its category, opening words in Arabic, names and reference. */
+export function DuaCard({ page, className }: { page: DuaPage; className?: string }) {
+  const { dua } = page
+  return (
+    <Link {...page.link} className={cn(cardClass, "gap-2", className)}>
+      <p className="text-xs font-medium tracking-wide text-gold uppercase">
+        {duaCategory(dua.category).title}
+      </p>
+      {/* Top padding keeps Amiri's tall marks inside the two-line clip. */}
+      <p
+        lang="ar"
+        dir="rtl"
+        className="line-clamp-2 pt-2 font-arabic text-2xl leading-[1.9] text-foreground"
+      >
+        {duaOpening(dua)}
+      </p>
+      <div className="mt-auto space-y-0.5 pt-2">
+        <h3 className="font-medium">{dua.title}</h3>
+        <p lang="bn" className="text-sm text-muted-foreground">
+          {dua.titleBn}
+        </p>
+        <p className="text-xs text-muted-foreground tabular-nums">{duaSource(dua)}</p>
+      </div>
     </Link>
   )
 }
