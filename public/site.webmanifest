@@ -1,0 +1,25 @@
+{
+  "name": "ILMIYAH: Quran in Arabic & Bangla",
+  "short_name": "ILMIYAH",
+  "description": "Read the Quran in Arabic with Bangla translation and audio, search it in any language, and read Bangla Islamic articles.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["books", "education", "lifestyle"],
+  "theme_color": "#07110d",
+  "background_color": "#07110d",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

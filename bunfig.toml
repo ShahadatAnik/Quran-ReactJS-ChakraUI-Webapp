@@ -1,0 +1,6 @@
+[install]
+exact = true
+
+[test]
+root = "./src"
+preload = ["./test/happydom.ts", "./test/testing-library.ts"]
