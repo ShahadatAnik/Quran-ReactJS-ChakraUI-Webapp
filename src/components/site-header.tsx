@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router"
 import { Menu } from "lucide-react"
 import { CommandMenu } from "@/components/command-menu"
 import { Logo } from "@/components/logo"
@@ -19,13 +19,8 @@ const nav = appPages.filter((page) => page.path !== "/writers")
 const navLabel = (title: string) => (title === "Search the Quran" ? "Search" : title)
 
 export function SiteHeader() {
-  const home = useRouterState({ select: (state) => state.location.pathname === "/" })
   return (
-    <header
-      // On the home page the header starts transparent over the hero pattern (see .site-header).
-      data-blend={home || undefined}
-      className="site-header sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg [view-transition-name:site-header] supports-backdrop-filter:bg-background/65"
-    >
+    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-lg [view-transition-name:site-header] supports-backdrop-filter:bg-background/65">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
         <Logo />
         <nav aria-label="Main" className="ml-4 hidden items-center gap-1 md:flex">
