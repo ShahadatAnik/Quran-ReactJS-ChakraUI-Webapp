@@ -1,0 +1,113 @@
+# Netlify: static, fully prerendered TanStack Start build, built with Bun.
+[build]
+  command = "bun run build"
+  publish = "dist/client"
+
+[build.environment]
+  BUN_VERSION = "1.4.5"
+
+# ---------- Old URLs (Vite + React Router site) → new routes ----------
+# /surah, /surah/:n and /ayah kept their URLs.
+
+[[redirects]]
+  from = "/find-word"
+  to = "/search"
+  status = 301
+
+[[redirects]]
+  from = "/about-writers"
+  to = "/writers"
+  status = 301
+
+[[redirects]]
+  from = "/manifest.json"
+  to = "/site.webmanifest"
+  status = 301
+
+[[redirects]]
+  from = "/islam-on-women-rights-and-dignity"
+  to = "/blog/islam-on-women-rights-and-dignity"
+  status = 301
+
+[[redirects]]
+  from = "/woman-hahaha-shame-passing"
+  to = "/blog/woman-hahaha-shame-passing"
+  status = 301
+
+[[redirects]]
+  from = "/dua-for-prophet-part-1"
+  to = "/blog/dua-for-prophet-part-1"
+  status = 301
+
+[[redirects]]
+  from = "/dua-for-prophet-part-2"
+  to = "/blog/dua-for-prophet-part-2"
+  status = 301
+
+[[redirects]]
+  from = "/dua-for-prophet-part-3"
+  to = "/blog/dua-for-prophet-part-3"
+  status = 301
+
+[[redirects]]
+  from = "/dua-for-prophet-part-4"
+  to = "/blog/dua-for-prophet-part-4"
+  status = 301
+
+[[redirects]]
+  from = "/dua-for-prophet-part-5"
+  to = "/blog/dua-for-prophet-part-5"
+  status = 301
+
+[[redirects]]
+  from = "/for-muslims-saying-merry-christmas-means-accepting-the-divinity-of-isa"
+  to = "/blog/for-muslims-saying-merry-christmas-means-accepting-the-divinity-of-isa"
+  status = 301
+
+# Old icon files, still requested by bookmarks and home-screen shortcuts.
+[[redirects]]
+  from = "/android-chrome-192x192.png"
+  to = "/icon-192.png"
+  status = 301
+
+[[redirects]]
+  from = "/android-chrome-512x512.png"
+  to = "/icon-512.png"
+  status = 301
+
+[[redirects]]
+  from = "/favicon-32x32.png"
+  to = "/icon-192.png"
+  status = 301
+
+[[redirects]]
+  from = "/favicon-16x16.png"
+  to = "/icon-192.png"
+  status = 301
+
+# Anything that isn't a prerendered file: serve the SPA shell with a real 404 status.
+# The router then renders the Not Found page (src/routes/$.tsx) on the client.
+[[redirects]]
+  from = "/*"
+  to = "/_shell.html"
+  status = 404
+
+# Hashed build assets never change.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Open Graph images keep their URL when regenerated, so cache them for a day only.
+[[headers]]
+  for = "/og/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

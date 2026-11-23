@@ -1,0 +1,313 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+/* Self-hosted WOFF2 subsets: browsers fetch only the subsets a page actually uses. */
+@import "@fontsource/hind-siliguri/bengali-400.css";
+@import "@fontsource/hind-siliguri/bengali-600.css";
+@import "@fontsource/amiri-quran/arabic-400.css";
+@import "@fontsource/galada/bengali-400.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Geist has no Bengali glyphs, so mixed Latin/Bangla text falls through to Hind Siliguri. */
+  --font-sans: "Geist Variable", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-bangla: "Hind Siliguri", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: "Amiri Quran", "Amiri", "Scheherazade New", "Noto Naskh Arabic", serif;
+  /* Brand display face: the logo and the hero only. */
+  --font-display: "Galada", "Hind Siliguri", var(--font-sans);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Light theme: warm ivory paper, deep emerald primary, burnished gold accents. */
+:root {
+  --background: oklch(0.985 0.008 95);
+  --foreground: oklch(0.2 0.02 165);
+  --card: oklch(0.997 0.004 95);
+  --card-foreground: oklch(0.2 0.02 165);
+  --popover: oklch(0.997 0.004 95);
+  --popover-foreground: oklch(0.2 0.02 165);
+  --primary: oklch(0.5 0.11 162);
+  --primary-foreground: oklch(0.985 0.01 95);
+  --secondary: oklch(0.955 0.02 160);
+  --secondary-foreground: oklch(0.32 0.07 162);
+  --muted: oklch(0.96 0.01 100);
+  --muted-foreground: oklch(0.47 0.025 165);
+  --accent: oklch(0.95 0.035 160);
+  --accent-foreground: oklch(0.3 0.07 162);
+  --gold: oklch(0.62 0.13 75);
+  --gold-foreground: oklch(0.99 0.01 95);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.905 0.014 120);
+  --input: oklch(0.89 0.016 120);
+  --ring: oklch(0.6 0.12 162);
+  --chart-1: oklch(0.5 0.11 162);
+  --chart-2: oklch(0.62 0.13 75);
+  --chart-3: oklch(0.7 0.12 150);
+  --chart-4: oklch(0.55 0.1 220);
+  --chart-5: oklch(0.75 0.14 85);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.975 0.01 95);
+  --sidebar-foreground: oklch(0.2 0.02 165);
+  --sidebar-primary: oklch(0.5 0.11 162);
+  --sidebar-primary-foreground: oklch(0.985 0.01 95);
+  --sidebar-accent: oklch(0.95 0.035 160);
+  --sidebar-accent-foreground: oklch(0.3 0.07 162);
+  --sidebar-border: oklch(0.905 0.014 120);
+  --sidebar-ring: oklch(0.6 0.12 162);
+}
+
+/* Dark theme: near-black green night, luminous emerald and the original's bright gold. */
+.dark {
+  --background: oklch(0.165 0.016 170);
+  --foreground: oklch(0.96 0.01 95);
+  --card: oklch(0.205 0.018 170);
+  --card-foreground: oklch(0.96 0.01 95);
+  --popover: oklch(0.215 0.018 170);
+  --popover-foreground: oklch(0.96 0.01 95);
+  --primary: oklch(0.76 0.13 162);
+  --primary-foreground: oklch(0.2 0.04 165);
+  --secondary: oklch(0.26 0.025 168);
+  --secondary-foreground: oklch(0.95 0.01 95);
+  --muted: oklch(0.24 0.018 170);
+  --muted-foreground: oklch(0.72 0.02 165);
+  --accent: oklch(0.27 0.03 168);
+  --accent-foreground: oklch(0.96 0.01 95);
+  --gold: oklch(0.86 0.14 90);
+  --gold-foreground: oklch(0.22 0.04 80);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.65 0.12 162);
+  --chart-1: oklch(0.76 0.13 162);
+  --chart-2: oklch(0.86 0.14 90);
+  --chart-3: oklch(0.65 0.12 150);
+  --chart-4: oklch(0.65 0.1 220);
+  --chart-5: oklch(0.78 0.13 75);
+  --sidebar: oklch(0.205 0.018 170);
+  --sidebar-foreground: oklch(0.96 0.01 95);
+  --sidebar-primary: oklch(0.76 0.13 162);
+  --sidebar-primary-foreground: oklch(0.2 0.04 165);
+  --sidebar-accent: oklch(0.27 0.03 168);
+  --sidebar-accent-foreground: oklch(0.96 0.01 95);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.65 0.12 162);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply scroll-pt-24 font-sans;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply min-h-svh bg-background text-foreground antialiased;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  ::selection {
+    @apply bg-primary/25;
+  }
+  /* Bangla runs need more line height than Latin for their vowel signs. */
+  :lang(bn) {
+    @apply font-bangla;
+    line-height: 1.85;
+  }
+  :lang(ar) {
+    @apply font-arabic;
+    font-feature-settings: "calt", "liga";
+  }
+}
+
+@layer components {
+  /* Arabic ayah text; the size follows the reader setting (data-size on an ancestor). */
+  .ayah-arabic {
+    font-size: 1.75rem;
+    line-height: 2.1;
+    text-align: right;
+  }
+  [data-arabic-size="sm"] .ayah-arabic {
+    font-size: 1.45rem;
+  }
+  [data-arabic-size="lg"] .ayah-arabic {
+    font-size: 2.15rem;
+  }
+  [data-arabic-size="xl"] .ayah-arabic {
+    font-size: 2.6rem;
+  }
+  @media (min-width: 48rem) {
+    .ayah-arabic {
+      font-size: 2rem;
+    }
+    [data-arabic-size="sm"] .ayah-arabic {
+      font-size: 1.6rem;
+    }
+    [data-arabic-size="lg"] .ayah-arabic {
+      font-size: 2.5rem;
+    }
+    [data-arabic-size="xl"] .ayah-arabic {
+      font-size: 3rem;
+    }
+  }
+
+  /* A single Arabic letter centred in a button. Amiri Quran's ascent is 1.82em (descent
+     0.63em), so with line-height 1 its baseline sits far below the middle; "ع" is inked
+     0.48em above and below the baseline, so lifting it 0.6em centres it at any size
+     (measured with canvas measureText). */
+  .arabic-glyph-centred {
+    display: block;
+    font-family: var(--font-arabic);
+    line-height: 1;
+    transform: translateY(-0.6em);
+  }
+
+  /* A faint lattice of eight-point stars (khatam) behind the hero, in the brand gold.
+     The tile is a mask, intersected with a fade, so it takes the theme colour. */
+  .khatam-pattern {
+    background-color: color-mix(in oklch, var(--gold) 45%, transparent);
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2756%27 height=%2756%27 viewBox=%270 0 56 56%27%3E%3Cg fill=%27none%27 stroke=%27black%27 stroke-width=%271%27%3E%3Crect x=%2718%27 y=%2718%27 width=%2720%27 height=%2720%27/%3E%3Crect x=%2718%27 y=%2718%27 width=%2720%27 height=%2720%27 transform=%27rotate(45 28 28)%27/%3E%3C/g%3E%3C/svg%3E")
+      0 0 / 56px 56px,
+      radial-gradient(ellipse at 50% 0%, black 0%, transparent 72%);
+    mask-composite: intersect;
+  }
+}
+
+/* Page transitions: the router wraps path changes in document.startViewTransition().
+   The old page fades out quickly, the new one fades in with a slight lift. The header has
+   its own view-transition-name (see site-header.tsx), so it stays put. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: page-out 120ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+  ::view-transition-new(root) {
+    animation: page-in 300ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+  }
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Reading progress along the top edge, driven by the page scroll (no JavaScript).
+   Browsers without scroll-driven animations simply don't show it. */
+.scroll-progress {
+  display: none;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-progress {
+      display: block;
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 50;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+      transform-origin: 0 50%;
+      animation: scroll-progress linear both;
+      animation-timeline: scroll(root block);
+      pointer-events: none;
+    }
+  }
+}
+@keyframes scroll-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The ayah a permalink points at gets a brief highlight. */
+@keyframes ayah-flash {
+  from {
+    background-color: color-mix(in oklch, var(--gold) 28%, transparent);
+  }
+}
+.ayah-target {
+  animation: ayah-flash 2.4s ease-out;
+}
+
+/* FAQ answers expand smoothly where the browser can animate to height: auto. */
+.faq-item {
+  interpolate-size: allow-keywords;
+}
+.faq-item::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition:
+    block-size 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    content-visibility 240ms allow-discrete;
+}
+.faq-item[open]::details-content {
+  block-size: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Swap pages instantly instead of the browser default cross-fade. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+  .faq-item::details-content {
+    transition: none;
+  }
+  .ayah-target {
+    animation: none;
+  }
+}
