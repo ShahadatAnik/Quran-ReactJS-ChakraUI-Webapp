@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router"
-import { ArrowRight } from "lucide-react"
 import { posts } from "@/content/posts"
 import { getWriter, writers } from "@/content/writers"
 import { formatBanglaDate, toBanglaDigits } from "@/lib/bangla"
@@ -57,15 +56,11 @@ export function PageCard({ page, className }: { page: Page; className?: string }
           </p>
         ) : null}
         <h3 className="text-lg font-semibold tracking-tight">{page.title}</h3>
-        <p className="text-sm text-pretty text-muted-foreground">{page.summary}</p>
+        {/* Always three lines tall, so titles and descriptions line up across a row. */}
+        <p className="line-clamp-3 min-h-[3lh] text-sm text-pretty text-muted-foreground">
+          {page.summary}
+        </p>
       </div>
-      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary">
-        Open
-        <ArrowRight
-          aria-hidden="true"
-          className="size-4 transition-transform group-hover:translate-x-1 motion-reduce:transition-none"
-        />
-      </span>
     </Link>
   )
 }

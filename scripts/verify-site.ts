@@ -77,10 +77,11 @@ function watchConsole(page: Page) {
     }
   }
   const onRequestFailed = (request: Request) => {
-    // Audio prefetches can be cancelled when the page changes; anything else is a problem.
-    if (request.resourceType() !== "media" && ownFile(request.url())) {
-      problems.push(`request failed: ${request.url()} (${request.failure()?.errorText})`)
-    }
+    // Moving on to the next page cancels requests still in flight (the favicon, an audio
+    // prefetch): that is ERR_ABORTED, not a broken file. Missing files answer 404 above.
+    const error = request.failure()?.errorText ?? ""
+    if (error === "net::ERR_ABORTED" || request.resourceType() === "media") return
+    if (ownFile(request.url())) problems.push(`request failed: ${request.url()} (${error})`)
   }
   const onPageError = (error: Error) => problems.push(`pageerror: ${error.message}`)
   page.on("console", onConsole)
@@ -194,6 +195,26 @@ await Promise.all(
   if (manifest.status !== 200 || !type.startsWith("application/manifest+json")) {
     fail(`/site.webmanifest: ${manifest.status} ${type}`)
   }
+}
+
+// The personal history page: prerendered, but noindex and kept out of the sitemap.
+console.log("\nReading history page")
+{
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  const { problems } = watchConsole(page)
+  const response = await page.goto(`${origin}/history`, { waitUntil: "load" })
+  await hydrated(page)
+  if (response?.status() !== 200) fail(`/history: status ${response?.status()}`)
+  const robots = await page.locator("meta[name=robots]").getAttribute("content")
+  if (robots !== "noindex, follow") fail(`/history: robots ${robots}`)
+  if ((await page.locator("meta[name=robots]").count()) !== 1)
+    fail("/history: several robots metas")
+  if ((await page.locator("h1").count()) !== 1) fail("/history: no single <h1>")
+  for (const problem of problems) fail(`/history: ${problem}`)
+  const sitemap = await (await fetch(`${origin}/sitemap.xml`)).text()
+  if (sitemap.includes("/history")) fail("/history is listed in the sitemap")
+  await context.close()
 }
 
 // ---------- 404 and redirects ----------
