@@ -1,4 +1,4 @@
-import { Check, Link2, Loader2, Pause, Play } from "lucide-react"
+import { Check, Info, Link2, Loader2, Pause, Play } from "lucide-react"
 import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,8 @@ export interface AyahItemProps {
   buffering: boolean
   onPlay: (ayah: number) => void
   onToggle: () => void
+  /** Opens the tafsir and Shan-e-Nuzul of this ayah. */
+  onTafsir?: (ayah: number) => void
   className?: string
 }
 
@@ -39,6 +41,7 @@ export const AyahItem = memo(function AyahItem({
   buffering,
   onPlay,
   onToggle,
+  onTafsir,
   className,
 }: AyahItemProps) {
   const { copied, copy } = useCopyToClipboard()
@@ -62,40 +65,51 @@ export const AyahItem = memo(function AyahItem({
         >
           {reference}
         </a>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="-ml-1 text-muted-foreground hover:text-foreground"
+          aria-label={`Copy link to ayah ${reference}`}
+          title="Copy link"
+          onClick={() =>
+            copy(new URL(ayahPath(surah, ayah), site.url).toString(), `Link to ${reference} copied`)
+          }
+        >
+          {copied ? <Check className="text-primary" /> : <Link2 />}
+        </Button>
+        {onTafsir ? (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="-ml-1 text-muted-foreground hover:text-foreground"
+            aria-label={`Tafsir and Shan-e-Nuzul of ayah ${reference}`}
+            aria-haspopup="dialog"
+            title="Tafsir & Shan-e-Nuzul"
+            onClick={() => onTafsir(ayah)}
+          >
+            <Info />
+          </Button>
+        ) : null}
         {sajda ? (
           <Badge variant="outline" className="border-gold/50 text-gold">
             Sajdah
           </Badge>
         ) : null}
-        <div className="ml-auto flex items-center gap-0.5">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={isPlaying ? `Pause ayah ${reference}` : `Play from ayah ${reference}`}
-            onClick={() => (active ? onToggle() : onPlay(ayah))}
-          >
-            {isPlaying && buffering ? (
-              <Loader2 className="animate-spin motion-reduce:animate-none" />
-            ) : isPlaying ? (
-              <Pause />
-            ) : (
-              <Play />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={`Copy link to ayah ${reference}`}
-            onClick={() =>
-              copy(
-                new URL(ayahPath(surah, ayah), site.url).toString(),
-                `Link to ${reference} copied`
-              )
-            }
-          >
-            {copied ? <Check className="text-primary" /> : <Link2 />}
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-auto"
+          aria-label={isPlaying ? `Pause ayah ${reference}` : `Play from ayah ${reference}`}
+          onClick={() => (active ? onToggle() : onPlay(ayah))}
+        >
+          {isPlaying && buffering ? (
+            <Loader2 className="animate-spin motion-reduce:animate-none" />
+          ) : isPlaying ? (
+            <Pause />
+          ) : (
+            <Play />
+          )}
+        </Button>
       </div>
       <p lang="ar" dir="rtl" className="ayah-arabic mt-1 text-foreground">
         {arabic}

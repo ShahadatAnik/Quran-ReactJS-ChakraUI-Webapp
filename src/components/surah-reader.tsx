@@ -1,8 +1,9 @@
 import { useRouterState } from "@tanstack/react-router"
 import { Loader2 } from "lucide-react"
-import { type RefObject, useCallback, useEffect, useRef } from "react"
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react"
 import { AyahItem } from "@/components/ayah-item"
 import { useAudio, useReader } from "@/components/reader-provider"
+import { TafsirDialog } from "@/components/tafsir-dialog"
 import { useSurahEditions } from "@/hooks/use-surah-editions"
 import { translationLocale } from "@/lib/editions"
 import type { SurahText } from "@/lib/quran-data"
@@ -79,6 +80,9 @@ export function SurahReader({ text }: SurahReaderProps) {
   const audio = useAudio()
   const list = useRef<HTMLOListElement>(null)
   const surah = text.number
+  /** Ayah whose tafsir popup is open. */
+  const [tafsirAyah, setTafsirAyah] = useState<number | null>(null)
+  const closeTafsir = useCallback(() => setTafsirAyah(null), [])
   const editions = useSurahEditions(
     surah,
     text.ayahs.length,
@@ -97,7 +101,8 @@ export function SurahReader({ text }: SurahReaderProps) {
     const element = document.getElementById(ayahId(current))
     if (!element) return
     const { top, bottom } = element.getBoundingClientRect()
-    if (top < 80 || bottom > window.innerHeight - 96) {
+    // Below the site header (56px) and the sticky surah bar (48px).
+    if (top < 112 || bottom > window.innerHeight - 96) {
       element.scrollIntoView({
         block: "center",
         behavior: prefersReducedMotion() ? "auto" : "smooth",
@@ -160,11 +165,23 @@ export function SurahReader({ text }: SurahReaderProps) {
                 buffering={current === n && audio.buffering}
                 onPlay={onPlay}
                 onToggle={toggle}
+                onTafsir={setTafsirAyah}
               />
             </li>
           )
         })}
       </ol>
+
+      <TafsirDialog
+        // A fresh popup per surah, so nothing from the previous surah carries over.
+        key={surah}
+        surah={surah}
+        ayah={tafsirAyah}
+        arabic={
+          tafsirAyah ? (arabicTexts?.[tafsirAyah - 1] ?? text.ayahs[tafsirAyah - 1]?.ar) : undefined
+        }
+        onClose={closeTafsir}
+      />
     </div>
   )
 }

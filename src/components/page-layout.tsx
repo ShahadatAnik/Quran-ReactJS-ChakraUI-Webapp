@@ -24,6 +24,8 @@ interface PageLayoutProps {
   /** The page's only h1. */
   title: ReactNode
   description?: ReactNode
+  /** Small facts under the description (e.g. a surah's revelation, length and juz). */
+  meta?: ReactNode
   /** Leading visual next to the title (icon tile, surah number…). */
   media?: ReactNode
   /** Buttons shown next to the title. */
@@ -41,6 +43,7 @@ export function PageLayout({
   crumb,
   title,
   description,
+  meta,
   media,
   actions,
   lang,
@@ -98,6 +101,7 @@ export function PageLayout({
                 {description}
               </p>
             ) : null}
+            {meta}
           </div>
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}

@@ -1,13 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router"
-import { ChevronLeft, ChevronRight, Play } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useRef } from "react"
 import { SurahNumber } from "@/components/page-card"
 import { PageGuide } from "@/components/page-guide"
 import { PageLayout } from "@/components/page-layout"
-import { useAudio } from "@/components/reader-provider"
+import { SurahPlayButton } from "@/components/surah-play-button"
 import { SurahReader } from "@/components/surah-reader"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { getSurahPage, pageByPath, type SurahPage } from "@/lib/pages"
+import { SurahStickyBar } from "@/components/surah-sticky-bar"
+import { getSurahPage, ordinal, pageByPath, type SurahPage } from "@/lib/pages"
 import { loadSurahText } from "@/lib/quran-data"
 import { pageSeo } from "@/lib/seo"
 import { adjacentSurahs, parseSurahNumber } from "@/lib/surahs"
@@ -42,7 +42,14 @@ function SurahRoute() {
   const page = surahPageFor(number)
   const { surah } = page
   const { previous, next } = adjacentSurahs(surah.number)
-  const audio = useAudio()
+  const headerEnd = useRef<HTMLDivElement>(null)
+  const juz = surah.juz.length > 1 ? `${surah.juz[0]}–${surah.juz.at(-1)}` : surah.juz[0]
+  const facts = [
+    surah.revelation,
+    `${surah.ayahs} ayahs`,
+    `Juz ${juz}`,
+    `${ordinal(surah.revelationOrder)} revealed of 114`,
+  ]
 
   return (
     <PageLayout
@@ -58,36 +65,43 @@ function SurahRoute() {
           </span>
         </>
       }
+      meta={
+        // Every fact has a leading dot; the list is shifted left by one dot and clipped, so a
+        // line never starts with one, however the row wraps.
+        <div className="overflow-hidden pt-1">
+          <ul
+            aria-label="About this surah"
+            className="-ml-4 flex flex-wrap items-center gap-y-1 text-xs text-muted-foreground sm:text-sm"
+          >
+            {facts.map((fact) => (
+              <li
+                key={fact}
+                className="before:inline-block before:w-4 before:text-center before:text-muted-foreground/60 before:content-['·']"
+              >
+                {fact}
+              </li>
+            ))}
+          </ul>
+        </div>
+      }
       actions={
-        <Button onClick={() => audio.play({ surah: surah.number, ayah: 1 }, { continuous: true })}>
-          <Play />
-          Play surah
-        </Button>
+        // Arabic name above the button on wide screens; side by side on phones.
+        <div className="flex w-full items-center justify-between gap-4 md:w-auto md:flex-col md:items-end">
+          <p
+            lang="ar"
+            dir="rtl"
+            className="font-arabic text-4xl leading-[1.4] text-gold md:text-5xl"
+          >
+            {surah.arabic}
+          </p>
+          <SurahPlayButton surah={surah.number} />
+        </div>
       }
       width="reading"
     >
-      <div className="mb-8 flex flex-col items-center gap-4 rounded-2xl bg-card px-4 py-6 text-center ring-1 ring-foreground/10">
-        <p lang="ar" dir="rtl" className="font-arabic text-5xl leading-snug text-gold">
-          {surah.arabic}
-        </p>
-        <ul className="flex flex-wrap justify-center gap-2" aria-label="About this surah">
-          <li>
-            <Badge variant="secondary">{surah.revelation}</Badge>
-          </li>
-          <li>
-            <Badge variant="secondary">{surah.ayahs} ayahs</Badge>
-          </li>
-          <li>
-            <Badge variant="secondary">
-              Juz {surah.juz.length > 1 ? `${surah.juz[0]}–${surah.juz.at(-1)}` : surah.juz[0]}
-            </Badge>
-          </li>
-          <li>
-            <Badge variant="secondary">Revealed {surah.revelationOrder} of 114</Badge>
-          </li>
-        </ul>
-      </div>
-
+      {/* Once this marker scrolls under the site header, the sticky surah bar slides in. */}
+      <div ref={headerEnd} aria-hidden="true" />
+      <SurahStickyBar surah={surah} after={headerEnd} />
       <SurahReader text={text} />
 
       <nav

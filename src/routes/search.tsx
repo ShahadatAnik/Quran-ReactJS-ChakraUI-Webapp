@@ -1,29 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { Loader2, RotateCcw, SearchX, X } from "lucide-react"
-import { useEffect, useId, useState } from "react"
+import { useEffect, useId, useMemo, useState } from "react"
+import { EditionPicker } from "@/components/edition-picker"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { useEditions } from "@/hooks/use-editions"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 import { useQuranSearch } from "@/hooks/use-quran-search"
-import {
-  DEFAULT_SEARCH_EDITION,
-  type Edition,
-  editionLabel,
-  isRtl,
-  searchableEditions,
-} from "@/lib/editions"
+import { DEFAULT_SEARCH_EDITION, type Edition, isRtl, searchableEditions } from "@/lib/editions"
 import { pageByPath } from "@/lib/pages"
 import { highlight, MIN_SEARCH_LENGTH, type SearchMatch } from "@/lib/search"
 import { pageSeo } from "@/lib/seo"
@@ -31,6 +19,8 @@ import { ayahId, getSurah } from "@/lib/surahs"
 
 const page = pageByPath.search
 const PAGE_SIZE = 50
+/** Name of the default edition, shown before the full list has loaded. */
+const knownEditions = { [DEFAULT_SEARCH_EDITION]: "Muhiuddin Khan" }
 const EDITION_ID = /^[a-z0-9.-]{3,40}$/
 
 interface SearchParams {
@@ -114,7 +104,7 @@ function SearchRoute() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: a new search starts at the first page.
   useEffect(() => setShown(PAGE_SIZE), [term, edition])
 
-  const options = searchableEditions(editions.editions)
+  const options = useMemo(() => searchableEditions(editions.editions), [editions.editions])
   const selected: Edition | undefined = options.find((e) => e.identifier === edition)
   const rtl = isRtl(selected) || edition.startsWith("quran")
   const lang = selected?.language ?? (edition.startsWith("quran") ? "ar" : edition.split(".")[0])
@@ -134,23 +124,16 @@ function SearchRoute() {
           <label htmlFor={ids.edition} className="text-sm font-medium">
             Search in
           </label>
-          <Select value={edition} onValueChange={setEdition}>
-            <SelectTrigger id={ids.edition} className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="max-h-80">
-              {selected ? null : (
-                <SelectItem value={edition}>
-                  {edition === DEFAULT_SEARCH_EDITION ? "Bangla: Muhiuddin Khan" : edition}
-                </SelectItem>
-              )}
-              {options.map((e) => (
-                <SelectItem key={e.identifier} value={e.identifier}>
-                  {e.type === "quran" ? `Arabic: ${e.englishName}` : editionLabel(e)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <EditionPicker
+            id={ids.edition}
+            value={edition}
+            editions={options}
+            onChange={setEdition}
+            loading={editions.status === "loading" || editions.status === "idle"}
+            defaultValue={DEFAULT_SEARCH_EDITION}
+            knownNames={knownEditions}
+            placeholder="Search language, translator or script"
+          />
           {editions.status === "error" ? (
             <p className="text-xs text-destructive" role="alert">
               Couldn't load the list of translations.{" "}

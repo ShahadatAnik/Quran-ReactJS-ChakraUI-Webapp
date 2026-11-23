@@ -1,10 +1,15 @@
 import { describe, expect, test } from "bun:test"
 import {
   arabicEditions,
+  arabicScriptLabel,
   type Edition,
   editionLabel,
+  editionName,
+  groupByLanguage,
   isRtl,
   languageName,
+  languageOfId,
+  nativeLanguageName,
   parseEditions,
   reciterEditions,
   searchableEditions,
@@ -20,6 +25,7 @@ const editions = [
   e("quran-uthmani", "ar", "text", "quran"),
   e("quran-tajweed", "ar", "text", "quran"),
   e("quran-wordbyword", "ar", "text", "quran"),
+  e("quran-uthmani-quran-academy", "ar", "text", "quran"),
   e("en.sahih", "en", "text", "translation"),
   e("bn.bengali", "bn", "text", "translation"),
   e("ur.jalandhry", "ur", "text", "translation"),
@@ -85,4 +91,71 @@ test("translationLocale", () => {
   expect(translationLocale("ur.jalandhry", false)).toEqual({ lang: "bn", dir: "ltr" })
   expect(translationLocale("ur.jalandhry", true)).toEqual({ lang: "ur", dir: "rtl" })
   expect(translationLocale("en.sahih", true)).toEqual({ lang: "en", dir: "ltr" })
+})
+
+test("arabicScriptLabel drops the language and shortens long names", () => {
+  expect(
+    arabicScriptLabel({ ...e("quran-simple", "ar", "text", "quran"), englishName: "Simple" })
+  ).toBe("Simple")
+  expect(
+    arabicScriptLabel({
+      ...e("quran-unicode", "ar", "text", "quran"),
+      englishName: "Unicode Quran text from Khaled Hosny",
+    })
+  ).toBe("Unicode (Khaled Hosny)")
+})
+
+describe("translation list clean-up", () => {
+  test("files Mehanović under Bosnian and drops the Buckwalter transliteration", () => {
+    const parsed = parseEditions({
+      data: [
+        e("ba.mehanovic", "ba", "text", "translation"),
+        e("quran-buck", "ar", "text", "translation"),
+      ],
+    })
+    expect(parsed[0]?.language).toBe("bs")
+    expect(ids(translationEditions(parsed))).toEqual(["ba.mehanovic"])
+    expect(ids(searchableEditions(parsed))).toEqual(["ba.mehanovic"])
+  })
+
+  test("names every language, in English and in its own script", () => {
+    expect(nativeLanguageName("bn")).toBe("বাংলা")
+    expect(nativeLanguageName("fr")).toBe("Français")
+    expect(nativeLanguageName("en")).toBeUndefined()
+    expect(languageName("ber")).toBe("Amazigh")
+    expect(nativeLanguageName("ber")).toBe("ⵜⴰⵎⴰⵣⵉⵖⵜ")
+  })
+
+  test("editionName trims filler and credits unknown translators honestly", () => {
+    const named = (englishName: string) => ({
+      ...e("x.y", "en", "text", "translation"),
+      englishName,
+    })
+    expect(editionName(named("Muhiuddin Khan"))).toBe("Muhiuddin Khan")
+    expect(editionName(named("Quran translation by Muhamed Mehanovic"))).toBe("Muhamed Mehanovic")
+    expect(editionName(named("Translation by Ghazi Muhammed Hashim"))).toBe("Ghazi Muhammed Hashim")
+    expect(editionName(named("Preklad I. Hrbek"))).toBe("I. Hrbek")
+    expect(editionName(named("Unknown"))).toBe("Translator not credited")
+    expect(
+      editionName({ ...e("quran-simple", "ar", "text", "quran"), englishName: "Simple" })
+    ).toBe("Simple")
+  })
+
+  test("groupByLanguage puts Bangla, English and Arabic first", () => {
+    const groups = groupByLanguage([
+      e("ur.jalandhry", "ur", "text", "translation"),
+      e("en.sahih", "en", "text", "translation"),
+      e("de.bubenheim", "de", "text", "translation"),
+      e("bn.hoque", "bn", "text", "translation"),
+      e("bn.bengali", "bn", "text", "translation"),
+    ])
+    expect(groups.map((g) => g.code)).toEqual(["bn", "en", "de", "ur"])
+    expect(ids(groups[0]?.editions ?? [])).toEqual(["bn.hoque", "bn.bengali"])
+    expect(groups[3]?.native).toBe("اردو")
+  })
+
+  test("languageOfId", () => {
+    expect(languageOfId("bn.bengali")).toBe("bn")
+    expect(languageOfId("quran-simple")).toBe("ar")
+  })
 })

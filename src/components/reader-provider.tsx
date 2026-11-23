@@ -56,6 +56,8 @@ interface AudioControls {
   stop: () => void
   step: (delta: 1 | -1) => void
   seek: (seconds: number) => void
+  /** Exact playback position, read straight from the element (for smooth progress bars). */
+  position: () => number
 }
 
 interface AudioTime {
@@ -68,8 +70,28 @@ const AudioTimeContext = createContext<AudioTime>({ current: 0, duration: 0 })
 
 const idle: AudioState = { track: null, playing: false, buffering: false, continuous: false }
 
+/**
+ * The next ayah starts loading at 90% of the current one, or 5 seconds before its end if that
+ * comes first, so short ayahs on slow connections still hand over without a pause.
+ */
+const PRELOAD_AT = 0.9
+const PRELOAD_SECONDS = 5
+
+const AUDIO_EVENTS = [
+  "playing",
+  "pause",
+  "waiting",
+  "timeupdate",
+  "durationchange",
+  "ended",
+  "error",
+] as const
+
 function useAudioEngine(reciterId: string) {
+  /** The element that is playing (or last played). */
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  /** A second element that buffers the next ayah while the current one finishes. */
+  const preloadRef = useRef<{ url: string; audio: HTMLAudioElement } | null>(null)
   const [state, setState] = useState<AudioState>(idle)
   const [time, setTime] = useState<AudioTime>({ current: 0, duration: 0 })
   const stateRef = useRef(state)
@@ -80,40 +102,91 @@ function useAudioEngine(reciterId: string) {
   /** Event handlers, refreshed every render so they always see the latest callbacks. */
   const handlers = useRef<Record<string, (audio: HTMLAudioElement) => void>>({})
 
-  /** The one shared element, created on first use so nothing touches `Audio` while prerendering. */
-  const getAudio = useCallback(() => {
-    if (audioRef.current) return audioRef.current
+  /**
+   * A new audio element. Created on first use so nothing touches `Audio` while prerendering.
+   * Its events only count while it is the playing element, not while it is preloading.
+   */
+  const createAudio = useCallback(() => {
     const audio = new Audio()
     audio.preload = "auto"
-    for (const name of [
-      "playing",
-      "pause",
-      "waiting",
-      "timeupdate",
-      "durationchange",
-      "ended",
-      "error",
-    ]) {
-      audio.addEventListener(name, () => handlers.current[name]?.(audio))
+    for (const name of AUDIO_EVENTS) {
+      audio.addEventListener(name, () => {
+        if (audioRef.current === audio) handlers.current[name]?.(audio)
+      })
     }
-    audioRef.current = audio
     return audio
   }, [])
 
+  const getAudio = useCallback(() => {
+    audioRef.current ??= createAudio()
+    return audioRef.current
+  }, [createAudio])
+
+  /** The next ayah to buffer while playing through a surah, if there is one. */
+  const nextTrack = (): AudioTrack | null => {
+    const { track, continuous } = stateRef.current
+    if (!track || !continuous) return null
+    const count = getSurah(track.surah)?.ayahs ?? 0
+    return track.ayah < count ? { surah: track.surah, ayah: track.ayah + 1 } : null
+  }
+
+  /** Starts buffering the next ayah once most of the current one has played. */
+  const preloadNext = (audio: HTMLAudioElement) => {
+    const { currentTime, duration } = audio
+    if (!duration) return
+    if (currentTime / duration < PRELOAD_AT && duration - currentTime > PRELOAD_SECONDS) return
+    const next = nextTrack()
+    if (!next) return
+    const url = ayahAudioUrl(next.surah, next.ayah, reciterRef.current)
+    if (preloadRef.current?.url === url) return
+    const spare = preloadRef.current?.audio ?? createAudio()
+    spare.src = url
+    spare.load()
+    preloadRef.current = { url, audio: spare }
+  }
+
   const load = useCallback(
     (track: AudioTrack, continuous: boolean) => {
-      const audio = getAudio()
-      audio.src = ayahAudioUrl(track.surah, track.ayah, reciterRef.current)
-      setState({ track, playing: true, buffering: true, continuous })
-      setTime({ current: 0, duration: 0 })
-      audio.play().catch((error: unknown) => {
-        // A newer track replaced this one before it started; not an error.
-        if (error instanceof DOMException && error.name === "AbortError") return
-        setState((s) => ({ ...s, playing: false, buffering: false }))
-        toast.error("Couldn't play the recitation", {
-          description: "Check your connection and try again.",
+      const url = ayahAudioUrl(track.surah, track.ayah, reciterRef.current)
+      const previous = audioRef.current
+      const preloaded = preloadRef.current?.url === url ? preloadRef.current.audio : null
+      let audio: HTMLAudioElement
+      if (preloaded && previous) {
+        // Swap: the buffered element plays, the finished one becomes the next spare.
+        previous.pause()
+        audioRef.current = preloaded
+        preloadRef.current = { url: "", audio: previous }
+        audio = preloaded
+      } else {
+        audio = getAudio()
+        audio.src = url
+      }
+      setState({ track, playing: true, buffering: audio.readyState < 3, continuous })
+      setTime({ current: 0, duration: audio.duration || 0 })
+      const start = (element: HTMLAudioElement) =>
+        element.play().catch((error: unknown) => {
+          // A newer track replaced this one before it started; not an error.
+          if (error instanceof DOMException && error.name === "AbortError") return
+          // Some mobile browsers only let an element play after a tap on it: fall back to
+          // the element that was already playing, which they allow to continue.
+          if (
+            error instanceof DOMException &&
+            error.name === "NotAllowedError" &&
+            element === preloaded &&
+            previous
+          ) {
+            audioRef.current = previous
+            preloadRef.current = null
+            previous.src = url
+            void start(previous)
+            return
+          }
+          setState((s) => ({ ...s, playing: false, buffering: false }))
+          toast.error("Couldn't play the recitation", {
+            description: "Check your connection and try again.",
+          })
         })
-      })
+      void start(audio)
     },
     [getAudio]
   )
@@ -140,7 +213,10 @@ function useAudioEngine(reciterId: string) {
     playing: () => setState((s) => ({ ...s, playing: true, buffering: false })),
     pause: () => setState((s) => ({ ...s, playing: false })),
     waiting: () => setState((s) => ({ ...s, buffering: true })),
-    timeupdate: onTime,
+    timeupdate: (audio) => {
+      onTime(audio)
+      preloadNext(audio)
+    },
     durationchange: onTime,
     ended: () => {
       const { track, continuous } = stateRef.current
@@ -174,11 +250,12 @@ function useAudioEngine(reciterId: string) {
     navigator.mediaSession.setActionHandler("previoustrack", () => step(-1))
   }, [state, step])
 
-  // Release the audio element when the app unmounts.
+  // Release the audio elements when the app unmounts.
   useEffect(
     () => () => {
       audioRef.current?.pause()
       audioRef.current = null
+      preloadRef.current = null
     },
     []
   )
@@ -198,6 +275,7 @@ function useAudioEngine(reciterId: string) {
         const audio = audioRef.current
         if (audio && Number.isFinite(seconds)) audio.currentTime = seconds
       },
+      position: () => audioRef.current?.currentTime ?? 0,
     }),
     [load, stop, step]
   )

@@ -5,6 +5,7 @@ import { AyahItem } from "@/components/ayah-item"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
 import { useAudio, useReader } from "@/components/reader-provider"
+import { TafsirDialog } from "@/components/tafsir-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -41,6 +42,7 @@ function AyahRoute() {
   })
   const [loaded, setLoaded] = useState<SurahText>(defaultText)
   const [reference, setReference] = useState("")
+  const [tafsirOpen, setTafsirOpen] = useState(false)
   const audio = useAudio()
   const { settings, restored } = useReader()
   const ids = { surah: useId(), ayah: useId(), reference: useId() }
@@ -95,7 +97,7 @@ function AyahRoute() {
             <SelectTrigger id={ids.surah} className="w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="max-h-80">
+            <SelectContent>
               {surahs.map((s) => (
                 <SelectItem key={s.number} value={String(s.number)}>
                   {s.number}. {s.name} ({s.meaning})
@@ -115,7 +117,7 @@ function AyahRoute() {
             <SelectTrigger id={ids.ayah} className="w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="max-h-80">
+            <SelectContent>
               {Array.from({ length: surah?.ayahs ?? 0 }, (_, i) => i + 1).map((n) => (
                 <SelectItem key={n} value={String(n)}>
                   Ayah {n}
@@ -205,6 +207,7 @@ function AyahRoute() {
               buffering={current === selection.ayah && audio.buffering}
               onPlay={(n) => audio.play({ surah: selection.surah, ayah: n })}
               onToggle={audio.toggle}
+              onTafsir={() => setTafsirOpen(true)}
               className="ring-0"
             />
           ) : (
@@ -214,6 +217,14 @@ function AyahRoute() {
           )}
         </div>
       </section>
+
+      <TafsirDialog
+        key={selection.surah}
+        surah={selection.surah}
+        ayah={tafsirOpen ? selection.ayah : null}
+        arabic={arabic}
+        onClose={() => setTafsirOpen(false)}
+      />
 
       <PageGuide page={page} />
     </PageLayout>

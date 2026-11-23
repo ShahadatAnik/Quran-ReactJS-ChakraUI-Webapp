@@ -5,6 +5,8 @@ export interface Reciter {
   /** alquran.cloud audio edition identifier. */
   id: string
   name: string
+  /** Name in Arabic, shown beside the English one and searchable. */
+  nameAr: string
   /** Bitrate folder on the CDN. Not every reciter has every bitrate. */
   bitrate: 32 | 48 | 64 | 128
 }
@@ -14,22 +16,42 @@ export interface Reciter {
  * (checked against the CDN; 128 kbps where available, otherwise the best that exists).
  */
 export const reciters: readonly Reciter[] = [
-  { id: "ar.alafasy", name: "Mishary Rashid Alafasy", bitrate: 128 },
-  { id: "ar.abdulsamad", name: "Abdul Basit Abdul Samad", bitrate: 64 },
-  { id: "ar.abdurrahmaansudais", name: "Abdur-Rahman As-Sudais", bitrate: 64 },
-  { id: "ar.abdullahbasfar", name: "Abdullah Basfar", bitrate: 64 },
-  { id: "ar.shaatree", name: "Abu Bakr Ash-Shaatree", bitrate: 128 },
-  { id: "ar.ahmedajamy", name: "Ahmed ibn Ali al-Ajamy", bitrate: 128 },
-  { id: "ar.aymanswoaid", name: "Ayman Sowaid", bitrate: 64 },
-  { id: "ar.hanirifai", name: "Hani Ar-Rifai", bitrate: 64 },
-  { id: "ar.hudhaify", name: "Ali Al-Hudhaify", bitrate: 128 },
-  { id: "ar.ibrahimakhbar", name: "Ibrahim Al-Akhdar", bitrate: 32 },
-  { id: "ar.mahermuaiqly", name: "Maher Al-Muaiqly", bitrate: 128 },
-  { id: "ar.husary", name: "Mahmoud Khalil Al-Husary", bitrate: 128 },
-  { id: "ar.husarymujawwad", name: "Mahmoud Khalil Al-Husary (Mujawwad)", bitrate: 128 },
-  { id: "ar.muhammadayyoub", name: "Muhammad Ayyoub", bitrate: 128 },
-  { id: "ar.muhammadjibreel", name: "Muhammad Jibreel", bitrate: 128 },
-  { id: "ar.saoodshuraym", name: "Saud Ash-Shuraim", bitrate: 64 },
+  { id: "ar.alafasy", name: "Mishary Rashid Alafasy", nameAr: "مشاري راشد العفاسي", bitrate: 128 },
+  {
+    id: "ar.abdulsamad",
+    name: "Abdul Basit Abdul Samad",
+    nameAr: "عبد الباسط عبد الصمد",
+    bitrate: 64,
+  },
+  {
+    id: "ar.abdurrahmaansudais",
+    name: "Abdur-Rahman As-Sudais",
+    nameAr: "عبد الرحمن السديس",
+    bitrate: 64,
+  },
+  { id: "ar.abdullahbasfar", name: "Abdullah Basfar", nameAr: "عبد الله بصفر", bitrate: 64 },
+  { id: "ar.shaatree", name: "Abu Bakr Ash-Shaatree", nameAr: "أبو بكر الشاطري", bitrate: 128 },
+  {
+    id: "ar.ahmedajamy",
+    name: "Ahmed ibn Ali al-Ajamy",
+    nameAr: "أحمد بن علي العجمي",
+    bitrate: 128,
+  },
+  { id: "ar.aymanswoaid", name: "Ayman Sowaid", nameAr: "أيمن سويد", bitrate: 64 },
+  { id: "ar.hanirifai", name: "Hani Ar-Rifai", nameAr: "هاني الرفاعي", bitrate: 64 },
+  { id: "ar.hudhaify", name: "Ali Al-Hudhaify", nameAr: "علي الحذيفي", bitrate: 128 },
+  { id: "ar.ibrahimakhbar", name: "Ibrahim Al-Akhdar", nameAr: "إبراهيم الأخضر", bitrate: 32 },
+  { id: "ar.mahermuaiqly", name: "Maher Al-Muaiqly", nameAr: "ماهر المعيقلي", bitrate: 128 },
+  { id: "ar.husary", name: "Mahmoud Khalil Al-Husary", nameAr: "محمود خليل الحصري", bitrate: 128 },
+  {
+    id: "ar.husarymujawwad",
+    name: "Mahmoud Khalil Al-Husary (Mujawwad)",
+    nameAr: "محمود خليل الحصري (مجود)",
+    bitrate: 128,
+  },
+  { id: "ar.muhammadayyoub", name: "Muhammad Ayyoub", nameAr: "محمد أيوب", bitrate: 128 },
+  { id: "ar.muhammadjibreel", name: "Muhammad Jibreel", nameAr: "محمد جبريل", bitrate: 128 },
+  { id: "ar.saoodshuraym", name: "Saud Ash-Shuraim", nameAr: "سعود الشريم", bitrate: 64 },
 ]
 
 export const defaultReciter = reciters.find((r) => r.id === DEFAULT_RECITER) as Reciter
