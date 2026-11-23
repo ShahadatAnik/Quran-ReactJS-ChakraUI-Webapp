@@ -2,8 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowRight, BookOpen, Search } from "lucide-react"
 import { ContinueReading } from "@/components/continue-reading"
 import { PageCard, PostCard, SurahCard } from "@/components/page-card"
+import { useFrequentSurahs } from "@/components/reading-history"
 import { Button } from "@/components/ui/button"
-import { appPages, POPULAR_SURAHS, pageByPath, postPages, surahPages } from "@/lib/pages"
+import {
+  appPages,
+  getSurahPage,
+  POPULAR_SURAHS,
+  pageByPath,
+  postPages,
+  surahPages,
+} from "@/lib/pages"
 import { homeSeo } from "@/lib/seo"
 import { site } from "@/lib/site"
 
@@ -21,7 +29,7 @@ function SectionHeading({
   id: string
   title: string
   description: string
-  more?: { label: string; link: (typeof appPages)[number]["link"] }
+  more?: { label: string; link: (typeof appPages)[number]["link"] | { to: "/history" } }
 }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
@@ -40,6 +48,35 @@ function SectionHeading({
         </Button>
       ) : null}
     </div>
+  )
+}
+
+/**
+ * The surahs this reader comes back to most, from the reading history in this browser. Not
+ * shown until the history has been read, nor to a reader without one.
+ */
+function FrequentSurahs() {
+  const frequent = useFrequentSurahs(6)
+  if (!frequent?.length) return null
+  return (
+    <section aria-labelledby="frequent-heading">
+      <SectionHeading
+        id="frequent-heading"
+        title="Your most-read surahs"
+        description="The surahs you read on the most days, from your history in this browser."
+        more={{ label: "Your history", link: { to: "/history" } }}
+      />
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {frequent.map(({ surah }) => {
+          const page = getSurahPage(surah)
+          return page ? (
+            <li key={surah}>
+              <SurahCard page={page} />
+            </li>
+          ) : null
+        })}
+      </ul>
+    </section>
   )
 }
 
@@ -94,6 +131,8 @@ function Home() {
               ))}
           </div>
         </section>
+
+        <FrequentSurahs />
 
         <section aria-labelledby="popular-heading">
           <SectionHeading

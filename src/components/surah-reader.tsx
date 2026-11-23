@@ -4,6 +4,7 @@ import { type RefObject, useCallback, useEffect, useRef, useState } from "react"
 import { AyahItem } from "@/components/ayah-item"
 import { useAudio, useReader } from "@/components/reader-provider"
 import { TafsirDialog } from "@/components/tafsir-dialog"
+import { useReadingTracker } from "@/hooks/use-reading-tracker"
 import { useSurahEditions } from "@/hooks/use-surah-editions"
 import { translationLocale } from "@/lib/editions"
 import type { SurahText } from "@/lib/quran-data"
@@ -93,6 +94,7 @@ export function SurahReader({ text }: SurahReaderProps) {
 
   useAyahTarget()
   useTrackLastRead(surah, list)
+  useReadingTracker(surah, list)
 
   // While playing through the surah, keep the current ayah on screen.
   const current = audio.track?.surah === surah ? audio.track.ayah : null

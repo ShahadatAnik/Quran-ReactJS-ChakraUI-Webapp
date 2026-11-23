@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowRight } from "lucide-react"
-import { useEffect, useId, useState } from "react"
+import { useEffect, useId, useRef, useState } from "react"
 import { AyahItem } from "@/components/ayah-item"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { usePersistedState } from "@/hooks/use-persisted-state"
+import { useReadingTracker } from "@/hooks/use-reading-tracker"
 import { useSurahEditions } from "@/hooks/use-surah-editions"
 import { translationLocale } from "@/lib/editions"
 import { pageByPath } from "@/lib/pages"
@@ -43,6 +44,7 @@ function AyahRoute() {
   const [loaded, setLoaded] = useState<SurahText>(defaultText)
   const [reference, setReference] = useState("")
   const [tafsirOpen, setTafsirOpen] = useState(false)
+  const ayahBox = useRef<HTMLDivElement>(null)
   const audio = useAudio()
   const { settings, restored } = useReader()
   const ids = { surah: useId(), ayah: useId(), reference: useId() }
@@ -70,6 +72,7 @@ function AyahRoute() {
   )
   const arabic = editions.texts[settings.arabicEdition]?.[selection.ayah - 1] ?? ayah?.ar
   const translation = editions.texts[settings.translationEdition]?.[selection.ayah - 1] ?? ayah?.bn
+  useReadingTracker(selection.surah, ayahBox, ayah ? `${selection.surah}:${selection.ayah}` : null)
   const translationLang = translationLocale(
     settings.translationEdition,
     Boolean(editions.texts[settings.translationEdition])
@@ -188,7 +191,7 @@ function AyahRoute() {
             </Link>
           </Button>
         </div>
-        <div className="mt-4 min-h-48 rounded-2xl bg-card ring-1 ring-foreground/10">
+        <div ref={ayahBox} className="mt-4 min-h-48 rounded-2xl bg-card ring-1 ring-foreground/10">
           {ayah && arabic ? (
             <AyahItem
               surah={selection.surah}

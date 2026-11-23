@@ -55,7 +55,7 @@ function sourcesOf(page: Page): string[] {
 const priority = (page: Page) =>
   page.kind === "app" || page.kind === "index" ? 0.8 : page.kind === "surah" ? 0.7 : 0.6
 
-/** Every indexable page, with its sitemap metadata. */
+/** Every page to prerender, with its sitemap metadata. */
 const prerenderPages = [
   {
     path: "/",
@@ -75,6 +75,9 @@ const prerenderPages = [
       images: image(pageSlug(page)),
     },
   })),
+  // Personal reading history: prerendered so it loads with a 200, but kept out of the sitemap
+  // (the page itself is noindex).
+  { path: "/history", sitemap: { exclude: true } },
 ]
 
 export default defineConfig({

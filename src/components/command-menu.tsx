@@ -1,5 +1,14 @@
 import { useNavigate } from "@tanstack/react-router"
-import { BookOpenText, CornerDownRight, House, Monitor, Moon, Search, Sun } from "lucide-react"
+import {
+  BookOpenText,
+  CornerDownRight,
+  History,
+  House,
+  Monitor,
+  Moon,
+  Search,
+  Sun,
+} from "lucide-react"
 import { useState } from "react"
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
@@ -111,6 +120,14 @@ export function CommandMenu() {
                   {page.title}
                 </CommandItem>
               ))}
+              <CommandItem
+                value="Reading history"
+                keywords={["history", "streak", "khatm", "progress", "log", "your reading"]}
+                onSelect={() => run(() => navigate({ to: "/history" }))}
+              >
+                <History />
+                Reading history
+              </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Surahs">
               {surahPages.map((page) => (

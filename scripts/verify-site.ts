@@ -196,6 +196,26 @@ await Promise.all(
   }
 }
 
+// The personal history page: prerendered, but noindex and kept out of the sitemap.
+console.log("\nReading history page")
+{
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  const { problems } = watchConsole(page)
+  const response = await page.goto(`${origin}/history`, { waitUntil: "load" })
+  await hydrated(page)
+  if (response?.status() !== 200) fail(`/history: status ${response?.status()}`)
+  const robots = await page.locator("meta[name=robots]").getAttribute("content")
+  if (robots !== "noindex, follow") fail(`/history: robots ${robots}`)
+  if ((await page.locator("meta[name=robots]").count()) !== 1)
+    fail("/history: several robots metas")
+  if ((await page.locator("h1").count()) !== 1) fail("/history: no single <h1>")
+  for (const problem of problems) fail(`/history: ${problem}`)
+  const sitemap = await (await fetch(`${origin}/sitemap.xml`)).text()
+  if (sitemap.includes("/history")) fail("/history is listed in the sitemap")
+  await context.close()
+}
+
 // ---------- 404 and redirects ----------
 
 console.log("\n404 page and old URLs")

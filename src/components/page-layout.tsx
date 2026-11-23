@@ -28,6 +28,8 @@ interface PageLayoutProps {
   meta?: ReactNode
   /** Leading visual next to the title (icon tile, surah number…). */
   media?: ReactNode
+  /** Shown at the right of the title row (e.g. a surah's Arabic name on phones). */
+  titleAside?: ReactNode
   /** Buttons shown next to the title. */
   actions?: ReactNode
   /** Language of the title and description when they differ from the page. */
@@ -45,6 +47,7 @@ export function PageLayout({
   description,
   meta,
   media,
+  titleAside,
   actions,
   lang,
   width = "default",
@@ -86,7 +89,7 @@ export function PageLayout({
       <header className="mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex min-w-0 items-start gap-4">
           {media}
-          <div className="min-w-0 space-y-1.5">
+          <div className="min-w-0 flex-1 space-y-1.5">
             <h1
               lang={lang}
               className="font-heading text-2xl font-semibold tracking-tight text-balance md:text-3xl"
@@ -103,6 +106,7 @@ export function PageLayout({
             ) : null}
             {meta}
           </div>
+          {titleAside}
         </div>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
       </header>

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AyahRouteImport } from './routes/ayah'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as WritersRouteImport } from './routes/writers'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -32,6 +33,11 @@ const SplatRoute = SplatRouteImport.update({
 const AyahRoute = AyahRouteImport.update({
   id: '/ayah',
   path: '/ayah',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/ayah': typeof AyahRoute
+  '/history': typeof HistoryRoute
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/ayah': typeof AyahRoute
+  '/history': typeof HistoryRoute
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
   '/ayah': typeof AyahRoute
+  '/history': typeof HistoryRoute
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/ayah'
+    | '/history'
     | '/search'
     | '/writers'
     | '/blog/$slug'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/ayah'
+    | '/history'
     | '/search'
     | '/writers'
     | '/blog/$slug'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/$'
     | '/ayah'
+    | '/history'
     | '/search'
     | '/writers'
     | '/blog/$slug'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
   AyahRoute: typeof AyahRoute
+  HistoryRoute: typeof HistoryRoute
   SearchRoute: typeof SearchRoute
   WritersRoute: typeof WritersRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -168,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/ayah'
       fullPath: '/ayah'
       preLoaderRoute: typeof AyahRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   AyahRoute: AyahRoute,
+  HistoryRoute: HistoryRoute,
   SearchRoute: SearchRoute,
   WritersRoute: WritersRoute,
   BlogSlugRoute: BlogSlugRoute,
