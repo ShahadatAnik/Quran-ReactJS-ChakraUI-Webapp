@@ -9,7 +9,8 @@ import { type Page, relatedPages } from "@/lib/pages"
  */
 export function PageGuide({ page }: { page: Page }) {
   const related = relatedPages(page)
-  const guided = page.kind === "app" || page.kind === "surah" ? page : undefined
+  const guided =
+    page.kind === "app" || page.kind === "surah" || page.kind === "dua" ? page : undefined
 
   return (
     <div className="mt-16 space-y-16 border-t border-border/60 pt-12">
@@ -17,7 +18,7 @@ export function PageGuide({ page }: { page: Page }) {
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
           <section aria-labelledby="how-to-heading" className="space-y-5">
             <h2 id="how-to-heading" className="font-heading text-xl font-semibold tracking-tight">
-              {guided.kind === "surah" ? `How to read ${guided.title}` : "How it works"}
+              {guided.kind === "app" ? "How it works" : `How to read ${guided.title}`}
             </h2>
             <ol className="space-y-4">
               {guided.howTo.map((step, index) => (

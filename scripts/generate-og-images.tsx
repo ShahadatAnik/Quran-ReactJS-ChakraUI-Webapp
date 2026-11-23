@@ -18,11 +18,15 @@ import type { ReactNode } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 import satori, { type Font } from "satori"
 import { LogoMark } from "../src/components/logo-mark"
+import { duaCategory } from "../src/content/duas"
 import { getWriter } from "../src/content/writers"
 import { formatBanglaDate, toBanglaDigits } from "../src/lib/bangla"
+import { duaOpening, duaReference } from "../src/lib/duas"
 import {
   type AppPage,
   appPages,
+  type DuaPage,
+  duaPages,
   type IndexPage,
   ogImagePath,
   type PostPage,
@@ -287,6 +291,56 @@ function SurahCard({ page }: { page: SurahPage }) {
   )
 }
 
+function DuaCard({ page }: { page: DuaPage }) {
+  const { dua, surah } = page
+  // The dua's opening words, up to five, as a gold line on the right.
+  const words = duaOpening(dua).split(" ")
+  const opening = shapeText(
+    [words.length > 5 ? `${words.slice(0, 5).join(" ")} …` : words.join(" ")],
+    arabic,
+    { size: 64, lineHeight: 120, color: colors.gold, align: "end" }
+  )
+  const titleBn = shapeText([dua.titleBn], bangla, {
+    size: 34,
+    lineHeight: 52,
+    color: colors.muted,
+  })
+  return (
+    <Frame path={page.path} badge={BADGE}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 24,
+            fontWeight: 500,
+            color: colors.primary,
+            textTransform: "uppercase",
+            letterSpacing: 3,
+          }}
+        >
+          {duaCategory(dua.category).title} · {surah.name} {duaReference(dua)}
+        </div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: dua.title.length > 26 ? 60 : 76,
+            fontWeight: 700,
+            letterSpacing: -2,
+            lineHeight: 1.05,
+            maxWidth: 1000,
+          }}
+        >
+          {dua.title}
+        </div>
+        <Shaped text={titleBn} />
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+          <Shaped text={opening} style={{ maxWidth: 1000 }} />
+        </div>
+      </div>
+    </Frame>
+  )
+}
+
 function PostCard({ page }: { page: PostPage }) {
   const { post } = page
   const writer = getWriter(post.writer)
@@ -346,6 +400,13 @@ function llmsTxt() {
         `- [${surah.number}. ${surah.name} (${surah.meaning})](${url(path)}): ${surah.revelation}, ${surah.ayahs} ayahs.`
     ),
     "",
+    "## Duas and well-known ayahs",
+    "",
+    ...duaPages.map(
+      ({ dua, surah, path }) =>
+        `- [${dua.title} (${dua.titleBn})](${url(path)}): Surah ${surah.name} ${duaReference(dua)}.`
+    ),
+    "",
     "## Articles (Bangla)",
     "",
     ...postPages.map(
@@ -368,7 +429,10 @@ const DRAWING_INPUTS = [
   "scripts/lib/render.ts",
   "scripts/lib/shape-text.ts",
   "src/components/logo-mark.tsx",
+  "src/content/duas.ts",
   "src/content/writers.ts",
+  "src/data/duas.json",
+  "src/lib/duas.ts",
   "src/lib/bangla.ts",
   "src/lib/pages.ts",
   "src/lib/seo.ts",
@@ -417,6 +481,8 @@ const results = await Promise.all([
         <SurahCard page={page} />
       ) : page.kind === "post" ? (
         <PostCard page={page} />
+      ) : page.kind === "dua" ? (
+        <DuaCard page={page} />
       ) : (
         <AppCard page={page} />
       )

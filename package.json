@@ -17,6 +17,7 @@
     "generate-routes": "bun --bun tsr generate",
     "generate:icons": "bun scripts/generate-icons.tsx",
     "generate:og": "bun scripts/generate-og-images.tsx",
+    "generate:duas": "bun scripts/extract-duas.ts",
     "fetch:quran": "bun scripts/fetch-quran.ts",
     "check": "biome check .",
     "check:fix": "biome check --write .",

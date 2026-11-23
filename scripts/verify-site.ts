@@ -19,7 +19,7 @@ import {
   type Request,
   type Response,
 } from "playwright-core"
-import { ogImagePath, pageSlug, pages } from "../src/lib/pages"
+import { ogImagePath, pageSlug, pages, postPages } from "../src/lib/pages"
 import { site } from "../src/lib/site"
 
 const PORT = 4173
@@ -195,6 +195,24 @@ await Promise.all(
   if (manifest.status !== 200 || !type.startsWith("application/manifest+json")) {
     fail(`/site.webmanifest: ${manifest.status} ${type}`)
   }
+}
+
+// Between the two widths above, where the header has to switch to its menu: one page of each
+// kind, checked for horizontal overflow (a header that no longer fits shows up here).
+console.log("\nTablet and laptop widths")
+for (const width of [768, 1024]) {
+  const context = await browser.newContext({ viewport: { width, height: 900 } })
+  const page = await context.newPage()
+  const sample = ["/", "/surah", "/surah/2", "/duas", "/duas/ayat-al-kursi", "/blog", "/history"]
+  for (const path of [...sample, postPages[0]?.path ?? "/blog"]) {
+    await page.goto(`${origin}${path}`, { waitUntil: "load" })
+    await hydrated(page)
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth
+    )
+    if (overflow > 0) fail(`${path} (${width}px): ${overflow}px horizontal overflow`)
+  }
+  await context.close()
 }
 
 // The personal history page: prerendered, but noindex and kept out of the sitemap.

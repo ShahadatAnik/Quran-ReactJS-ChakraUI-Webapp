@@ -47,13 +47,23 @@ function sourcesOf(page: Page): string[] {
       ]
     case "post":
       return ["src/routes/blog.$slug.tsx", `src/content/posts/${page.post.slug}.ts`]
+    case "dua":
+      return [
+        "src/routes/duas.$slug.tsx",
+        "src/content/duas.ts",
+        `src/data/quran/${String(page.surah.number).padStart(3, "0")}.json`,
+      ]
     default:
       return [`src/routes${page.path}.tsx`, `src/routes${page.path}.index.tsx`]
   }
 }
 
 const priority = (page: Page) =>
-  page.kind === "app" || page.kind === "index" ? 0.8 : page.kind === "surah" ? 0.7 : 0.6
+  page.kind === "app" || page.kind === "index"
+    ? 0.8
+    : page.kind === "surah" || page.kind === "dua"
+      ? 0.7
+      : 0.6
 
 /** Every page to prerender, with its sitemap metadata. */
 const prerenderPages = [

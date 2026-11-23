@@ -3,6 +3,7 @@ import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
+import { splitAtWord } from "@/lib/duas"
 import { site } from "@/lib/site"
 import { ayahId, ayahPath } from "@/lib/surahs"
 import { cn } from "@/lib/utils"
@@ -11,6 +12,11 @@ export interface AyahItemProps {
   surah: number
   ayah: number
   arabic: string
+  /**
+   * For a dua that begins part-way through this ayah: the word it starts at. The words before
+   * it are shown muted, so the dua stands out.
+   */
+  highlightFromWord?: number
   /** Translation text; omitted when translations are hidden. */
   translation?: string
   translationLang: string
@@ -28,10 +34,22 @@ export interface AyahItemProps {
 }
 
 /** One ayah: number, Arabic, translation, and play / copy-link actions. */
+/** The ayah with its dua words emphasised and the words before them muted. */
+function HighlightedArabic({ text, from }: { text: string; from: number }) {
+  const [before, dua] = splitAtWord(text, from)
+  return (
+    <>
+      <span className="text-muted-foreground/70">{before}</span>{" "}
+      <mark className="bg-transparent text-foreground">{dua}</mark>
+    </>
+  )
+}
+
 export const AyahItem = memo(function AyahItem({
   surah,
   ayah,
   arabic,
+  highlightFromWord,
   translation,
   translationLang,
   translationDir,
@@ -112,7 +130,7 @@ export const AyahItem = memo(function AyahItem({
         </Button>
       </div>
       <p lang="ar" dir="rtl" className="ayah-arabic mt-1 text-foreground">
-        {arabic}
+        {highlightFromWord ? <HighlightedArabic text={arabic} from={highlightFromWord} /> : arabic}
       </p>
       {translation ? (
         <p

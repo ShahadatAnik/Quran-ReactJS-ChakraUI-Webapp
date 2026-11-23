@@ -1,7 +1,9 @@
 import { describe, expect, test } from "bun:test"
+import { duas } from "@/content/duas"
 import { posts } from "@/content/posts"
 import {
   appPages,
+  duaPages,
   fitLength,
   META_DESCRIPTION_RANGE,
   ogImagePath,
@@ -17,8 +19,9 @@ import {
 const [MIN, MAX] = META_DESCRIPTION_RANGE
 
 describe("page registry", () => {
-  test("lists every app page, all 114 surahs and every article", () => {
-    expect(pages).toHaveLength(appPages.length + 114 + posts.length)
+  test("lists every app page, every dua, all 114 surahs and every article", () => {
+    expect(pages).toHaveLength(appPages.length + duas.length + 114 + posts.length)
+    expect(duaPages.map((p) => p.path)).toContain("/duas/ayat-al-kursi")
     expect(surahPages.map((p) => p.path)).toContain("/surah/114")
   })
 

@@ -17,6 +17,8 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as WritersRouteImport } from './routes/writers'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as DuasIndexRouteImport } from './routes/duas.index'
+import { Route as DuasSlugRouteImport } from './routes/duas.$slug'
 import { Route as SurahIndexRouteImport } from './routes/surah.index'
 import { Route as SurahNumberRouteImport } from './routes/surah.$number'
 
@@ -60,6 +62,16 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DuasIndexRoute = DuasIndexRouteImport.update({
+  id: '/duas/',
+  path: '/duas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DuasSlugRoute = DuasSlugRouteImport.update({
+  id: '/duas/$slug',
+  path: '/duas/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SurahIndexRoute = SurahIndexRouteImport.update({
   id: '/surah/',
   path: '/surah/',
@@ -79,8 +91,10 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/duas/$slug': typeof DuasSlugRoute
   '/surah/$number': typeof SurahNumberRoute
   '/blog/': typeof BlogIndexRoute
+  '/duas/': typeof DuasIndexRoute
   '/surah/': typeof SurahIndexRoute
 }
 export interface FileRoutesByTo {
@@ -91,8 +105,10 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/duas/$slug': typeof DuasSlugRoute
   '/surah/$number': typeof SurahNumberRoute
   '/blog': typeof BlogIndexRoute
+  '/duas': typeof DuasIndexRoute
   '/surah': typeof SurahIndexRoute
 }
 export interface FileRoutesById {
@@ -104,8 +120,10 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/duas/$slug': typeof DuasSlugRoute
   '/surah/$number': typeof SurahNumberRoute
   '/blog/': typeof BlogIndexRoute
+  '/duas/': typeof DuasIndexRoute
   '/surah/': typeof SurahIndexRoute
 }
 export interface FileRouteTypes {
@@ -118,8 +136,10 @@ export interface FileRouteTypes {
     | '/search'
     | '/writers'
     | '/blog/$slug'
+    | '/duas/$slug'
     | '/surah/$number'
     | '/blog/'
+    | '/duas/'
     | '/surah/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -130,8 +150,10 @@ export interface FileRouteTypes {
     | '/search'
     | '/writers'
     | '/blog/$slug'
+    | '/duas/$slug'
     | '/surah/$number'
     | '/blog'
+    | '/duas'
     | '/surah'
   id:
     | '__root__'
@@ -142,8 +164,10 @@ export interface FileRouteTypes {
     | '/search'
     | '/writers'
     | '/blog/$slug'
+    | '/duas/$slug'
     | '/surah/$number'
     | '/blog/'
+    | '/duas/'
     | '/surah/'
   fileRoutesById: FileRoutesById
 }
@@ -155,8 +179,10 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   WritersRoute: typeof WritersRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  DuasSlugRoute: typeof DuasSlugRoute
   SurahNumberRoute: typeof SurahNumberRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  DuasIndexRoute: typeof DuasIndexRoute
   SurahIndexRoute: typeof SurahIndexRoute
 }
 
@@ -218,6 +244,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/duas/': {
+      id: '/duas/'
+      path: '/duas'
+      fullPath: '/duas/'
+      preLoaderRoute: typeof DuasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/duas/$slug': {
+      id: '/duas/$slug'
+      path: '/duas/$slug'
+      fullPath: '/duas/$slug'
+      preLoaderRoute: typeof DuasSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/surah/': {
       id: '/surah/'
       path: '/surah'
@@ -243,8 +283,10 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   WritersRoute: WritersRoute,
   BlogSlugRoute: BlogSlugRoute,
+  DuasSlugRoute: DuasSlugRoute,
   SurahNumberRoute: SurahNumberRoute,
   BlogIndexRoute: BlogIndexRoute,
+  DuasIndexRoute: DuasIndexRoute,
   SurahIndexRoute: SurahIndexRoute,
 }
 export const routeTree = rootRouteImport
