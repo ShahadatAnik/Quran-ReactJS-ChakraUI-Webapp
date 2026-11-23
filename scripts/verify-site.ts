@@ -77,10 +77,11 @@ function watchConsole(page: Page) {
     }
   }
   const onRequestFailed = (request: Request) => {
-    // Audio prefetches can be cancelled when the page changes; anything else is a problem.
-    if (request.resourceType() !== "media" && ownFile(request.url())) {
-      problems.push(`request failed: ${request.url()} (${request.failure()?.errorText})`)
-    }
+    // Moving on to the next page cancels requests still in flight (the favicon, an audio
+    // prefetch): that is ERR_ABORTED, not a broken file. Missing files answer 404 above.
+    const error = request.failure()?.errorText ?? ""
+    if (error === "net::ERR_ABORTED" || request.resourceType() === "media") return
+    if (ownFile(request.url())) problems.push(`request failed: ${request.url()} (${error})`)
   }
   const onPageError = (error: Error) => problems.push(`pageerror: ${error.message}`)
   page.on("console", onConsole)

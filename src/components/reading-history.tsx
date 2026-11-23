@@ -29,8 +29,8 @@ import {
 import { AYAH_COUNT, ayahId, getSurah, surahs } from "@/lib/surahs"
 import { cn } from "@/lib/utils"
 
-/** Weeks in the reading calendar (about half a year). */
-const WEEKS = 26
+/** Weeks in the reading calendar: a year. */
+const WEEKS = 52
 const DAYS_SHOWN = 7
 
 const number = (n: number) => n.toLocaleString("en")
@@ -143,6 +143,27 @@ const LEVEL_CLASS = [
   "bg-primary",
 ] as const
 
+/** Columns a month name needs so the next one doesn't run into it. */
+const LABEL_COLUMNS = 3
+
+/**
+ * A month name over each week that starts a new month, or "". A name is left out when it
+ * would sit within LABEL_COLUMNS of the next one (say, the first column is the last week of a
+ * month), so names never overlap.
+ */
+function monthLabels(columns: HeatmapCell[][]): string[] {
+  const months = columns.map((column) => parseKey(column[0]?.date ?? "").getMonth())
+  const starts = months.flatMap((month, i) => (i === 0 || month !== months[i - 1] ? [i] : []))
+  const labels = columns.map(() => "")
+  starts.forEach((start, i) => {
+    const next = starts[i + 1] ?? Number.POSITIVE_INFINITY
+    if (next - start >= LABEL_COLUMNS) {
+      labels[start] = shortMonth.format(parseKey(columns[start]?.[0]?.date ?? ""))
+    }
+  })
+  return labels
+}
+
 /**
  * The last weeks as a calendar grid (Saturday at the top), shaded by ayahs read per day. On
  * narrow screens it scrolls sideways and starts at the most recent week.
@@ -159,7 +180,7 @@ function ReadingCalendar({ columns, today }: { columns: HeatmapCell[][]; today: 
   return (
     <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className="font-medium">Last {WEEKS} weeks</h2>
+        <h2 className="font-medium">Past year</h2>
         {/* Readout for the day under the pointer: the chart's tooltip, without covering it. */}
         <p className="text-xs text-muted-foreground tabular-nums">
           {hovered
@@ -170,29 +191,19 @@ function ReadingCalendar({ columns, today }: { columns: HeatmapCell[][]; today: 
       <div ref={scroller} className="mt-4 overflow-x-auto pb-1">
         <div
           role="img"
-          aria-label={`Reading calendar: ${plural(active, "day")} with reading in the last ${WEEKS} weeks. The day-by-day list below has the details.`}
+          aria-label={`Reading calendar: ${plural(active, "day")} with reading in the past year. The day-by-day list below has the details.`}
           className="inline-flex flex-col gap-1"
         >
           {/* Month names over the first week of each month. */}
           <div className="flex gap-1" aria-hidden="true">
-            {columns.map((column, index) => {
-              const first = column[0]
-              const previous = columns[index - 1]?.[0]
-              const label =
-                first &&
-                (!previous ||
-                  parseKey(first.date).getMonth() !== parseKey(previous.date).getMonth())
-                  ? shortMonth.format(parseKey(first.date))
-                  : ""
-              return (
-                <span
-                  key={first?.date}
-                  className="w-3.5 text-[10px] whitespace-nowrap text-muted-foreground"
-                >
-                  {label}
-                </span>
-              )
-            })}
+            {monthLabels(columns).map((label, index) => (
+              <span
+                key={columns[index]?.[0]?.date}
+                className="w-3.5 text-[10px] whitespace-nowrap text-muted-foreground"
+              >
+                {label}
+              </span>
+            ))}
           </div>
           <div className="flex gap-1" onPointerLeave={() => setHovered(null)}>
             {columns.map((column) => (

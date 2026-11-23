@@ -55,7 +55,12 @@ function SurahRoute() {
     <PageLayout
       trail={[{ label: "Surahs", link: pageByPath.surahs.link }]}
       crumb={surah.name}
-      title={page.title}
+      // The name never breaks at its hyphen ("Surah Al-" / "Mutaffifin"); it wraps whole.
+      title={
+        <>
+          Surah <span className="whitespace-nowrap">{surah.name}</span>
+        </>
+      }
       media={<SurahNumber n={surah.number} className="size-12 text-base" />}
       description={
         <>
@@ -87,7 +92,7 @@ function SurahRoute() {
       // The Arabic name sits beside the title on phones, and above the button on wide screens.
       // Amiri sits low in its line box; .arabic-glyph-centred lifts it onto the line.
       titleAside={
-        <p lang="ar" dir="rtl" className="h-8 shrink-0 text-3xl text-gold md:hidden">
+        <p lang="ar" dir="rtl" className="mt-5 h-8 shrink-0 text-3xl text-gold md:hidden">
           <span className="arabic-glyph-centred">{surah.arabic}</span>
         </p>
       }

@@ -34,7 +34,7 @@ export const Route = createRootRoute({
       { name: "format-detection", content: "telephone=no" },
       ...(isNotFoundPage(matches)
         ? [{ title: `Page not found | ${site.name}` }, { name: "robots", content: "noindex" }]
-        : matches.some((match) => match.routeId === "/history")
+        : matches.some((match) => match.pathname === "/history")
           ? [] // The page sets its own robots (noindex).
           : [
               {
