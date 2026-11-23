@@ -3,13 +3,34 @@ import { duaCategory, duas } from "@/content/duas"
 import { posts } from "@/content/posts"
 import { getWriter, writers } from "@/content/writers"
 import { formatBanglaDate, toBanglaDigits } from "@/lib/bangla"
-import { duaOpening, duaSource } from "@/lib/duas"
+import { duaOpening, duaReference } from "@/lib/duas"
 import type { DuaPage, Page, PostPage, SurahPage } from "@/lib/pages"
 import { AYAH_COUNT } from "@/lib/surahs"
 import { cn } from "@/lib/utils"
 
+/** The frame every card shares (the Explore look): rounded, outlined in gold on hover. */
 const cardClass =
-  "group relative flex h-full flex-col gap-3 rounded-xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 outline-none transition-[box-shadow,background-color] hover:bg-accent/40 hover:ring-primary/40 focus-visible:ring-3 focus-visible:ring-ring/60"
+  "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 transition-[box-shadow] outline-none hover:ring-gold/50 focus-visible:ring-3 focus-visible:ring-ring/60"
+
+/** The same frame for panels that aren't links (e.g. the reading history). */
+export const panelClass =
+  "relative isolate overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10"
+
+/** Star lattice fading out from a card's top-right corner; it brightens on hover. */
+export function CornerLattice({ className }: { className?: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "khatam-corner absolute -top-4 -right-4 -z-10 size-48 opacity-50 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none",
+        className
+      )}
+    />
+  )
+}
+
+/** The gold line of facts above a card's title. */
+export const factClass = "text-xs font-medium tracking-wide text-gold uppercase"
 
 /**
  * What each main destination is called in Arabic, shown large as the card's emblem, and a
@@ -42,22 +63,8 @@ export function PageCard({
   if (page.kind === "dua") return <DuaCard page={page} className={className} />
   const destination = destinations[page.path]
   return (
-    <Link
-      {...page.link}
-      className={cn(
-        "group relative isolate flex h-full min-h-56 flex-col overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 transition-[box-shadow] outline-none hover:ring-gold/50 focus-visible:ring-3 focus-visible:ring-ring/60",
-        featured && "p-6 md:p-8",
-        className
-      )}
-    >
-      {/* Star lattice fading out from the top-right corner; it brightens on hover. */}
-      <div
-        aria-hidden="true"
-        className={cn(
-          "khatam-corner absolute -top-4 -right-4 -z-10 opacity-50 transition-opacity duration-500 group-hover:opacity-100 motion-reduce:transition-none",
-          featured ? "size-96" : "size-48"
-        )}
-      />
+    <Link {...page.link} className={cn(cardClass, "min-h-56", featured && "p-6 md:p-8", className)}>
+      <CornerLattice className={featured ? "size-96" : undefined} />
       {destination ? (
         <span
           aria-hidden="true"
@@ -72,11 +79,7 @@ export function PageCard({
         </span>
       ) : null}
       <div className="mt-auto space-y-1.5 pt-4">
-        {destination ? (
-          <p className="text-xs font-medium tracking-wide text-gold uppercase">
-            {destination.fact}
-          </p>
-        ) : null}
+        {destination ? <p className={factClass}>{destination.fact}</p> : null}
         <h3
           className={cn(
             "font-semibold tracking-tight",
@@ -125,39 +128,41 @@ export function SurahNumber({ n, className }: { n: number; className?: string })
   )
 }
 
+/** A surah: number and Arabic name on top, then its facts, name and meaning. */
 export function SurahCard({ page, className }: { page: SurahPage; className?: string }) {
   const { surah } = page
   return (
-    <Link {...page.link} className={cn(cardClass, "flex-row items-center gap-4", className)}>
-      <SurahNumber n={surah.number} />
-      <div className="min-w-0 flex-1">
-        <h3 className="truncate font-medium">{surah.name}</h3>
-        <p className="truncate text-xs text-muted-foreground">
-          {surah.meaning} ·{" "}
-          <span lang="bn" className="leading-none">
-            {surah.meaningBn}
-          </span>
+    <Link {...page.link} className={cn(cardClass, "gap-3", className)}>
+      <CornerLattice />
+      <div className="flex items-start justify-between gap-3">
+        <SurahNumber n={surah.number} />
+        {/* Amiri sits low in its line box; .arabic-glyph-centred lifts it onto the line. */}
+        <span lang="ar" dir="rtl" className="flex h-10 items-center text-3xl text-gold">
+          <span className="arabic-glyph-centred">{surah.arabic}</span>
+        </span>
+      </div>
+      <div className="mt-auto space-y-1">
+        <p className={factClass}>
+          {surah.revelation} · {surah.ayahs} {surah.ayahs === 1 ? "ayah" : "ayahs"}
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {surah.revelation} · {surah.ayahs} ayahs
+        <h3 className="truncate text-lg font-semibold tracking-tight">{surah.name}</h3>
+        <p className="truncate text-sm text-muted-foreground">
+          {surah.meaning} · <span lang="bn">{surah.meaningBn}</span>
         </p>
       </div>
-      <span lang="ar" dir="rtl" className="shrink-0 text-2xl leading-none text-gold">
-        {surah.arabic}
-      </span>
     </Link>
   )
 }
 
+/** An article: series and part (or "article"), title, summary, then date and writer. */
 export function PostCard({ page, className }: { page: PostPage; className?: string }) {
   const { post } = page
   return (
-    <Link {...page.link} className={cn(cardClass, className)} lang="bn">
-      {post.series ? (
-        <p className="text-xs font-medium text-gold">
-          {post.series.name} · পর্ব {toBanglaDigits(post.series.part)}
-        </p>
-      ) : null}
+    <Link {...page.link} className={cn(cardClass, "gap-3", className)} lang="bn">
+      <CornerLattice />
+      <p className="text-xs font-medium text-gold">
+        {post.series ? `${post.series.name} · পর্ব ${toBanglaDigits(post.series.part)}` : "প্রবন্ধ"}
+      </p>
       <h3 className="text-lg leading-snug font-semibold">{post.shortTitle}</h3>
       <p className="line-clamp-3 text-sm text-pretty text-muted-foreground">{post.summary}</p>
       <p className="mt-auto text-xs text-muted-foreground">
@@ -168,28 +173,28 @@ export function PostCard({ page, className }: { page: PostPage; className?: stri
   )
 }
 
-/** A dua or well-known ayah: its category, opening words in Arabic, names and reference. */
+/** A dua or well-known ayah: its opening words in gold, then category, reference and names. */
 export function DuaCard({ page, className }: { page: DuaPage; className?: string }) {
   const { dua } = page
   return (
-    <Link {...page.link} className={cn(cardClass, "gap-2", className)}>
-      <p className="text-xs font-medium tracking-wide text-gold uppercase">
-        {duaCategory(dua.category).title}
-      </p>
+    <Link {...page.link} className={cn(cardClass, "gap-3", className)}>
+      <CornerLattice />
       {/* Top padding keeps Amiri's tall marks inside the two-line clip. */}
       <p
         lang="ar"
         dir="rtl"
-        className="line-clamp-2 pt-2 font-arabic text-2xl leading-[1.9] text-foreground"
+        className="line-clamp-2 pt-2 font-arabic text-2xl leading-[1.9] text-gold"
       >
         {duaOpening(dua)}
       </p>
-      <div className="mt-auto space-y-0.5 pt-2">
-        <h3 className="font-medium">{dua.title}</h3>
+      <div className="mt-auto space-y-1">
+        <p className={factClass}>
+          {duaCategory(dua.category).title} · {duaReference(dua)}
+        </p>
+        <h3 className="text-lg font-semibold tracking-tight">{dua.title}</h3>
         <p lang="bn" className="text-sm text-muted-foreground">
           {dua.titleBn}
         </p>
-        <p className="text-xs text-muted-foreground tabular-nums">{duaSource(dua)}</p>
       </div>
     </Link>
   )

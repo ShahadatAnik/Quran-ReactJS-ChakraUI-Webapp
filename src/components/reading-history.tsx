@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Flame, History, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { CornerLattice, factClass, panelClass } from "@/components/page-card"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -126,8 +127,9 @@ export function ReadingStrip() {
 /** A headline number with its label and a line of context. */
 function StatTile({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10">
-      <p className="text-sm text-muted-foreground">{label}</p>
+    <div className={cn(panelClass, "p-4 sm:p-5")}>
+      <CornerLattice className="size-32" />
+      <p className={factClass}>{label}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight tabular-nums">{value}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">{note}</p>
     </div>
@@ -178,9 +180,10 @@ function ReadingCalendar({ columns, today }: { columns: HeatmapCell[][]; today: 
   const active = columns.flat().filter((c) => !c.future && c.ayahs > 0).length
 
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
+    <div className={panelClass}>
+      <CornerLattice />
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className="font-medium">Past year</h2>
+        <h2 className={factClass}>Past year</h2>
         {/* Readout for the day under the pointer: the chart's tooltip, without covering it. */}
         <p className="text-xs text-muted-foreground tabular-nums">
           {hovered
@@ -242,8 +245,9 @@ function MostRead({ frequency }: { frequency: ReadingStats["frequency"] }) {
   const top = frequency.slice(0, 6)
   const most = top[0]?.days ?? 1
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
-      <h2 className="font-medium">Most-read surahs</h2>
+    <div className={panelClass}>
+      <CornerLattice />
+      <h2 className={factClass}>Most-read surahs</h2>
       <p className="text-xs text-muted-foreground">Days with any reading of the surah</p>
       <ol className="mt-4 space-y-3.5">
         {top.map(({ surah: n, days, covered }) => {
@@ -258,8 +262,11 @@ function MostRead({ frequency }: { frequency: ReadingStats["frequency"] }) {
                 >
                   {n}. {surah?.name}
                 </Link>
-                <span className="shrink-0 text-muted-foreground tabular-nums">
+                <span className="ml-auto shrink-0 text-muted-foreground tabular-nums">
                   {plural(days, "day")}
+                </span>
+                <span lang="ar" dir="rtl" className="w-20 shrink-0 text-right text-lg text-gold">
+                  {surah?.arabic}
                 </span>
               </div>
               <div className="mt-1.5 h-1.5 rounded-full bg-primary/15" aria-hidden="true">
@@ -285,8 +292,9 @@ function MostRead({ frequency }: { frequency: ReadingStats["frequency"] }) {
 function DayLog({ days, today }: { days: DaySummary[]; today: Date }) {
   const [shown, setShown] = useState(DAYS_SHOWN)
   return (
-    <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
-      <h2 className="font-medium">Day by day</h2>
+    <div className={panelClass}>
+      <CornerLattice />
+      <h2 className={factClass}>Day by day</h2>
       <ol className="mt-2 divide-y divide-border/60">
         {days.slice(0, shown).map((day) => (
           <li key={day.date} className="py-3">
@@ -377,7 +385,8 @@ export function ReadingDashboard() {
 
   if (stats.daysActive === 0) {
     return (
-      <div className="flex items-start gap-3 rounded-xl bg-card p-5 text-sm text-muted-foreground ring-1 ring-foreground/10">
+      <div className={cn(panelClass, "flex items-start gap-3 text-sm text-muted-foreground")}>
+        <CornerLattice />
         <History className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
         <p>
           Nothing here yet. Read any surah and your history builds up on this page: your streak, how
@@ -417,17 +426,29 @@ export function ReadingDashboard() {
         />
       </div>
 
-      <div className="rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:p-5">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-medium">Khatm progress</h2>
-          <p className="text-sm text-muted-foreground tabular-nums">
-            {number(stats.covered)} of {number(AYAH_COUNT)} ayahs · {percent(share)}
-          </p>
+      <div className={panelClass}>
+        <CornerLattice className="size-64" />
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className={factClass}>Khatm progress</h2>
+            <p className="mt-1 text-sm text-muted-foreground tabular-nums">
+              {number(stats.covered)} of {number(AYAH_COUNT)} ayahs · {percent(share)}
+            </p>
+          </div>
+          {/* Amiri sits low in its line box; .arabic-glyph-centred lifts it onto the line. */}
+          <span
+            aria-hidden="true"
+            lang="ar"
+            dir="rtl"
+            className="flex h-12 items-center text-4xl text-gold"
+          >
+            <span className="arabic-glyph-centred">خَتْم</span>
+          </span>
         </div>
         {/* The figures above say the same in text; the bar is their picture. */}
         <div aria-hidden="true" className="mt-3 h-2 rounded-full bg-primary/15">
           <div
-            className="h-full rounded-full bg-primary"
+            className="h-full rounded-full bg-linear-to-r from-primary to-gold"
             style={{ width: `${share > 0 ? Math.max(share * 100, 0.5) : 0}%` }}
           />
         </div>

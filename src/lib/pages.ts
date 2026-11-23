@@ -160,7 +160,7 @@ const duasPage: IndexPage = {
     "Duas from the Quran and well-known ayahs such as Ayat al-Kursi, each in Arabic with Bangla translation and audio, with its place in the Quran.",
   section: "Quran",
   icon: HandHeart,
-  keywords: ["dua", "doa", "supplication", "ayatul kursi", "দোয়া", "দুআ"],
+  keywords: ["dua", "doa", "supplication", "দোয়া", "দুআ"],
   seoTitle: "Duas from the Quran in Arabic & Bangla",
   metaDescription:
     "Duas and well-known ayahs from the Quran, such as Ayat al-Kursi and the end of Al-Baqarah, in Arabic with Bangla translation and audio, with references.",
@@ -357,7 +357,7 @@ function duaPageOf(dua: Dua): DuaPage {
     description: `${title}${from} (${ref}), in Arabic with Bangla translation and audio recitation.`,
     section: "Quran",
     icon: HandHeart,
-    keywords: [dua.titleBn, ref, surah.name, surah.arabic, "dua", "দোয়া"],
+    keywords: [dua.titleBn, ...(dua.aliases ?? []), ref, surah.name, surah.arabic, "dua", "দোয়া"],
     seoTitle: fitLength(
       [
         `${title} (${ref}) in Arabic & Bangla`,
@@ -490,7 +490,8 @@ export function relatedPages(page: Page, limit = 6): Page[] {
       )
       const rest = duaPages.filter((p) => !sameCategory.includes(p) && p.path !== page.path)
       const surah = surahPages[page.surah.number - 1]
-      return [...sameCategory, ...rest].slice(0, limit - 1).concat(surah ? [surah] : [])
+      const related: Page[] = [...sameCategory, ...rest].slice(0, limit - 1)
+      return surah ? [...related, surah] : related
     }
     case "post": {
       const series = page.post.series

@@ -38,6 +38,8 @@ export interface Dua {
   title: string
   titleBn: string
   category: DuaCategoryId
+  /** Other common spellings, for search ("ayatul kursi"). */
+  aliases?: readonly string[]
   /** Who says the dua in the Quran's account, where the ayahs name them. */
   saidBy?: string
   surah: number
@@ -66,6 +68,7 @@ export const duas: readonly Dua[] = [
     slug: "ayat-al-kursi",
     title: "Ayat al-Kursi",
     titleBn: "আয়াতুল কুরসি",
+    aliases: ["ayatul kursi", "ayat ul kursi", "ayatal kursi", "throne verse"],
     category: "well-known",
     surah: 2,
     from: 255,
@@ -75,6 +78,7 @@ export const duas: readonly Dua[] = [
     slug: "last-two-ayahs-of-al-baqarah",
     title: "Last two ayahs of Al-Baqarah",
     titleBn: "সূরা বাকারার শেষ দুই আয়াত",
+    aliases: ["amanar rasul", "amana rasulu", "baqarah last 2 ayat", "bakara"],
     category: "well-known",
     surah: 2,
     from: 285,
@@ -84,6 +88,7 @@ export const duas: readonly Dua[] = [
     slug: "last-three-ayahs-of-al-hashr",
     title: "Last three ayahs of Al-Hashr",
     titleBn: "সূরা হাশরের শেষ তিন আয়াত",
+    aliases: ["huwallahullazi", "hashr last 3 ayat", "hasor"],
     category: "well-known",
     surah: 59,
     from: 22,
@@ -133,6 +138,7 @@ export const duas: readonly Dua[] = [
     slug: "la-ilaha-illa-anta-subhanaka",
     title: "La ilaha illa anta subhanaka",
     titleBn: "লা ইলাহা ইল্লা আনতা সুবহানাকা",
+    aliases: ["dua yunus", "ayatul karima", "dua of jonah"],
     category: "forgiveness",
     saidBy: "Yunus",
     surah: 21,

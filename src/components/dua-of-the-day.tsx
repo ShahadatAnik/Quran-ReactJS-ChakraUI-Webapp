@@ -27,7 +27,7 @@ export function DuaOfTheDay() {
     <section
       aria-labelledby="daily-dua-heading"
       aria-busy={!dua}
-      className="relative isolate min-h-72 overflow-hidden rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6"
+      className="relative isolate min-h-52 overflow-hidden rounded-2xl bg-card p-5 ring-1 ring-foreground/10 sm:p-6"
     >
       <div
         aria-hidden="true"

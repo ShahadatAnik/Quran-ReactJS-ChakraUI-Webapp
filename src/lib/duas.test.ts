@@ -59,8 +59,8 @@ describe("the list of duas", () => {
       const text = await surahText(dua.surah)
       const expected = duaAyahs(dua).map((n) => ({
         n,
-        ar: text.ayahs[n - 1]?.ar,
-        bn: text.ayahs[n - 1]?.bn,
+        ar: text.ayahs[n - 1]?.ar ?? "",
+        bn: text.ayahs[n - 1]?.bn ?? "",
       }))
       expect(duaAyahText(dua.slug), dua.slug).toEqual(expected)
     }
