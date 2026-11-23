@@ -62,6 +62,8 @@ export function SurahStickyBar({
         </p>
         <SurahPlayButton surah={surah.number} compact className="ml-auto" />
       </div>
+      {/* How far through the surah's ayahs the reader is (CSS only; see .surah-progress). */}
+      <div aria-hidden="true" className="surah-progress absolute inset-x-0 -bottom-px" />
     </div>
   )
 }

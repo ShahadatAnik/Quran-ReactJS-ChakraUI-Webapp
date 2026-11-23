@@ -124,7 +124,7 @@ export function SurahReader({ text }: SurahReaderProps) {
   )
 
   return (
-    <div data-arabic-size={settings.arabicSize}>
+    <div>
       <p aria-live="polite" className="sr-only">
         {editions.status === "loading" ? "Loading the selected edition" : ""}
       </p>
@@ -145,7 +145,7 @@ export function SurahReader({ text }: SurahReaderProps) {
         </p>
       ) : null}
 
-      <ol ref={list} className="divide-y divide-border/50">
+      <ol ref={list} className="surah-reading divide-y divide-border/50">
         {text.ayahs.map((ayah, index) => {
           const n = index + 1
           return (

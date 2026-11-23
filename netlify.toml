@@ -104,6 +104,12 @@
   [headers.values]
     Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
 
+# Netlify doesn't know the .webmanifest extension and would serve it as a generic download.
+[[headers]]
+  for = "/site.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
+
 [[headers]]
   for = "/*"
   [headers.values]

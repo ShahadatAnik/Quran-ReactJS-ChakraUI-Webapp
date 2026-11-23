@@ -169,11 +169,7 @@ function AyahRoute() {
         </form>
       </div>
 
-      <section
-        aria-labelledby="ayah-heading"
-        className="mt-8"
-        data-arabic-size={settings.arabicSize}
-      >
+      <section aria-labelledby="ayah-heading" className="mt-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 id="ayah-heading" className="text-xl font-semibold tracking-tight">
             {surah?.name} · ayah {selection.ayah}

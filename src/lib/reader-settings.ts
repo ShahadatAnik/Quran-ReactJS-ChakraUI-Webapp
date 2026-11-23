@@ -4,10 +4,22 @@ import {
   DEFAULT_RECITER,
   DEFAULT_TRANSLATION_EDITION,
 } from "@/lib/editions"
+import { STORAGE_PREFIX } from "@/lib/site"
 import { getSurah, isAyahOf } from "@/lib/surahs"
 
 export const ARABIC_SIZES = ["sm", "md", "lg", "xl"] as const
 export type ArabicSize = (typeof ARABIC_SIZES)[number]
+
+/** Where the reader's choices are stored (see usePersistedState). */
+export const READER_STORAGE_KEY = `${STORAGE_PREFIX}reader`
+
+/**
+ * Inline script run before first paint: puts the saved Arabic text size on <html> as
+ * `data-arabic-size`, so prerendered ayahs never show at the default size first.
+ */
+export const arabicSizeScript = `(function(){try{var s=JSON.parse(localStorage.getItem(${JSON.stringify(
+  READER_STORAGE_KEY
+)})||"{}").arabicSize;if(${JSON.stringify(ARABIC_SIZES)}.indexOf(s)>-1)document.documentElement.dataset.arabicSize=s}catch(e){}})()`
 
 export interface ReaderSettings {
   arabicEdition: string
@@ -21,7 +33,7 @@ export const defaultReaderSettings: ReaderSettings = {
   arabicEdition: DEFAULT_ARABIC_EDITION,
   translationEdition: DEFAULT_TRANSLATION_EDITION,
   showTranslation: true,
-  arabicSize: "md",
+  arabicSize: "lg",
   reciter: DEFAULT_RECITER,
 }
 

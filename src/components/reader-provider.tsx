@@ -291,6 +291,10 @@ export function ReaderProvider({ children }: { children: ReactNode }) {
     (stored) => settingsOverrides(parseReaderSettings(stored))
   )
   const settings = useMemo(() => ({ ...defaultReaderSettings, ...overrides }), [overrides])
+  // The Arabic size lives on <html> (set before first paint by arabicSizeScript); keep it in step.
+  useEffect(() => {
+    if (restored) document.documentElement.dataset.arabicSize = settings.arabicSize
+  }, [restored, settings.arabicSize])
   const setSettings = useCallback(
     (update: (current: ReaderSettings) => ReaderSettings) =>
       setOverrides((current) =>
