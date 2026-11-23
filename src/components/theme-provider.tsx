@@ -9,13 +9,14 @@ const DARK_QUERY = "(prefers-color-scheme: dark)"
 
 /**
  * Inline script run before first paint (via `ScriptOnce`) so the correct theme class
- * is on <html> before any content renders — no flash of the wrong theme.
+ * is on <html> before any content renders — no flash of the wrong theme. It also records
+ * the chosen mode as `data-theme-mode`, so the theme button shows the right icon at once.
  */
 export const themeScript = `(function(){try{var t=localStorage.getItem(${JSON.stringify(
   STORAGE_KEY
 )});var d=t==='"dark"'||((!t||t==='"system"')&&matchMedia(${JSON.stringify(
   DARK_QUERY
-)}).matches);var r=document.documentElement;r.classList.toggle('dark',d);r.style.colorScheme=d?'dark':'light'}catch(e){}})()`
+)}).matches);var r=document.documentElement;r.classList.toggle('dark',d);r.style.colorScheme=d?'dark':'light';r.dataset.themeMode=t==='"light"'?'light':t==='"dark"'?'dark':'system'}catch(e){}})()`
 
 interface ThemeContextValue {
   theme: Theme
@@ -65,6 +66,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Until the stored preference is read, the inline script owns the <html> class.
     if (ready) applyTheme(resolvedTheme)
   }, [ready, resolvedTheme])
+
+  useEffect(() => {
+    if (ready) document.documentElement.dataset.themeMode = theme
+  }, [ready, theme])
 
   const value = useMemo<ThemeContextValue>(
     () => ({
