@@ -202,7 +202,7 @@ function ReadingCalendar({ columns, today }: { columns: HeatmapCell[][]; today: 
             {monthLabels(columns).map((label, index) => (
               <span
                 key={columns[index]?.[0]?.date}
-                className="w-3.5 text-[10px] whitespace-nowrap text-muted-foreground"
+                className="w-3.5 text-3xs whitespace-nowrap text-muted-foreground"
               >
                 {label}
               </span>
@@ -216,7 +216,7 @@ function ReadingCalendar({ columns, today }: { columns: HeatmapCell[][]; today: 
                     key={cell.date}
                     onPointerEnter={() => setHovered(cell.future ? null : cell)}
                     className={cn(
-                      "size-3.5 rounded-[3px] transition-shadow hover:ring-2 hover:ring-foreground/40",
+                      "size-3.5 rounded-xs transition-shadow hover:ring-2 hover:ring-foreground/40",
                       cell.future ? "invisible" : LEVEL_CLASS[cell.level]
                     )}
                   />
@@ -227,12 +227,12 @@ function ReadingCalendar({ columns, today }: { columns: HeatmapCell[][]; today: 
         </div>
       </div>
       <div
-        className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"
+        className="mt-3 flex items-center gap-1.5 text-2xs text-muted-foreground"
         aria-hidden="true"
       >
         Less
         {LEVEL_CLASS.map((level) => (
-          <span key={level} className={cn("size-3 rounded-[3px]", level)} />
+          <span key={level} className={cn("size-3 rounded-xs", level)} />
         ))}
         More
       </div>
@@ -403,7 +403,7 @@ export function ReadingDashboard() {
   const firstDay = stats.days.at(-1)?.date ?? dayKey(today)
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile
           label="Ayahs read"
           value={number(stats.covered)}

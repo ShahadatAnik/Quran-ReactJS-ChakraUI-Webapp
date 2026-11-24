@@ -20,6 +20,8 @@ const nav = appPages.filter((page) => page.path !== "/writers")
 const navLabels: Record<string, string> = {
   "Search the Quran": "Search",
   "Duas from the Quran": "Duas",
+  "Find an Ayah": "Ayah",
+  "Prayer times": "Prayer",
 }
 const navLabel = (title: string) => navLabels[title] ?? title
 

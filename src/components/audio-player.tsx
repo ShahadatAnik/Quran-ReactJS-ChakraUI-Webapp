@@ -51,7 +51,7 @@ export function AudioPlayer() {
       <div aria-hidden="true" className="h-20" />
       <section
         aria-label="Recitation player"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg [view-transition-name:audio-player] supports-backdrop-filter:bg-background/75"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-background/90 pb-safe backdrop-blur-lg [view-transition-name:audio-player] supports-backdrop-filter:bg-background/75"
       >
         <div className="mx-auto flex max-w-6xl items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6">
           <div className="flex items-center gap-0.5">

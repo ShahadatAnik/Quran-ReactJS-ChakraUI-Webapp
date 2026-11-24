@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Search } from "lucide-react"
 import { ContinueReading } from "@/components/continue-reading"
 import { DuaOfTheDay } from "@/components/dua-of-the-day"
 import { PageCard, PostCard, SurahCard } from "@/components/page-card"
+import { NextPrayerCard } from "@/components/prayer-times"
 import { useFrequentSurahs } from "@/components/reading-history"
 import { Button } from "@/components/ui/button"
 import {
@@ -67,7 +68,7 @@ function FrequentSurahs() {
         description="The surahs you read on the most days, from your history in this browser."
         more={{ label: "Your history", link: { to: "/history" } }}
       />
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {frequent.map(({ surah }) => {
           const page = getSurahPage(surah)
           return page ? (
@@ -118,7 +119,11 @@ function Home() {
       </section>
 
       <div className="mx-auto w-full max-w-6xl space-y-16 px-4 py-14 sm:px-6">
-        <DuaOfTheDay />
+        {/* The next prayer beside the dua of the day; stacked on phones, prayer first. */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <NextPrayerCard />
+          <DuaOfTheDay />
+        </div>
 
         <section aria-labelledby="explore-heading">
           <SectionHeading
@@ -126,10 +131,11 @@ function Home() {
             title="Explore"
             description="Everything on ILMIYAH, one click away. Press Ctrl+K anywhere to jump."
           />
-          {/* Bento: Surahs as the large tile, the other four as a 2×2 block beside it. */}
+          {/* Bento: Surahs as the large tile, the other four as a 2×2 block beside it. Prayer
+              times has its own card above. */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {appPages
-              .filter((page) => page.path !== "/writers")
+              .filter((page) => page.path !== "/writers" && page.path !== "/prayer-times")
               .map((page, index) =>
                 index === 0 ? (
                   <PageCard
@@ -154,7 +160,7 @@ function Home() {
             description="Surahs many people read every day and every Friday."
             more={{ label: "All 114 surahs", link: pageByPath.surahs.link }}
           />
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {POPULAR_SURAHS.slice(1).map((n) => {
               const page = surahPages[n - 1]
               return page ? (

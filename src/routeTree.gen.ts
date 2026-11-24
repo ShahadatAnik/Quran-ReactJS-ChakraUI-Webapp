@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as AyahRouteImport } from './routes/ayah'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as PrayerTimesRouteImport } from './routes/prayer-times'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as WritersRouteImport } from './routes/writers'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
@@ -40,6 +41,11 @@ const AyahRoute = AyahRouteImport.update({
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrayerTimesRoute = PrayerTimesRouteImport.update({
+  id: '/prayer-times',
+  path: '/prayer-times',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/ayah': typeof AyahRoute
   '/history': typeof HistoryRoute
+  '/prayer-times': typeof PrayerTimesRoute
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/ayah': typeof AyahRoute
   '/history': typeof HistoryRoute
+  '/prayer-times': typeof PrayerTimesRoute
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/ayah': typeof AyahRoute
   '/history': typeof HistoryRoute
+  '/prayer-times': typeof PrayerTimesRoute
   '/search': typeof SearchRoute
   '/writers': typeof WritersRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/ayah'
     | '/history'
+    | '/prayer-times'
     | '/search'
     | '/writers'
     | '/blog/$slug'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/ayah'
     | '/history'
+    | '/prayer-times'
     | '/search'
     | '/writers'
     | '/blog/$slug'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/ayah'
     | '/history'
+    | '/prayer-times'
     | '/search'
     | '/writers'
     | '/blog/$slug'
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   AyahRoute: typeof AyahRoute
   HistoryRoute: typeof HistoryRoute
+  PrayerTimesRoute: typeof PrayerTimesRoute
   SearchRoute: typeof SearchRoute
   WritersRoute: typeof WritersRoute
   BlogSlugRoute: typeof BlogSlugRoute
@@ -214,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prayer-times': {
+      id: '/prayer-times'
+      path: '/prayer-times'
+      fullPath: '/prayer-times'
+      preLoaderRoute: typeof PrayerTimesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -280,6 +300,7 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   AyahRoute: AyahRoute,
   HistoryRoute: HistoryRoute,
+  PrayerTimesRoute: PrayerTimesRoute,
   SearchRoute: SearchRoute,
   WritersRoute: WritersRoute,
   BlogSlugRoute: BlogSlugRoute,

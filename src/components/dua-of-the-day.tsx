@@ -52,7 +52,7 @@ export function DuaOfTheDay() {
           <p
             lang="ar"
             dir="rtl"
-            className="mt-4 font-arabic text-2xl leading-[2.1] text-foreground sm:text-3xl"
+            className="mt-4 font-arabic text-2xl leading-arabic text-foreground sm:text-3xl"
           >
             {arabic}
           </p>

@@ -42,7 +42,7 @@ export function SurahStickyBar({
     <div
       inert={!shown}
       className={cn(
-        "fixed inset-x-0 top-14 z-30 border-b border-border/60 bg-background/85 backdrop-blur-lg transition-[translate,opacity] duration-200 supports-backdrop-filter:bg-background/70 motion-reduce:transition-none",
+        "fixed inset-x-0 top-14 z-30 border-b border-border/60 bg-background/85 backdrop-blur-lg transition-slide duration-200 supports-backdrop-filter:bg-background/70 motion-reduce:transition-none",
         shown ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
       )}
     >

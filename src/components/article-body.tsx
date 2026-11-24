@@ -38,7 +38,7 @@ function Quote({ block }: { block: QuoteBlock }) {
 /** Renders an article's content blocks as semantic HTML. */
 export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
   return (
-    <div lang="bn" className="text-[1.1rem] leading-[1.9] text-foreground/90">
+    <div lang="bn" className="text-article leading-arabic-snug text-foreground/90">
       {blocks.map((block, index) => {
         switch (block.type) {
           case "heading":
