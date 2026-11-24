@@ -68,12 +68,15 @@ function groupBySurah(matches: readonly SearchMatch[]) {
 function SearchRoute() {
   const params = Route.useSearch()
   const navigate = useNavigate({ from: "/search" })
-  const [query, setQuery] = usePersistedState("search-query", "", (v) =>
+  const [query, setQuery, queryRestored] = usePersistedState("search-query", "", (v) =>
     typeof v === "string" ? v : undefined
   )
-  const [edition, setEdition] = usePersistedState("search-edition", DEFAULT_SEARCH_EDITION, (v) =>
-    typeof v === "string" && EDITION_ID.test(v) ? v : undefined
+  const [edition, setEdition, editionRestored] = usePersistedState(
+    "search-edition",
+    DEFAULT_SEARCH_EDITION,
+    (v) => (typeof v === "string" && EDITION_ID.test(v) ? v : undefined)
   )
+  const [arrived, setArrived] = useState(false)
   const [shown, setShown] = useState(PAGE_SIZE)
   const editions = useEditions()
   const ids = { query: useId(), edition: useId() }
@@ -84,22 +87,35 @@ function SearchRoute() {
   useEffect(() => {
     if (params.q !== undefined) setQuery(params.q)
     if (params.edition) setEdition(params.edition)
+    setArrived(true)
   }, [])
 
   const term = useDebouncedValue(query.trim(), 300)
   const search = useQuranSearch(term, edition)
 
-  // Keep the address shareable without adding a history entry per keystroke.
+  // Keep the address shareable without adding a history entry per keystroke. Only once the
+  // page has settled: the URL applied, the saved search restored and the typing debounced.
+  // Earlier, the defaults would briefly replace a shared link's ?edition=, then put it back.
   useEffect(() => {
-    void navigate({
-      search: {
-        q: term || undefined,
-        edition: edition === DEFAULT_SEARCH_EDITION ? undefined : edition,
-      },
-      replace: true,
-      resetScroll: false,
-    })
-  }, [term, edition, navigate])
+    const settled = arrived && queryRestored && editionRestored && term === query.trim()
+    if (!settled) return
+    const next = {
+      q: term || undefined,
+      edition: edition === DEFAULT_SEARCH_EDITION ? undefined : edition,
+    }
+    if (next.q === params.q && next.edition === params.edition) return
+    void navigate({ search: next, replace: true, resetScroll: false })
+  }, [
+    arrived,
+    queryRestored,
+    editionRestored,
+    term,
+    query,
+    edition,
+    params.q,
+    params.edition,
+    navigate,
+  ])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: a new search starts at the first page.
   useEffect(() => setShown(PAGE_SIZE), [term, edition])
@@ -130,6 +146,9 @@ function SearchRoute() {
             editions={options}
             onChange={setEdition}
             loading={editions.status === "loading" || editions.status === "idle"}
+            // The page is prerendered without the link's ?edition=, so wait for it (and the
+            // saved choice) rather than show the default and then switch.
+            pending={!arrived || !editionRestored}
             defaultValue={DEFAULT_SEARCH_EDITION}
             knownNames={knownEditions}
             placeholder="Search language, translator or script"

@@ -116,4 +116,5 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "DENY"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # Location for the prayer times, asked only by this site's own pages; never camera or mic.
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"

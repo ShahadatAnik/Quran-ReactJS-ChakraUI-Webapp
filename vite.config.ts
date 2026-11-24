@@ -4,7 +4,8 @@ import { devtools } from "@tanstack/devtools-vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
-import { ogImagePath, type Page, pageSlug, pages } from "./src/lib/pages.ts"
+import { articles } from "./scripts/plugins/vite-articles.ts"
+import { ogImagePath, type Page, pageSlug, pages, postPages } from "./src/lib/pages.ts"
 import { site } from "./src/lib/site.ts"
 
 /** Last commit date of every tracked file, read from one `git log` pass. */
@@ -27,6 +28,9 @@ function commitDates(): Map<string, string> {
 
 const dates = commitDates()
 
+/** The articles' Markdown files: the home page lists the latest ones. */
+const postFiles = postPages.map((page) => `src/content/posts/${page.post.slug}.md`)
+
 /** Date of the most recent commit touching any of the files, for sitemap `<lastmod>`. */
 const lastModified = (...files: string[]) =>
   files
@@ -46,7 +50,7 @@ function sourcesOf(page: Page): string[] {
         `src/data/quran/${String(page.surah.number).padStart(3, "0")}.json`,
       ]
     case "post":
-      return ["src/routes/blog.$slug.tsx", `src/content/posts/${page.post.slug}.ts`]
+      return ["src/routes/blog.$slug.tsx", `src/content/posts/${page.post.slug}.md`]
     case "dua":
       return [
         "src/routes/duas.$slug.tsx",
@@ -72,7 +76,7 @@ const prerenderPages = [
     sitemap: {
       priority: 1,
       changefreq: "weekly" as const,
-      lastmod: lastModified("src/routes/index.tsx", "src/lib/pages.ts", "src/content/posts.ts"),
+      lastmod: lastModified("src/routes/index.tsx", "src/lib/pages.ts", ...postFiles),
       images: image("home"),
     },
   },
@@ -95,6 +99,7 @@ export default defineConfig({
   plugins: [
     // Dev-only TanStack devtools; stripped from production builds.
     devtools(),
+    articles(),
     tailwindcss(),
     tanstackStart({
       // Every route is static, so prerender all of them to HTML. Link crawling is off
