@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 
 /** The frame every card shares (the Explore look): rounded, outlined in gold on hover. */
 const cardClass =
-  "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 transition-[box-shadow] outline-none hover:ring-gold/50 focus-visible:ring-3 focus-visible:ring-ring/60"
+  "group relative isolate flex h-full flex-col overflow-hidden rounded-2xl bg-card p-5 text-card-foreground ring-1 ring-foreground/10 transition-shadow outline-none hover:ring-gold/50 focus-visible:ring-3 focus-visible:ring-ring/60"
 
 /** The same frame for panels that aren't links (e.g. the reading history). */
 export const panelClass =
@@ -41,6 +41,7 @@ const destinations: Record<string, { arabic: string; fact: string }> = {
   "/ayah": { arabic: "آيَة", fact: "Any ayah, e.g. 2:255" },
   "/search": { arabic: "بَحْث", fact: "40+ languages" },
   "/duas": { arabic: "دُعَاء", fact: `${duas.length} duas & ayahs` },
+  "/prayer-times": { arabic: "الصَّلَاة", fact: "5 daily prayers · Qibla" },
   "/blog": { arabic: "مَقَالَات", fact: `${posts.length} articles in Bangla` },
   "/writers": { arabic: "كُتَّاب", fact: `${writers.length} writers` },
 }
@@ -71,7 +72,7 @@ export function PageCard({
           lang="ar"
           dir="rtl"
           className={cn(
-            "self-end font-arabic leading-[1.5] text-gold transition-transform duration-500 ease-out group-hover:-translate-y-0.5 motion-reduce:transition-none",
+            "self-end font-arabic leading-normal text-gold transition-transform duration-500 ease-out group-hover:-translate-y-0.5 motion-reduce:transition-none",
             featured ? "text-7xl md:text-8xl" : "text-5xl"
           )}
         >
@@ -183,7 +184,7 @@ export function DuaCard({ page, className }: { page: DuaPage; className?: string
       <p
         lang="ar"
         dir="rtl"
-        className="line-clamp-2 pt-2 font-arabic text-2xl leading-[1.9] text-gold"
+        className="line-clamp-2 pt-2 font-arabic text-2xl leading-arabic-snug text-gold"
       >
         {duaOpening(dua)}
       </p>

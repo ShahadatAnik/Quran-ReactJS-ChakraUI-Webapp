@@ -13,7 +13,7 @@ export function Logo({ className }: { className?: string }) {
       aria-label="ILMIYAH home"
     >
       <LogoMark className="size-8 drop-shadow-sm transition-transform duration-500 ease-out group-hover:scale-110 motion-reduce:transition-none" />
-      <span className="text-[0.95rem] leading-none font-semibold tracking-[0.22em]">ILMIYAH</span>
+      <span className="text-wordmark leading-none font-semibold tracking-wordmark">ILMIYAH</span>
     </Link>
   )
 }

@@ -136,7 +136,7 @@ export const AyahItem = memo(function AyahItem({
         <p
           lang={translationLang}
           dir={translationDir}
-          className="mt-3 text-[1.05rem] leading-relaxed text-pretty text-muted-foreground"
+          className="mt-3 text-reading leading-relaxed text-pretty text-muted-foreground"
         >
           {translation}
         </p>

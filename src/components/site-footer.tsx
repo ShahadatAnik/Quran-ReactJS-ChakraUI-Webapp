@@ -21,7 +21,7 @@ export function SiteFooter() {
   const columns = [
     {
       heading: "Quran",
-      links: appPages.filter((p) => p.section === "Quran"),
+      links: appPages.filter((p) => p.section === "Quran" || p.section === "Prayer"),
     },
     {
       heading: "Popular surahs",
@@ -29,7 +29,10 @@ export function SiteFooter() {
     },
     {
       heading: "Articles",
-      links: [...postPages.slice(0, 4), ...appPages.filter((p) => p.section !== "Quran")],
+      links: [
+        ...postPages.slice(0, 4),
+        ...appPages.filter((p) => p.section === "Articles" || p.section === "About"),
+      ],
     },
   ]
 
@@ -39,7 +42,7 @@ export function SiteFooter() {
         <div className="space-y-3">
           <p className="flex items-center gap-3">
             <LogoMark className="size-10" />
-            <span className="font-semibold tracking-[0.22em]">ILMIYAH</span>
+            <span className="font-semibold tracking-wordmark">ILMIYAH</span>
           </p>
           <p className="max-w-xs text-sm text-muted-foreground">{site.tagline}.</p>
           <ul className="flex gap-1" aria-label="Developer links">

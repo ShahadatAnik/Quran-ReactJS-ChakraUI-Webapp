@@ -2,6 +2,7 @@ import { RotateCcw, Settings2 } from "lucide-react"
 import { useId, useMemo, useState } from "react"
 import { EditionPicker } from "@/components/edition-picker"
 import { Picker, type PickerGroup, PickerTile } from "@/components/picker"
+import { PrayerSettingsFields } from "@/components/prayer-settings"
 import { useReader } from "@/components/reader-provider"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,6 +18,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { useEditions } from "@/hooks/use-editions"
+import { updatePrayerSettings } from "@/hooks/use-prayer"
 import { getReciter, type Reciter, reciters } from "@/lib/audio"
 import {
   ARABIC_SCRIPT_NOTES,
@@ -27,6 +29,7 @@ import {
   DEFAULT_TRANSLATION_EDITION,
   translationEditions,
 } from "@/lib/editions"
+import { defaultPrayerSettings } from "@/lib/prayer-settings"
 import { ARABIC_SIZES, type ArabicSize, defaultReaderSettings } from "@/lib/reader-settings"
 
 /** Names of the bundled defaults, shown before the full list has loaded. */
@@ -34,7 +37,7 @@ const knownTranslations = { [DEFAULT_TRANSLATION_EDITION]: "Muhiuddin Khan" }
 
 /** An Arabic letter in a tile, standing for "Arabic script". */
 const ScriptTile = () => (
-  <PickerTile lang="ar" className="px-1.5 font-arabic text-[13px] tracking-normal normal-case">
+  <PickerTile lang="ar" className="px-1.5 font-arabic text-xs tracking-normal normal-case">
     <span className="arabic-glyph-centred">ع</span>
   </PickerTile>
 )
@@ -110,7 +113,8 @@ export function ReaderSettings() {
         <SheetHeader>
           <SheetTitle>Reader settings</SheetTitle>
           <SheetDescription>
-            Saved in this browser and used across the site: surahs, single ayahs and audio.
+            Saved in this browser and used across the site: surahs, single ayahs, audio and prayer
+            times.
           </SheetDescription>
         </SheetHeader>
 
@@ -222,6 +226,11 @@ export function ReaderSettings() {
               current={{ tile: <ReciterTile reciter={reciter} />, label: reciter.name }}
             />
           </div>
+
+          <div className="space-y-4 border-t border-border/60 pt-5">
+            <p className="text-sm font-semibold">Prayer times</p>
+            <PrayerSettingsFields />
+          </div>
         </SheetBody>
 
         <SheetFooter>
@@ -229,7 +238,10 @@ export function ReaderSettings() {
             variant="ghost"
             size="sm"
             className="w-full"
-            onClick={() => updateSettings(defaultReaderSettings)}
+            onClick={() => {
+              updateSettings(defaultReaderSettings)
+              updatePrayerSettings(defaultPrayerSettings)
+            }}
           >
             <RotateCcw />
             Reset to defaults

@@ -40,7 +40,7 @@ export function ContinueReading() {
           {/* The bar is decorative: the text above already says how far you are. */}
           <span aria-hidden="true" className="mt-2 block h-1 overflow-hidden rounded-full bg-muted">
             <span
-              className="block h-full rounded-full bg-primary transition-[width]"
+              className="block h-full rounded-full bg-primary transition-width"
               style={{ width: `${progress}%` }}
             />
           </span>

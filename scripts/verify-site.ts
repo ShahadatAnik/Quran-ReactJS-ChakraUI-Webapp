@@ -20,6 +20,7 @@ import {
   type Response,
 } from "playwright-core"
 import { ogImagePath, pageSlug, pages, postPages } from "../src/lib/pages"
+import { PRAYER_STORAGE_KEY } from "../src/lib/prayer-settings"
 import { site } from "../src/lib/site"
 
 const PORT = 4173
@@ -203,7 +204,16 @@ console.log("\nTablet and laptop widths")
 for (const width of [768, 1024]) {
   const context = await browser.newContext({ viewport: { width, height: 900 } })
   const page = await context.newPage()
-  const sample = ["/", "/surah", "/surah/2", "/duas", "/duas/ayat-al-kursi", "/blog", "/history"]
+  const sample = [
+    "/",
+    "/surah",
+    "/surah/2",
+    "/duas",
+    "/duas/ayat-al-kursi",
+    "/prayer-times",
+    "/blog",
+    "/history",
+  ]
   for (const path of [...sample, postPages[0]?.path ?? "/blog"]) {
     await page.goto(`${origin}${path}`, { waitUntil: "load" })
     await hydrated(page)
@@ -232,6 +242,45 @@ console.log("\nReading history page")
   for (const problem of problems) fail(`/history: ${problem}`)
   const sitemap = await (await fetch(`${origin}/sitemap.xml`)).text()
   if (sitemap.includes("/history")) fail("/history is listed in the sitemap")
+  await context.close()
+}
+
+// Prayer times with a saved location (Dhaka): the times, the week and the home card render,
+// on a phone too, without errors. No GPS prompt: the location is already stored.
+console.log("\nPrayer times")
+for (const width of [360, 1280]) {
+  const context = await browser.newContext({ viewport: { width, height: 900 } })
+  await context.addInitScript(([key, value]) => localStorage.setItem(key, value), [
+    PRAYER_STORAGE_KEY,
+    JSON.stringify({
+      location: {
+        latitude: 23.71,
+        longitude: 90.41,
+        name: "Dhaka, Bangladesh",
+        timeZone: "Asia/Dhaka",
+        source: "search",
+      },
+    }),
+  ] as const)
+  const page = await context.newPage()
+  const { problems } = watchConsole(page)
+  await page.goto(`${origin}/prayer-times`, { waitUntil: "load" })
+  await hydrated(page)
+  await page.getByRole("heading", { name: /^(Current|Next) prayer$/ }).waitFor({ timeout: 5000 })
+  const result = await page.evaluate(() => ({
+    rows: document.querySelectorAll("section[aria-labelledby=week-heading] tbody tr").length,
+    current: document.querySelectorAll("[aria-current=time]").length,
+    overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  }))
+  if (result.rows !== 7) fail(`/prayer-times (${width}px): ${result.rows} days in the week`)
+  if (result.current > 1) fail(`/prayer-times (${width}px): ${result.current} current prayers`)
+  if (result.overflow > 0) fail(`/prayer-times (${width}px): ${result.overflow}px overflow`)
+  await page.goto(`${origin}/`, { waitUntil: "load" })
+  await hydrated(page)
+  await page
+    .locator("#next-prayer-heading", { hasText: /^(Current|Next) prayer$/ })
+    .waitFor({ timeout: 5000 })
+  for (const problem of problems) fail(`prayer times (${width}px): ${problem}`)
   await context.close()
 }
 
@@ -343,6 +392,7 @@ if (screenshots) {
     ["article-dark-mobile", "/blog/islam-on-women-rights-and-dignity", "dark", 360],
     ["ayah-dark", "/ayah", "dark", 1280],
     ["search-light", "/search", "light", 1280],
+    ["prayer-light", "/prayer-times", "light", 1280],
     ["writers-dark", "/writers", "dark", 1280],
     ["home-dark-mobile", "/", "dark", 360],
     ["404-light", "/nope", "light", 1280],

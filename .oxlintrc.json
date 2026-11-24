@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": ["@shadcn/lint"],
+  "categories": {
+    "correctness": "off"
+  },
+  "ignorePatterns": ["src/routeTree.gen.ts", "src/data/**"],
+  "rules": {
+    "shadcn/no-unknown-classes": "error",
+    "shadcn/no-raw-colors": "error",
+    "shadcn/no-arbitrary-values": ["error", { "allow": ["layout"] }]
+  },
+  "overrides": [
+    {
+      "files": ["src/components/ui/**"],
+      "rules": {
+        "shadcn/no-arbitrary-values": "off"
+      }
+    }
+  ]
+}

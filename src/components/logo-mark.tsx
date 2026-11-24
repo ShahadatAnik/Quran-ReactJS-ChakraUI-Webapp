@@ -8,6 +8,9 @@ import { type SVGProps, useId } from "react"
  * here only.
  */
 
+/* oxlint-disable shadcn/no-raw-colors -- The logo is fixed artwork: it looks the same in light
+   and dark mode, and is rendered to PNG icons where theme variables don't exist. */
+
 /** Eight-point star on a 64×64 grid: outer radius 24, inner radius 16.3. */
 const STAR =
   "M32 8L38.25 16.92L48.97 15.03L47.08 25.75L56 32L47.08 38.25L48.97 48.97L38.25 47.08L32 56L25.75 47.08L15.03 48.97L16.92 38.25L8 32L16.92 25.75L15.03 15.03L25.75 16.92Z"

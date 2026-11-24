@@ -29,7 +29,7 @@ export function PickerTile({
       aria-hidden="true"
       lang={lang}
       className={cn(
-        "inline-flex h-5 min-w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 px-1 font-mono text-[10px] font-semibold tracking-wider text-primary uppercase dark:bg-primary/20",
+        "inline-flex h-5 min-w-7 shrink-0 items-center justify-center rounded-md bg-primary/10 px-1 font-mono text-3xs font-semibold tracking-wider text-primary uppercase dark:bg-primary/20",
         className
       )}
     >
@@ -178,7 +178,7 @@ export function Picker({
                       <span className="flex items-center gap-2">
                         <span className="truncate">{option.label}</span>
                         {option.value === defaultValue ? (
-                          <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                          <Badge variant="secondary" className="h-4 px-1.5 text-3xs">
                             Default
                           </Badge>
                         ) : null}

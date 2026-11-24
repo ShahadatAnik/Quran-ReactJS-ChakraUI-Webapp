@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react"
 import {
   BookOpen,
   BookOpenText,
+  Clock,
   Feather,
   HandHeart,
   Hash,
@@ -15,8 +16,8 @@ import { getWriter } from "@/content/writers"
 import { duaReference } from "@/lib/duas"
 import { getSurah, type Surah, surahs } from "@/lib/surahs"
 
-export type Section = "Quran" | "Articles" | "About"
-export const sections: readonly Section[] = ["Quran", "Articles", "About"]
+export type Section = "Quran" | "Prayer" | "Articles" | "About"
+export const sections: readonly Section[] = ["Quran", "Prayer", "Articles", "About"]
 
 export interface Faq {
   question: string
@@ -25,7 +26,7 @@ export interface Faq {
 
 /** Typed link target for <Link {...page.link} />. */
 export type PageLink =
-  | { to: "/surah" | "/ayah" | "/duas" | "/search" | "/blog" | "/writers" }
+  | { to: "/surah" | "/ayah" | "/duas" | "/prayer-times" | "/search" | "/blog" | "/writers" }
   | { to: "/surah/$number"; params: { number: string } }
   | { to: "/duas/$slug"; params: { slug: string } }
   | { to: "/blog/$slug"; params: { slug: string } }
@@ -165,6 +166,56 @@ const duasPage: IndexPage = {
   metaDescription:
     "Duas and well-known ayahs from the Quran, such as Ayat al-Kursi and the end of Al-Baqarah, in Arabic with Bangla translation and audio, with references.",
   lang: "en",
+}
+
+const prayerTimesPage: AppPage = {
+  kind: "app",
+  path: "/prayer-times",
+  link: { to: "/prayer-times" },
+  title: "Prayer times",
+  summary: "Today's five prayer times for where you are, with a countdown and the Qibla.",
+  description:
+    "Fajr, Dhuhr, Asr, Maghrib and Isha for where you are, with a countdown to the next prayer, the week ahead and Qibla direction. Worked out in your browser.",
+  section: "Prayer",
+  icon: Clock,
+  keywords: ["salah", "salat", "namaz", "waqt", "qibla", "fajr", "maghrib", "নামাজের সময়"],
+  seoTitle: "Prayer Times Today for Your Location",
+  metaDescription:
+    "Today's prayer times for where you are: Fajr, Dhuhr, Asr, Maghrib and Isha, with a countdown, the week ahead and Qibla direction. Worked out in your browser.",
+  lang: "en",
+  howTo: [
+    "Press Use my location and allow it when your browser asks, or search for your city by name.",
+    "See today's six times, with the prayer whose time it is now outlined in gold and a countdown to the next one.",
+    "Check the week ahead and the Qibla direction, measured in degrees from true north.",
+    "Pick the calculation method and Asr time your community follows. The default is the Karachi method with Hanafi Asr, as published in Bangladesh.",
+  ],
+  faqs: [
+    {
+      question: "How are the prayer times calculated?",
+      answer:
+        "From your location and the date, using the position of the sun, with the open-source Adhan library. Each method sets the sun's angle below the horizon for Fajr and Isha; the default, the University of Islamic Sciences, Karachi, uses 18° for both.",
+    },
+    {
+      question: "Is my location sent anywhere?",
+      answer:
+        "No. The times are calculated in your browser, and your location is saved only in this browser, rounded to about a kilometre. If you search for a city instead, only the name you type is sent to the Open-Meteo geocoding service to find it.",
+    },
+    {
+      question: "Why are the times a few minutes different from my mosque?",
+      answer:
+        "Mosques often add a few minutes for caution, follow a different method, or publish the time of the congregation rather than the start of the prayer's time. The times here are when each prayer's time begins. Choose your community's method to match it.",
+    },
+    {
+      question: "What is the difference between Hanafi and Shafi'i Asr?",
+      answer:
+        "Asr begins when an object's shadow is as long as the object (Shafi'i, Maliki and Hanbali), or twice as long (Hanafi), in each case on top of its shadow at midday. Hanafi Asr is therefore later, by around 40 minutes to over an hour.",
+    },
+    {
+      question: "Is the Hijri date exact?",
+      answer:
+        "It comes from the Umm al-Qura calendar built into your browser. Months that begin with a local moon sighting, as in Bangladesh, can start a day later, so the date may differ by one day.",
+    },
+  ],
 }
 
 const searchPage: AppPage = {
@@ -445,6 +496,7 @@ export const appPages = [
   surahIndexPage,
   ayahPage,
   duasPage,
+  prayerTimesPage,
   searchPage,
   blogPage,
   writersPage,
@@ -454,6 +506,7 @@ export const pageByPath = {
   surahs: surahIndexPage,
   ayah: ayahPage,
   duas: duasPage,
+  prayerTimes: prayerTimesPage,
   search: searchPage,
   blog: blogPage,
   writers: writersPage,

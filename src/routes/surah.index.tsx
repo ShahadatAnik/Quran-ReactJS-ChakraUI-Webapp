@@ -84,7 +84,7 @@ function SurahIndex() {
       </div>
 
       {matches.length > 0 ? (
-        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {matches.map((surah) => {
             const surahPage = surahPages[surah.number - 1]
             return surahPage ? (

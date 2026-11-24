@@ -60,7 +60,7 @@ export function TafsirDialog({ surah, ayah: requested, arabic, onClose }: Tafsir
 
         <div className="flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6" lang="bn">
           {arabic ? (
-            <p lang="ar" dir="rtl" className="font-arabic text-2xl leading-[2.1] text-foreground">
+            <p lang="ar" dir="rtl" className="font-arabic text-2xl leading-arabic text-foreground">
               {arabic}
             </p>
           ) : null}
@@ -82,13 +82,13 @@ export function TafsirDialog({ surah, ayah: requested, arabic, onClose }: Tafsir
           ) : null}
 
           {translation ? (
-            <p className="rounded-lg bg-muted/60 p-3 text-[1.05rem] leading-relaxed text-foreground">
+            <p className="rounded-lg bg-muted/60 p-3 text-reading leading-relaxed text-foreground">
               <Segments paragraph={translation} />
             </p>
           ) : null}
 
           {notes.length > 0 ? (
-            <ol className="space-y-3 text-[1.02rem] leading-relaxed text-muted-foreground">
+            <ol className="space-y-3 text-reading leading-relaxed text-muted-foreground">
               {notes.map((note, index) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: notes are fixed once parsed.
                 <li key={index} className="flex gap-2.5">
