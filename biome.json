@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!src/routeTree.gen.ts", "!bun.lock", "!src/data"]
+    "includes": ["**", "!src/routeTree.gen.ts", "!bun.lock", "!src/data", "!src/content/posts"]
   },
   "formatter": {
     "enabled": true,

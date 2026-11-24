@@ -5,7 +5,7 @@ import type { Block } from "@/content/types"
 
 const blocks: Block[] = [
   { type: "heading", text: "ভূমিকা:" },
-  { type: "paragraph", indent: true, content: ["প্রথম ", { strong: "জোর" }, " শেষ"] },
+  { type: "paragraph", content: ["প্রথম ", { strong: "জোর" }, " শেষ"] },
   { type: "list", items: [[{ strong: "এক:" }, " প্রথম"], ["দুই"]] },
   { type: "quote", kind: "ayah", arabic: "إِنَّ ٱللَّهَ", text: "নিশ্চয়ই আল্লাহ", reference: "আহযাব : ৫৬" },
   { type: "quote", kind: "hadith", text: "হাদিস", reference: "সহিহ মুসলিম: ৪০৮" },

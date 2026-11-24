@@ -14,6 +14,7 @@ import { type Dua, duaCategory, duas } from "@/content/duas"
 import { getPost, type Post, posts } from "@/content/posts"
 import { getWriter } from "@/content/writers"
 import { duaReference } from "@/lib/duas"
+import { META_DESCRIPTION_RANGE, SEO_TITLE_MAX } from "@/lib/seo-limits"
 import { getSurah, type Surah, surahs } from "@/lib/surahs"
 
 export type Section = "Quran" | "Prayer" | "Articles" | "About"
@@ -80,8 +81,7 @@ export interface DuaPage extends GuidedPage {
 
 export type Page = AppPage | SurahPage | PostPage | IndexPage | DuaPage
 
-export const SEO_TITLE_MAX = 45
-export const META_DESCRIPTION_RANGE = [140, 160] as const
+export { META_DESCRIPTION_RANGE, SEO_TITLE_MAX }
 
 /** First candidate whose length fits; throws if none does, so tests catch bad templates. */
 export function fitLength(candidates: readonly string[], min: number, max: number): string {

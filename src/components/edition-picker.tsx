@@ -19,6 +19,11 @@ interface EditionPickerProps {
   editions: Edition[]
   onChange: (identifier: string) => void
   loading: boolean
+  /**
+   * The value isn't final yet (e.g. a link's ?edition= or a saved choice is about to apply):
+   * show a placeholder rather than a name that is about to change.
+   */
+  pending?: boolean
   /** Edition marked "Default" in the list. */
   defaultValue?: string
   /** Names for editions shown before the list has loaded (the prerendered defaults). */
@@ -36,6 +41,7 @@ export function EditionPicker({
   editions,
   onChange,
   loading,
+  pending = false,
   defaultValue,
   knownNames = {},
   placeholder = "Search language or translator",
@@ -65,6 +71,9 @@ export function EditionPicker({
   )
   const selected = editions.find((e) => e.identifier === value)
   const code = selected?.language ?? languageOfId(value)
+  // Until its name is known, a placeholder: not the raw id ("en.maududi") that then changes.
+  const name = selected ? editionName(selected) : knownNames[value]
+  const waiting = pending || (!name && loading)
 
   return (
     <Picker
@@ -76,11 +85,15 @@ export function EditionPicker({
       defaultValue={defaultValue}
       searchPlaceholder={placeholder}
       emptyText="Nothing matches. Try a language or a name."
-      current={{
-        tile: <LanguageBadge code={code} />,
-        label: selected ? editionName(selected) : (knownNames[value] ?? value),
-        hint: languageName(code),
-      }}
+      current={
+        waiting
+          ? { label: "Loading…" }
+          : {
+              tile: <LanguageBadge code={code} />,
+              label: name ?? value,
+              hint: languageName(code),
+            }
+      }
     />
   )
 }

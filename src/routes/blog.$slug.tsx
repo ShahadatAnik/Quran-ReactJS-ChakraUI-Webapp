@@ -11,7 +11,8 @@ import { getPostPage, type PostPage, pageByPath, postPages } from "@/lib/pages"
 import { absoluteUrl, pageSeo } from "@/lib/seo"
 import { cn } from "@/lib/utils"
 
-const bodies = import.meta.glob<{ blocks: Block[] }>("../content/posts/*.ts")
+/** Each article's text, from its Markdown file; one chunk each, loaded on its own page. */
+const bodies = import.meta.glob<Block[]>("../content/posts/*.md", { import: "default" })
 
 function postPageFor(slug: string): PostPage {
   const page = getPostPage(slug)
@@ -22,9 +23,9 @@ function postPageFor(slug: string): PostPage {
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const page = postPageFor(params.slug)
-    const load = bodies[`../content/posts/${page.post.slug}.ts`]
+    const load = bodies[`../content/posts/${page.post.slug}.md`]
     if (!load) throw notFound()
-    return { blocks: (await load()).blocks }
+    return { blocks: await load() }
   },
   head: ({ params }) => {
     const page = getPostPage(params.slug)

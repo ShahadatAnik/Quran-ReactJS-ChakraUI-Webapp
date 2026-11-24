@@ -1,6 +1,9 @@
+# Lets Bun import the Markdown articles (scripts, and Vite's config through --configLoader native).
+preload = ["./scripts/plugins/bun-articles.ts"]
+
 [install]
 exact = true
 
 [test]
 root = "./src"
-preload = ["./test/happydom.ts", "./test/testing-library.ts"]
+preload = ["./scripts/plugins/bun-articles.ts", "./test/happydom.ts", "./test/testing-library.ts"]

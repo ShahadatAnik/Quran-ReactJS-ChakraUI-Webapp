@@ -5,7 +5,7 @@ import { writers } from "@/content/writers"
 import { formatBanglaDate } from "@/lib/bangla"
 
 const bodyOf = async (slug: string) =>
-  ((await import(`@/content/posts/${slug}.ts`)) as { blocks: Block[] }).blocks
+  ((await import(`@/content/posts/${slug}.md`)) as { default: Block[] }).default
 
 describe("articles", () => {
   test("slugs are unique and URL-safe", () => {
@@ -28,7 +28,9 @@ describe("articles", () => {
     const blocks = await bodyOf(slug)
     expect(blocks.length).toBeGreaterThan(5)
     for (const block of blocks) {
-      if (block.type === "quote") expect(Boolean(block.text || block.arabic)).toBe(true)
+      if (block.type === "quote") {
+        expect(Boolean(block.text || block.arabic || block.english)).toBe(true)
+      }
       if (block.type === "paragraph") expect(block.content.length).toBeGreaterThan(0)
       if (block.type === "list") expect(block.items.every((item) => item.length > 0)).toBe(true)
     }

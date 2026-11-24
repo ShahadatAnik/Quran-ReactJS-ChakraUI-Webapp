@@ -23,6 +23,11 @@ function Quote({ block }: { block: QuoteBlock }) {
             {block.arabic}
           </p>
         ) : null}
+        {block.english ? (
+          <p lang="en" className="text-pretty text-foreground/90">
+            {block.english}
+          </p>
+        ) : null}
         {block.text ? <p className="text-pretty text-foreground/90 italic">{block.text}</p> : null}
       </blockquote>
       {block.reference ? (
@@ -54,7 +59,7 @@ export function ArticleBody({ blocks }: { blocks: readonly Block[] }) {
           case "paragraph":
             return (
               // biome-ignore lint/suspicious/noArrayIndexKey: static content.
-              <p key={index} className={block.indent ? "my-4 indent-8" : "my-4"}>
+              <p key={index} className="my-4">
                 <Inlines content={block.content} />
               </p>
             )

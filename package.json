@@ -11,9 +11,9 @@
     "bun": ">=1.4.0"
   },
   "scripts": {
-    "dev": "bun --bun vite dev --port 3000",
-    "build": "bun run generate:og && bun --bun vite build",
-    "preview": "bun --bun vite preview --port 3000",
+    "dev": "bun --bun vite dev --port 3000 --configLoader native",
+    "build": "bun run generate:og && bun --bun vite build --configLoader native",
+    "preview": "bun --bun vite preview --port 3000 --configLoader native",
     "generate-routes": "bun --bun tsr generate",
     "generate:icons": "bun scripts/generate-icons.tsx",
     "generate:og": "bun scripts/generate-og-images.tsx",
