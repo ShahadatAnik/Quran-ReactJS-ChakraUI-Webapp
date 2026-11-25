@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router"
 import { ArrowRight, Flame, History, Trash2 } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CornerLattice, factClass, panelClass } from "@/components/page-card"
+import { ReadingDashboardSkeleton } from "@/components/skeletons"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 import { clearReadingLog, useReadingLog } from "@/hooks/use-reading-log"
 import {
   addDays,
@@ -108,9 +110,13 @@ export function ReadingStrip() {
       ) : (
         <History className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
       )}
-      <span className="min-w-0 flex-1 truncate text-muted-foreground">
-        {summary ?? "Your reading history"}
-      </span>
+      {summary ? (
+        <span className="min-w-0 flex-1 truncate text-muted-foreground">{summary}</span>
+      ) : (
+        <span className="flex min-w-0 flex-1 items-center" aria-busy="true">
+          <Skeleton className="h-3 w-44 max-w-full" />
+        </span>
+      )}
       <Link
         to="/history"
         className="inline-flex shrink-0 items-center gap-1 font-medium text-primary hover:underline"
@@ -336,7 +342,9 @@ function DayLog({ days, today }: { days: DaySummary[]; today: Date }) {
 /** "Clear history", with a confirmation. Hidden while there's nothing to clear. */
 export function ClearHistory() {
   const data = useReadingStats()
-  const days = data?.stats.daysActive ?? 0
+  // Hidden before the first paint for a reader with no history (src/lib/prepaint.ts).
+  if (!data) return <Skeleton data-needs-history="" className="h-8 w-32 rounded-lg" />
+  const days = data.stats.daysActive
   if (!days) return null
   return (
     <Dialog>
@@ -370,6 +378,23 @@ export function ClearHistory() {
   )
 }
 
+/** The history page for a reader who hasn't read anything yet. */
+function EmptyHistory() {
+  return (
+    <div className={cn(panelClass, "flex items-start gap-3 text-sm text-muted-foreground")}>
+      <CornerLattice />
+      <History className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
+      <p>
+        Nothing here yet. Read any surah and your history builds up on this page: your streak, how
+        much of the Quran you've covered, the surahs you return to most, and a day-by-day log.{" "}
+        <Link to="/surah" className="font-medium text-primary hover:underline">
+          Browse surahs
+        </Link>
+      </p>
+    </div>
+  )
+}
+
 /**
  * The full history: totals and streaks, Khatm progress, a calendar of the last weeks, the
  * most-read surahs and a day-by-day log. It renders once this browser's log has been read
@@ -379,23 +404,30 @@ export function ReadingDashboard() {
   const data = useReadingStats()
   const columns = useMemo(() => (data ? heatmap(data.stats, data.today, WEEKS) : []), [data])
   if (!data) {
-    return <div className="min-h-96" aria-busy="true" />
+    // Before the log is read (and in the prerendered page): the empty state and the dashboard's
+    // skeleton, and the pre-paint script shows the one that applies (src/lib/prepaint.ts).
+    return (
+      <>
+        <div data-no-history="">
+          <EmptyHistory />
+        </div>
+        <div data-needs-history="">
+          <ReadingDashboardSkeleton />
+        </div>
+      </>
+    )
   }
+
   const { stats, today } = data
 
   if (stats.daysActive === 0) {
     return (
-      <div className={cn(panelClass, "flex items-start gap-3 text-sm text-muted-foreground")}>
-        <CornerLattice />
-        <History className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-        <p>
-          Nothing here yet. Read any surah and your history builds up on this page: your streak, how
-          much of the Quran you've covered, the surahs you return to most, and a day-by-day log.{" "}
-          <Link to="/surah" className="font-medium text-primary hover:underline">
-            Browse surahs
-          </Link>
-        </p>
-      </div>
+      <>
+        <div>
+          <EmptyHistory />
+        </div>
+        {null}
+      </>
     )
   }
 

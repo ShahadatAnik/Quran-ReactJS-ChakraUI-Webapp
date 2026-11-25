@@ -25,16 +25,10 @@ import {
 } from "@/components/ui/command"
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { useModHotkey } from "@/hooks/use-hotkey"
-import { useMounted } from "@/hooks/use-mounted"
 import { commandFilter } from "@/lib/command-filter"
 import { duaReference } from "@/lib/duas"
 import { appPages, duaPages, postPages, surahPages } from "@/lib/pages"
 import { ayahId, getSurah, parseAyahReference } from "@/lib/surahs"
-
-function useIsMac() {
-  const mounted = useMounted()
-  return mounted && /Mac|iPhone|iPad/.test(navigator.userAgent)
-}
 
 /** Global ⌘K / Ctrl+K palette: pages, all 114 surahs, articles, ayah references and theme. */
 export function CommandMenu() {
@@ -42,7 +36,6 @@ export function CommandMenu() {
   const [query, setQuery] = useState("")
   const navigate = useNavigate()
   const { setTheme } = useTheme()
-  const isMac = useIsMac()
   const reference = parseAyahReference(query)
 
   useModHotkey("k", () => setOpen((value) => !value))
@@ -64,7 +57,9 @@ export function CommandMenu() {
         <Search />
         <span className="hidden flex-1 text-left sm:inline">Search…</span>
         <KbdGroup className="hidden sm:inline-flex">
-          <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+          {/* Both are prerendered; the pre-paint script shows the one for this platform. */}
+          <Kbd data-only-platform="mac">⌘</Kbd>
+          <Kbd data-only-platform="other">Ctrl</Kbd>
           <Kbd>K</Kbd>
         </KbdGroup>
       </Button>

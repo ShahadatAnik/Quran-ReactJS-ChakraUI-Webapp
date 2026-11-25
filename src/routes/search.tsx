@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router"
-import { Loader2, RotateCcw, SearchX, X } from "lucide-react"
+import { RotateCcw, SearchX, X } from "lucide-react"
 import { useEffect, useId, useMemo, useState } from "react"
 import { EditionPicker } from "@/components/edition-picker"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
+import { SearchResultsSkeleton, SearchSkeleton } from "@/components/skeletons"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/search")({
   }),
   head: () => pageSeo(page),
   component: SearchRoute,
+  pendingComponent: SearchSkeleton,
 })
 
 function Highlighted({ text, term }: { text: string; term: string }) {
@@ -179,12 +181,6 @@ function SearchRoute() {
               enterKeyHint="search"
             />
             <div className="absolute top-1/2 right-1.5 flex -translate-y-1/2 items-center gap-1">
-              {search.status === "loading" ? (
-                <Loader2
-                  className="size-4 animate-spin text-muted-foreground motion-reduce:animate-none"
-                  aria-hidden="true"
-                />
-              ) : null}
               {query ? (
                 <Button
                   variant="ghost"
@@ -242,6 +238,16 @@ function SearchRoute() {
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
+        ) : search.status === "loading" ? (
+          <SearchResultsSkeleton />
+        ) : search.status === "idle" &&
+          (!(arrived && queryRestored) || (query.trim() && !tooShort)) ? (
+          // A search is on its way (a saved one, or a ?q= link) but hasn't started: its
+          // skeleton already. Before the saved query is read, the pre-paint script shows it only
+          // when there is one (styles.css, pre-paint layout).
+          <div data-only-search={arrived && queryRestored ? undefined : "query"}>
+            <SearchResultsSkeleton />
+          </div>
         ) : null}
 
         <div className="space-y-8">

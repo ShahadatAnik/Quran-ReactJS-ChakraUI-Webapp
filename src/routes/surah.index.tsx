@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { SearchX, X } from "lucide-react"
-import { useId } from "react"
+import { useEffect, useId } from "react"
 import { SurahCard } from "@/components/page-card"
 import { IconTile, PageLayout } from "@/components/page-layout"
+import { SurahListSkeleton } from "@/components/skeletons"
 import { Button } from "@/components/ui/button"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { usePersistedState } from "@/hooks/use-persisted-state"
 import { pageByPath, surahPages } from "@/lib/pages"
+import { prepaintConfig } from "@/lib/prepaint"
 import { filterSurahs } from "@/lib/search"
 import { indexSeo } from "@/lib/seo"
 
@@ -18,13 +20,14 @@ type Revelation = "all" | "Meccan" | "Medinan"
 export const Route = createFileRoute("/surah/")({
   head: () => indexSeo(page, surahPages),
   component: SurahIndex,
+  pendingComponent: SurahListSkeleton,
 })
 
 function SurahIndex() {
-  const [query, setQuery] = usePersistedState("surah-filter", "", (v) =>
+  const [query, setQuery, queryRestored] = usePersistedState("surah-filter", "", (v) =>
     typeof v === "string" ? v : undefined
   )
-  const [revelation, setRevelation] = usePersistedState<Revelation>(
+  const [revelation, setRevelation, revelationRestored] = usePersistedState<Revelation>(
     "surah-revelation",
     "all",
     (v) => (v === "all" || v === "Meccan" || v === "Medinan" ? v : undefined)
@@ -33,6 +36,22 @@ function SurahIndex() {
   const matches = filterSurahs(query).filter(
     (s) => revelation === "all" || s.revelation === revelation
   )
+  const restored = queryRestored && revelationRestored
+  const filtered = query.trim() !== "" || revelation !== "all"
+  const matchKey = matches.map((s) => s.number).join(",")
+
+  // Remember which surahs the filter shows, so on the next visit the pre-paint script can show
+  // just those from the first paint (src/lib/prepaint.ts).
+  useEffect(() => {
+    if (!restored) return
+    try {
+      const key = prepaintConfig.surahMatches
+      if (filtered) localStorage.setItem(key, JSON.stringify(matchKey.split(",").map(Number)))
+      else localStorage.removeItem(key)
+    } catch {
+      // Storage blocked: the list is hidden until the filter applies instead.
+    }
+  }, [restored, filtered, matchKey])
 
   return (
     <PageLayout
@@ -78,17 +97,25 @@ function SurahIndex() {
           <ToggleGroupItem value="Meccan">Meccan</ToggleGroupItem>
           <ToggleGroupItem value="Medinan">Medinan</ToggleGroupItem>
         </ToggleGroup>
-        <p aria-live="polite" className="text-sm text-muted-foreground sm:ml-auto">
+        <p
+          aria-live="polite"
+          className="text-sm text-muted-foreground sm:ml-auto sm:w-36 sm:text-right"
+        >
           {matches.length === 114 ? "114 surahs" : `${matches.length} of 114 surahs`}
         </p>
       </div>
 
       {matches.length > 0 ? (
-        <ol className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        // A saved filter will shorten the list: until it applies, the list is hidden before the
+        // first paint (styles.css, pre-paint layout) instead of showing all 114 and then jumping.
+        <ol
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          data-surah-list={restored ? undefined : ""}
+        >
           {matches.map((surah) => {
             const surahPage = surahPages[surah.number - 1]
             return surahPage ? (
-              <li key={surah.number}>
+              <li key={surah.number} data-surah={surah.number}>
                 <SurahCard page={surahPage} />
               </li>
             ) : null

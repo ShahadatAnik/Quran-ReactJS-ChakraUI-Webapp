@@ -87,7 +87,7 @@ export function EditionPicker({
       emptyText="Nothing matches. Try a language or a name."
       current={
         waiting
-          ? { label: "Loading…" }
+          ? { label: "Loading…", loading: true }
           : {
               tile: <LanguageBadge code={code} />,
               label: name ?? value,

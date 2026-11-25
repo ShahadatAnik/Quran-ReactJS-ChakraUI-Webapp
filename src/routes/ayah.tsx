@@ -5,6 +5,7 @@ import { AyahItem } from "@/components/ayah-item"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
 import { useAudio, useReader } from "@/components/reader-provider"
+import { AyahPageSkeleton } from "@/components/skeletons"
 import { TafsirDialog } from "@/components/tafsir-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +19,11 @@ import {
 import { usePersistedState } from "@/hooks/use-persisted-state"
 import { useReadingTracker } from "@/hooks/use-reading-tracker"
 import { useSurahEditions } from "@/hooks/use-surah-editions"
-import { translationLocale } from "@/lib/editions"
+import {
+  DEFAULT_ARABIC_EDITION,
+  DEFAULT_TRANSLATION_EDITION,
+  translationLocale,
+} from "@/lib/editions"
 import { pageByPath } from "@/lib/pages"
 import { loadSurahText, type SurahText } from "@/lib/quran-data"
 import type { LastRead } from "@/lib/reader-settings"
@@ -33,18 +38,28 @@ export const Route = createFileRoute("/ayah")({
   loader: async () => ({ text: await loadSurahText(DEFAULT.surah) }),
   head: () => pageSeo(page),
   component: AyahRoute,
+  pendingComponent: AyahPageSkeleton,
 })
 
 function AyahRoute() {
   const { text: defaultText } = Route.useLoaderData()
-  const [selection, setSelection] = usePersistedState<LastRead>("ayah", DEFAULT, (v) => {
-    const s = v as LastRead | null
-    return s && isAyahOf(s.surah, s.ayah) ? { surah: s.surah, ayah: s.ayah } : undefined
-  })
+  const [selection, setSelection, selectionRestored] = usePersistedState<LastRead>(
+    "ayah",
+    DEFAULT,
+    (v) => {
+      const s = v as LastRead | null
+      return s && isAyahOf(s.surah, s.ayah) ? { surah: s.surah, ayah: s.ayah } : undefined
+    }
+  )
   const [loaded, setLoaded] = useState<SurahText>(defaultText)
   const [reference, setReference] = useState("")
   const [tafsirOpen, setTafsirOpen] = useState(false)
   const ayahBox = useRef<HTMLDivElement>(null)
+  /** The ayah last shown, which stands (as skeleton lines) while another surah loads. */
+  const shownAyah = useRef({
+    ar: defaultText.ayahs[DEFAULT.ayah - 1]?.ar ?? "",
+    bn: defaultText.ayahs[DEFAULT.ayah - 1]?.bn ?? "",
+  })
   const audio = useAudio()
   const { settings, restored } = useReader()
   const ids = { surah: useId(), ayah: useId(), reference: useId() }
@@ -78,6 +93,8 @@ function AyahRoute() {
     Boolean(editions.texts[settings.translationEdition])
   )
   const parsed = reference.trim() ? parseAyahReference(reference) : null
+  const placeholder = shownAyah.current
+  if (ayah && arabic) shownAyah.current = { ar: arabic, bn: translation ?? ayah.bn }
   const current = audio.track?.surah === selection.surah ? audio.track.ayah : null
 
   return (
@@ -88,8 +105,10 @@ function AyahRoute() {
       media={<IconTile icon={page.icon} />}
       width="reading"
     >
+      {/* Grid gaps, not space-y: Radix prerenders a hidden <select> beside each trigger and
+          drops it on hydration; space-y gave it a margin, so each field shrank 6px on load. */}
       <div className="grid grid-cols-1 gap-4 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 sm:grid-cols-[2fr_1fr] sm:p-6">
-        <div className="space-y-1.5">
+        <div className="grid gap-1.5">
           <label htmlFor={ids.surah} className="text-sm font-medium">
             Surah
           </label>
@@ -98,7 +117,10 @@ function AyahRoute() {
             onValueChange={(value) => setSelection({ surah: Number(value), ayah: 1 })}
           >
             <SelectTrigger id={ids.surah} className="w-full">
-              <SelectValue />
+              {/* The label is given, so the prerendered page shows it too. */}
+              <SelectValue>
+                {surah ? `${surah.number}. ${surah.name} (${surah.meaning})` : null}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {surahs.map((s) => (
@@ -109,7 +131,7 @@ function AyahRoute() {
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-1.5">
+        <div className="grid gap-1.5">
           <label htmlFor={ids.ayah} className="text-sm font-medium">
             Ayah
           </label>
@@ -118,7 +140,7 @@ function AyahRoute() {
             onValueChange={(value) => setSelection({ ...selection, ayah: Number(value) })}
           >
             <SelectTrigger id={ids.ayah} className="w-full">
-              <SelectValue />
+              <SelectValue>Ayah {selection.ayah}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {Array.from({ length: surah?.ayahs ?? 0 }, (_, i) => i + 1).map((n) => (
@@ -191,13 +213,27 @@ function AyahRoute() {
             </Link>
           </Button>
         </div>
-        <div ref={ayahBox} className="mt-4 min-h-48 rounded-2xl bg-card ring-1 ring-foreground/10">
+        {/* Until the saved ayah and settings are read, the prerendered Ayat al-Kursi is drawn as
+            skeleton lines where they will replace it (styles.css, pre-paint layout). */}
+        <div
+          ref={ayahBox}
+          className="mt-4 min-h-48 rounded-2xl bg-card ring-1 ring-foreground/10"
+          data-default-ayah={selectionRestored ? undefined : ""}
+          data-reader-pending={restored ? undefined : ""}
+        >
           {ayah && arabic ? (
             <AyahItem
               surah={selection.surah}
               ayah={selection.ayah}
               arabic={arabic}
               translation={settings.showTranslation ? translation : undefined}
+              arabicLoading={
+                editions.status === "loading" && settings.arabicEdition !== DEFAULT_ARABIC_EDITION
+              }
+              translationLoading={
+                editions.status === "loading" &&
+                settings.translationEdition !== DEFAULT_TRANSLATION_EDITION
+              }
               translationLang={translationLang.lang}
               translationDir={translationLang.dir}
               sajda={ayah.sajda}
@@ -210,9 +246,28 @@ function AyahRoute() {
               className="ring-0"
             />
           ) : (
-            <p className="p-6 text-sm text-muted-foreground" aria-live="polite">
-              Loading {surah?.name}…
-            </p>
+            // Another surah's text is loading: the ayah shown until now, as skeleton lines.
+            <>
+              <p className="sr-only" aria-live="polite">
+                Loading {surah?.name}…
+              </p>
+              <AyahItem
+                surah={selection.surah}
+                ayah={selection.ayah}
+                arabic={placeholder.ar}
+                translation={settings.showTranslation ? placeholder.bn : undefined}
+                arabicLoading
+                translationLoading
+                translationLang="bn"
+                translationDir="ltr"
+                active={false}
+                playing={false}
+                buffering={false}
+                onPlay={() => undefined}
+                onToggle={() => undefined}
+                className="ring-0"
+              />
+            </>
           )}
         </div>
       </section>

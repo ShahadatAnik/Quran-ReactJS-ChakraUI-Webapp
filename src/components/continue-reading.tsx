@@ -2,24 +2,49 @@ import { Link } from "@tanstack/react-router"
 import { ArrowRight, BookMarked, BookOpen } from "lucide-react"
 import { useReader } from "@/components/reader-provider"
 import { ReadingStrip } from "@/components/reading-history"
+import { Skeleton, SkeletonText } from "@/components/ui/skeleton"
 import { surahProgress } from "@/lib/reader-settings"
 import { ayahId, getSurah } from "@/lib/surahs"
 
+const frameClass =
+  "w-full max-w-md overflow-hidden rounded-2xl bg-card/90 text-left ring-1 ring-foreground/10 backdrop-blur"
+
 /**
- * "Continue reading" card for the last-read ayah. Prerendered as a "Start with Al-Fatihah"
- * card of the same size, and swapped after the stored position is read, so the layout
- * doesn't jump and the server and client HTML match. Under it, one line of reading history
- * links to the full history page.
+ * "Continue reading" card for the last-read ayah, or "Start reading" Al-Fatihah for a new
+ * reader. Prerendered as a skeleton of the same size and filled in once the stored position
+ * is read, so the layout doesn't jump and the server and client HTML match. Under it, one
+ * line of reading history links to the full history page.
  */
 export function ContinueReading() {
   const { lastRead, restored } = useReader()
-  const position = restored ? lastRead : null
+  if (!restored) {
+    return (
+      // The card's own markup, with skeleton text in its two lines: exactly its height.
+      <div className={frameClass} aria-busy="true">
+        <div className="flex items-center gap-4 p-4">
+          <Skeleton className="size-11 shrink-0 rounded-xl" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs">
+              <SkeletonText>Continue reading</SkeletonText>
+            </p>
+            <p className="truncate font-medium">
+              <SkeletonText>Al-Baqarah · ayah 255 of 286</SkeletonText>
+            </p>
+            <Skeleton className="mt-2 h-1 rounded-full" />
+          </div>
+          <span className="size-4 shrink-0" />
+        </div>
+        <ReadingStrip />
+      </div>
+    )
+  }
+  const position = lastRead
   const surah = getSurah(position?.surah ?? 1)
   if (!surah) return null
   const progress = position ? surahProgress(position) : 0
 
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-2xl bg-card/90 text-left ring-1 ring-foreground/10 backdrop-blur">
+    <div className={frameClass}>
       <Link
         to="/surah/$number"
         params={{ number: String(surah.number) }}

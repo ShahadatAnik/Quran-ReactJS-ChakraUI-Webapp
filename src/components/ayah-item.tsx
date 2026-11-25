@@ -2,6 +2,7 @@ import { Check, Info, Link2, Loader2, Pause, Play } from "lucide-react"
 import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { SkeletonText } from "@/components/ui/skeleton"
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard"
 import { splitAtWord } from "@/lib/duas"
 import { site } from "@/lib/site"
@@ -19,6 +20,10 @@ export interface AyahItemProps {
   highlightFromWord?: number
   /** Translation text; omitted when translations are hidden. */
   translation?: string
+  /** The reader's Arabic script or translation is still loading: the given text is drawn as
+   * skeleton lines until it arrives. */
+  arabicLoading?: boolean
+  translationLoading?: boolean
   translationLang: string
   translationDir: "ltr" | "rtl"
   sajda?: boolean
@@ -50,6 +55,8 @@ export const AyahItem = memo(function AyahItem({
   ayah,
   arabic,
   highlightFromWord,
+  arabicLoading = false,
+  translationLoading = false,
   translation,
   translationLang,
   translationDir,
@@ -129,16 +136,34 @@ export const AyahItem = memo(function AyahItem({
           )}
         </Button>
       </div>
-      <p lang="ar" dir="rtl" className="ayah-arabic mt-1 text-foreground">
-        {highlightFromWord ? <HighlightedArabic text={arabic} from={highlightFromWord} /> : arabic}
+      {/* The text is in a span, so styles.css can draw it as skeleton lines before the first
+          paint when this browser's settings will replace it. While another edition loads, the
+          text shown until then is drawn as skeleton lines: the same lines, so nothing moves. */}
+      <p lang="ar" dir="rtl" className="ayah-arabic mt-1 text-foreground" data-ayah-arabic="">
+        {arabicLoading ? (
+          <SkeletonText>{arabic}</SkeletonText>
+        ) : (
+          <span>
+            {highlightFromWord ? (
+              <HighlightedArabic text={arabic} from={highlightFromWord} />
+            ) : (
+              arabic
+            )}
+          </span>
+        )}
       </p>
       {translation ? (
         <p
           lang={translationLang}
           dir={translationDir}
           className="mt-3 text-reading leading-relaxed text-pretty text-muted-foreground"
+          data-ayah-translation=""
         >
-          {translation}
+          {translationLoading ? (
+            <SkeletonText>{translation}</SkeletonText>
+          ) : (
+            <span>{translation}</span>
+          )}
         </p>
       ) : null}
     </article>

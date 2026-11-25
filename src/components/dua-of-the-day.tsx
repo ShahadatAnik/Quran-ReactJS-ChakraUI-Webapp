@@ -2,15 +2,26 @@ import { Link } from "@tanstack/react-router"
 import { ArrowRight } from "lucide-react"
 import { useMemo } from "react"
 import { DuaPlayButton } from "@/components/dua-reader"
+import { Skeleton, SkeletonText } from "@/components/ui/skeleton"
 import { useMounted } from "@/hooks/use-mounted"
 import { duaAyahText, duaOfTheDay, duaSource, splitAtWord } from "@/lib/duas"
+
+const arabicClass =
+  "mt-4 line-clamp-2 min-h-[2lh] font-arabic text-2xl leading-arabic text-foreground sm:text-3xl"
+const banglaClass =
+  "mt-2 line-clamp-3 min-h-[3lh] leading-relaxed text-pretty text-muted-foreground"
+/** Words that fill the lines while the day's dua is chosen (they are drawn as bars). */
+const PLACEHOLDER_ARABIC =
+  "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا"
+const PLACEHOLDER_BANGLA =
+  "হে আমাদের পালনকর্তা, আমাদেরকে দুনিয়াতেও কল্যাণ দান কর এবং আখেরাতেও কল্যাণ দান কর এবং আমাদেরকে দোযখের আযাব থেকে রক্ষা কর। হে আমাদের পালনকর্তা, সরল পথ প্রদর্শনের পর আমাদের অন্তরকে সত্য লংঘনে প্রবৃত্ত করো না।"
 
 const dateLabel = new Intl.DateTimeFormat("en", { weekday: "long", day: "numeric", month: "long" })
 
 /**
  * Home page card with one dua from the Quran, a different one each day (the same for every
  * reader on a date). The dua is chosen in the browser, from the reader's own date, so the
- * prerendered card is an empty frame of the same size rather than a dua that then changes.
+ * prerendered card shows skeleton lines in the card's own elements: the same height exactly.
  */
 export function DuaOfTheDay() {
   const mounted = useMounted()
@@ -33,46 +44,50 @@ export function DuaOfTheDay() {
         aria-hidden="true"
         className="khatam-corner absolute -top-4 -right-4 -z-10 size-56 opacity-60"
       />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <h2
             id="daily-dua-heading"
             className="text-xs font-medium tracking-wide text-gold uppercase"
           >
             Dua of the day
           </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {today ? dateLabel.format(today) : " "}
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">
+            {today ? dateLabel.format(today) : <SkeletonText>Wednesday, 25 November</SkeletonText>}
           </p>
         </div>
-        {dua ? <DuaPlayButton dua={dua} /> : null}
+        {dua ? (
+          <DuaPlayButton dua={dua} className="shrink-0" />
+        ) : (
+          <Skeleton className="h-8 w-20 shrink-0 rounded-lg" />
+        )}
       </div>
+      {/* A fixed number of lines whatever the day's dua, so the card is the same height every
+          day and while it loads: two lines of Arabic, three of Bangla, one for the link. */}
+      <p lang="ar" dir="rtl" className={arabicClass}>
+        {dua ? arabic : <SkeletonText>{PLACEHOLDER_ARABIC}</SkeletonText>}
+      </p>
+      <p lang="bn" className={banglaClass}>
+        {dua ? bangla : <SkeletonText>{PLACEHOLDER_BANGLA}</SkeletonText>}
+      </p>
       {dua ? (
-        <div className="animate-in duration-300 fade-in-0 motion-reduce:animate-none">
-          <p
-            lang="ar"
-            dir="rtl"
-            className="mt-4 font-arabic text-2xl leading-arabic text-foreground sm:text-3xl"
-          >
-            {arabic}
-          </p>
-          <p lang="bn" className="mt-2 leading-relaxed text-pretty text-muted-foreground">
-            {bangla}
-          </p>
-          <Link
-            to="/duas/$slug"
-            params={{ slug: dua.slug }}
-            className="group mt-4 inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
-          >
-            {dua.title}
-            <span className="text-muted-foreground tabular-nums">· {duaSource(dua)}</span>
-            <ArrowRight
-              aria-hidden="true"
-              className="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
-            />
-          </Link>
-        </div>
-      ) : null}
+        <Link
+          to="/duas/$slug"
+          params={{ slug: dua.slug }}
+          className="group mt-4 flex w-fit max-w-full items-center gap-1.5 text-sm font-medium hover:underline"
+        >
+          <span className="truncate">{dua.title}</span>
+          <span className="shrink-0 text-muted-foreground tabular-nums">· {duaSource(dua)}</span>
+          <ArrowRight
+            aria-hidden="true"
+            className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none"
+          />
+        </Link>
+      ) : (
+        <p className="mt-4 truncate text-sm font-medium">
+          <SkeletonText>The dua of Musa · Ta-Ha 20:25–28</SkeletonText>
+        </p>
+      )}
     </section>
   )
 }

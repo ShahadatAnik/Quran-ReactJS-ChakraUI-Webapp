@@ -1,12 +1,15 @@
 import { useRouterState } from "@tanstack/react-router"
-import { Loader2 } from "lucide-react"
 import { type RefObject, useCallback, useEffect, useRef, useState } from "react"
 import { AyahItem } from "@/components/ayah-item"
 import { useAudio, useReader } from "@/components/reader-provider"
 import { TafsirDialog } from "@/components/tafsir-dialog"
 import { useReadingTracker } from "@/hooks/use-reading-tracker"
 import { useSurahEditions } from "@/hooks/use-surah-editions"
-import { translationLocale } from "@/lib/editions"
+import {
+  DEFAULT_ARABIC_EDITION,
+  DEFAULT_TRANSLATION_EDITION,
+  translationLocale,
+} from "@/lib/editions"
 import type { SurahText } from "@/lib/quran-data"
 import { ayahId, parseAyahHash } from "@/lib/surahs"
 
@@ -118,6 +121,11 @@ export function SurahReader({ text }: SurahReaderProps) {
     [play, surah]
   )
 
+  // The reader's own script or translation, while it loads: skeleton lines, not the default text
+  // in its place (the prerendered page keeps the default text; it loads after that).
+  const loading = editions.status === "loading"
+  const arabicLoading = loading && settings.arabicEdition !== DEFAULT_ARABIC_EDITION
+  const translationLoading = loading && settings.translationEdition !== DEFAULT_TRANSLATION_EDITION
   const arabicTexts = editions.texts[settings.arabicEdition]
   const translationTexts = editions.texts[settings.translationEdition]
   const { lang: translationLang, dir: translationDir } = translationLocale(
@@ -126,16 +134,12 @@ export function SurahReader({ text }: SurahReaderProps) {
   )
 
   return (
-    <div>
+    // Until the reader's settings are read, styles.css draws prerendered text they will
+    // replace as skeleton lines (or hides hidden translations), before the first paint.
+    <div data-reader-pending={restored ? undefined : ""}>
       <p aria-live="polite" className="sr-only">
         {editions.status === "loading" ? "Loading the selected edition" : ""}
       </p>
-      {editions.status === "loading" ? (
-        <p className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-          Loading the selected edition. The default text is shown until it arrives.
-        </p>
-      ) : null}
 
       {text.bismillah ? (
         <p
@@ -159,6 +163,8 @@ export function SurahReader({ text }: SurahReaderProps) {
                 translation={
                   settings.showTranslation ? (translationTexts?.[index] ?? ayah.bn) : undefined
                 }
+                arabicLoading={arabicLoading}
+                translationLoading={translationLoading}
                 translationLang={translationLang}
                 translationDir={translationDir}
                 sajda={ayah.sajda}

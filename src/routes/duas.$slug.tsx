@@ -5,6 +5,7 @@ import { SurahNumber } from "@/components/page-card"
 import { PageGuide } from "@/components/page-guide"
 import { PageLayout } from "@/components/page-layout"
 import { ArabicNameAside, HeaderFacts, ReadingActions } from "@/components/reading-header"
+import { DuaSkeleton } from "@/components/skeletons"
 import { duaCategory } from "@/content/duas"
 import { duaSource } from "@/lib/duas"
 import { type DuaPage, getDuaPage, pageByPath } from "@/lib/pages"
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/duas/$slug")({
     return page ? pageSeo(page) : {}
   },
   component: DuaRoute,
+  pendingComponent: DuaSkeleton,
 })
 
 /** Laid out like a surah page: same header, same ayah list, with a link to the full surah. */
