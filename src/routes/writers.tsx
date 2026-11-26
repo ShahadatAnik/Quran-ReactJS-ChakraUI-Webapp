@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router"
 import { Globe } from "lucide-react"
 import { FacebookIcon, YouTubeIcon } from "@/components/icons"
 import { IconTile, PageLayout } from "@/components/page-layout"
+import { WritersSkeleton } from "@/components/skeletons"
 import { writers } from "@/content/writers"
 import { pageByPath, postPages } from "@/lib/pages"
 import { indexSeo } from "@/lib/seo"
@@ -12,6 +13,7 @@ const icons = { Website: Globe, Facebook: FacebookIcon, YouTube: YouTubeIcon } a
 export const Route = createFileRoute("/writers")({
   head: () => indexSeo(page, []),
   component: Writers,
+  pendingComponent: WritersSkeleton,
 })
 
 function Writers() {

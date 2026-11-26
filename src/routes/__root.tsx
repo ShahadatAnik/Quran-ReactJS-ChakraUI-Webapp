@@ -1,5 +1,6 @@
 import amiriFont from "@fontsource/amiri-quran/files/amiri-quran-arabic-400-normal.woff2?url"
 import hindFont from "@fontsource/hind-siliguri/files/hind-siliguri-bengali-400-normal.woff2?url"
+import hindBoldFont from "@fontsource/hind-siliguri/files/hind-siliguri-bengali-600-normal.woff2?url"
 import geistFont from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url"
 import { TanStackDevtools } from "@tanstack/react-devtools"
 import { createRootRoute, HeadContent, ScriptOnce, Scripts } from "@tanstack/react-router"
@@ -13,6 +14,7 @@ import { SiteHeader } from "@/components/site-header"
 import { ThemeProvider, themeScript } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { prepaintScript } from "@/lib/prepaint"
 import { arabicSizeScript } from "@/lib/reader-settings"
 import { site } from "@/lib/site"
 import appCss from "../styles.css?url"
@@ -47,7 +49,7 @@ export const Route = createRootRoute({
     links: [
       // Fonts used above the fold on most pages, fetched alongside the stylesheet. Without
       // this, ayahs first paint in a fallback Arabic font and grow when Amiri Quran arrives.
-      ...[geistFont, amiriFont, hindFont].map((href) => ({
+      ...[geistFont, amiriFont, hindFont, hindBoldFont].map((href) => ({
         rel: "preload",
         href,
         as: "font",
@@ -73,6 +75,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       <head>
         <ScriptOnce>{themeScript}</ScriptOnce>
         <ScriptOnce>{arabicSizeScript}</ScriptOnce>
+        <ScriptOnce>{prepaintScript}</ScriptOnce>
         <HeadContent />
         {/* Rendered here, not in head(): head() dedupes meta by name, which would drop one. */}
         <meta

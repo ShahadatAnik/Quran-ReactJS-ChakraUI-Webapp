@@ -1,4 +1,4 @@
-import { ChevronsUpDown, Loader2 } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
 import { type ReactNode, useEffect, useRef, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -11,8 +11,12 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Skeleton } from "@/components/ui/skeleton"
 import { commandFilter } from "@/lib/command-filter"
 import { cn } from "@/lib/utils"
+
+/** Name widths of the skeleton rows shown while the options load, varied like real names. */
+const SKELETON_ROWS = ["w-1/2", "w-2/3", "w-2/5", "w-3/5", "w-1/3", "w-3/4"]
 
 /** A small tile in front of a choice: a language code ("BN"), a script letter, initials. */
 export function PickerTile({
@@ -62,8 +66,11 @@ interface PickerProps {
   value: string
   groups: PickerGroup[]
   onChange: (value: string) => void
-  /** Trigger content for the current value: tile, label and a muted hint on the right. */
-  current: { tile?: ReactNode; label: string; hint?: string }
+  /**
+   * Trigger content for the current value: tile, label and a muted hint on the right. With
+   * `loading`, a skeleton stands in until the current value's name is known.
+   */
+  current: { tile?: ReactNode; label: string; hint?: string; loading?: boolean }
   /** Option marked "Default" in the list. */
   defaultValue?: string
   loading?: boolean
@@ -120,9 +127,23 @@ export function Picker({
           aria-expanded={open}
           className="h-9 w-full justify-start gap-2 px-2.5 font-normal"
         >
-          {current.tile}
-          <span className="min-w-0 truncate">{current.label}</span>
-          {current.hint ? (
+          {current.loading ? (
+            <>
+              <Skeleton className="h-5 w-7 shrink-0" />
+              <span key="loading" className="sr-only">
+                {current.label}
+              </span>
+              <Skeleton className="h-3.5 w-32 max-w-full" />
+            </>
+          ) : (
+            <>
+              {current.tile}
+              <span key="label" className="min-w-0 truncate">
+                {current.label}
+              </span>
+            </>
+          )}
+          {current.hint && !current.loading ? (
             <span className="ml-auto shrink-0 text-xs text-muted-foreground">{current.hint}</span>
           ) : null}
           <ChevronsUpDown
@@ -147,10 +168,15 @@ export function Picker({
             className="max-h-[min(20rem,var(--radix-popover-content-available-height,20rem))]"
           >
             {loading && optionCount === 0 ? (
-              <p className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
-                <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
-                Loading the list…
-              </p>
+              <div aria-busy="true" className="space-y-1 p-1">
+                <span className="sr-only">Loading the list…</span>
+                {SKELETON_ROWS.map((width) => (
+                  <div key={width} className="flex items-center gap-2 px-2 py-2">
+                    <Skeleton className="h-5 w-7 shrink-0" />
+                    <Skeleton className={cn("h-3.5", width)} />
+                  </div>
+                ))}
+              </div>
             ) : (
               <CommandEmpty>{emptyText}</CommandEmpty>
             )}

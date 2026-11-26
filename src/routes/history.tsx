@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { History } from "lucide-react"
 import { IconTile, PageLayout } from "@/components/page-layout"
 import { ClearHistory, ReadingDashboard } from "@/components/reading-history"
+import { HistorySkeleton } from "@/components/skeletons"
 import { ogImagePath } from "@/lib/pages"
 import { READ_AFTER_MS } from "@/lib/reading-log"
 import { seo } from "@/lib/seo"
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/history")({
     }
   },
   component: HistoryRoute,
+  pendingComponent: HistorySkeleton,
 })
 
 function HistoryRoute() {

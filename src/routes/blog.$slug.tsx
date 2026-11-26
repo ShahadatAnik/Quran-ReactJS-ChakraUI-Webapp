@@ -4,6 +4,7 @@ import { ArticleBody } from "@/components/article-body"
 import { CopyButton } from "@/components/copy-button"
 import { PageGuide } from "@/components/page-guide"
 import { PageLayout } from "@/components/page-layout"
+import { ArticleSkeleton } from "@/components/skeletons"
 import type { Block } from "@/content/types"
 import { getWriter } from "@/content/writers"
 import { formatBanglaDate, toBanglaDigits } from "@/lib/bangla"
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/blog/$slug")({
     return page ? pageSeo(page) : {}
   },
   component: PostRoute,
+  pendingComponent: ArticleSkeleton,
 })
 
 function SeriesNav({ page }: { page: PostPage }) {

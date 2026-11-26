@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router"
 import { ArrowRight, Loader2, LocateFixed, MapPin, Search } from "lucide-react"
-import { useEffect, useId, useMemo, useState } from "react"
+import { type ReactNode, useEffect, useId, useMemo, useState } from "react"
 import { CornerLattice, factClass, panelClass } from "@/components/page-card"
 import { PrayerSettingsFields } from "@/components/prayer-settings"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Skeleton, SkeletonText } from "@/components/ui/skeleton"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { setPrayerLocation, useLocate, useNow, usePrayerState } from "@/hooks/use-prayer"
 import {
@@ -35,6 +36,7 @@ import {
   type Place,
   PRAYER_NAMES,
   PRAYERS,
+  type PrayerName,
   parsePlaces,
   prayerLabel,
   qiblaBearing,
@@ -139,6 +141,22 @@ function CitySearch({ onPicked }: { onPicked?: () => void }) {
             </li>
           ))}
         </ul>
+      ) : searching ? (
+        <ul
+          aria-busy="true"
+          className="divide-y divide-border/60 overflow-hidden rounded-xl ring-1 ring-foreground/10"
+        >
+          {[1, 2, 3].map((n) => (
+            <li key={n} className="flex items-center gap-3 px-3 py-2.5">
+              <Skeleton className="size-4 rounded-full" />
+              <span className="flex-1 space-y-1.5">
+                <Skeleton className="h-3.5 w-28" />
+                <Skeleton className="h-3 w-40" />
+              </span>
+              <Skeleton className="h-3 w-16" />
+            </li>
+          ))}
+        </ul>
       ) : null}
     </div>
   )
@@ -236,7 +254,6 @@ function PrayerNow({
   const name = running ? running.name : next.name
   const time = (instant: Date) => formatTime(instant, location.timeZone)
   const left = running ? running.end.getTime() - now.getTime() : 0
-  const endingSoon = running !== null && left <= ENDING_SOON_MS
   const elapsed = running
     ? Math.min(
         100,
@@ -250,6 +267,41 @@ function PrayerNow({
     : 0
 
   return (
+    <PrayerNowView
+      size={size}
+      label={prayerLabel(name, running ? today.date : next.date)}
+      arabic={PRAYERS[name].arabic}
+      when={
+        running
+          ? { start: time(running.start), end: time(running.end) }
+          : { at: time(next.time), countdown: formatCountdown(next.time.getTime() - now.getTime()) }
+      }
+      running={
+        running
+          ? {
+              elapsed,
+              left: formatCountdown(left),
+              endingSoon: left <= ENDING_SOON_MS,
+              after: `Then ${prayerLabel(next.name, next.date)} at ${time(next.time)}`,
+            }
+          : null
+      }
+    />
+  )
+}
+
+interface PrayerNowViewProps {
+  label: string
+  arabic: string
+  /** While a prayer's time runs, its start and end; otherwise the next prayer's time. */
+  when: { start: string; end: string } | { at: string; countdown: string }
+  /** How much of the running prayer's time has passed, how much is left, and what follows. */
+  running: { elapsed: number; left: string; endingSoon: boolean; after: string } | null
+  size?: "lg" | "md"
+}
+
+function PrayerNowView({ label, arabic, when, running, size = "lg" }: PrayerNowViewProps) {
+  return (
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-4">
         <div className="min-w-0">
@@ -259,20 +311,20 @@ function PrayerNow({
               size === "lg" ? "text-4xl md:text-5xl" : "text-3xl"
             )}
           >
-            {prayerLabel(name, running ? today.date : next.date)}
+            {label}
           </p>
           <p className="mt-1 text-muted-foreground tabular-nums">
-            {running ? (
+            {"start" in when ? (
               <>
-                <span className="font-medium text-foreground">{time(running.start)}</span>
+                <span className="font-medium text-foreground">{when.start}</span>
                 {" – "}
-                <span className="font-medium text-foreground">{time(running.end)}</span>
+                <span className="font-medium text-foreground">{when.end}</span>
               </>
             ) : (
               <>
-                <span className="font-medium text-foreground">{time(next.time)}</span>
+                <span className="font-medium text-foreground">{when.at}</span>
                 {" · in "}
-                {formatCountdown(next.time.getTime() - now.getTime())}
+                {when.countdown}
               </>
             )}
           </p>
@@ -283,7 +335,7 @@ function PrayerNow({
           aria-hidden="true"
           className={cn("shrink-0 text-gold", size === "lg" ? "text-5xl md:text-6xl" : "text-4xl")}
         >
-          <span className="arabic-glyph-centred">{PRAYERS[name].arabic}</span>
+          <span className="arabic-glyph-centred">{arabic}</span>
         </p>
       </div>
       {running ? (
@@ -293,21 +345,89 @@ function PrayerNow({
             <div
               className={cn(
                 "h-full rounded-full transition-width duration-1000 ease-linear motion-reduce:transition-none",
-                endingSoon ? "ending-soon bg-destructive" : "bg-gold"
+                running.endingSoon ? "ending-soon bg-destructive" : "bg-gold"
               )}
-              style={{ width: `${elapsed}%` }}
+              style={{ width: `${running.elapsed}%` }}
             />
           </div>
           <p className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm tabular-nums">
-            <span className={cn("font-medium", endingSoon && "ending-soon text-destructive")}>
-              {formatCountdown(left)} left
+            <span
+              className={cn("font-medium", running.endingSoon && "ending-soon text-destructive")}
+            >
+              {running.left} left
             </span>
-            <span className="text-muted-foreground">
-              Then {prayerLabel(next.name, next.date)} at {time(next.time)}
-            </span>
+            <span className="text-muted-foreground">{running.after}</span>
           </p>
         </div>
       ) : null}
+    </div>
+  )
+}
+
+/** The widest time, clock and countdown the views can show. */
+const WIDEST_TIME = "12:59 PM"
+const WIDEST_CLOCK = "12:59"
+const WIDEST_COUNTDOWN = formatCountdown(59_000)
+
+/**
+ * Every shape PrayerNowView takes (each prayer running, with the prayer after it, and the wait
+ * for Dhuhr after sunrise), with the widest times. Stacked invisibly behind the real one (see
+ * Sizer), they hold the most room it can ever need at the current width, so the block keeps one
+ * height whatever the time, and while it loads.
+ */
+const PRAYER_NOW_SHAPES: Omit<PrayerNowViewProps, "size">[] = [
+  ...(
+    [
+      ["fajr", "Sunrise"],
+      ["dhuhr", "Asr"],
+      ["asr", "Maghrib"],
+      ["maghrib", "Isha"],
+      ["isha", "Fajr"],
+    ] as const
+  ).flatMap(([name, then]) =>
+    (name === "dhuhr" ? ["Dhuhr", "Jumu'ah"] : [PRAYERS[name].label]).map((label) => ({
+      label,
+      arabic: PRAYERS[name].arabic,
+      when: { start: WIDEST_TIME, end: WIDEST_TIME },
+      running: {
+        elapsed: 0,
+        left: WIDEST_COUNTDOWN,
+        endingSoon: false,
+        after: `Then ${then} at ${WIDEST_TIME}`,
+      },
+    }))
+  ),
+  ...["Dhuhr", "Jumu'ah"].map((label) => ({
+    label,
+    arabic: PRAYERS.dhuhr.arabic,
+    when: { at: WIDEST_TIME, countdown: WIDEST_COUNTDOWN },
+    running: null,
+  })),
+]
+
+/**
+ * Invisible copies of every shape a block can take, in one grid cell: the cell is as tall as
+ * the tallest at the current width. With the real content in the same cell (`children`), the
+ * block never changes height, whatever it shows, and while it loads.
+ */
+function Sizer({
+  shapes,
+  className,
+  children,
+}: {
+  shapes: ReactNode[]
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <div className={cn("relative grid *:col-start-1 *:row-start-1", className)}>
+      {shapes.map((shape, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list of shapes.
+        <div key={i} aria-hidden="true" inert className="invisible">
+          {shape}
+        </div>
+      ))}
+      {children}
     </div>
   )
 }
@@ -332,11 +452,28 @@ const COMPASS_WORDS: Record<string, string> = {
 
 function Qibla({ location }: { location: PrayerLocation }) {
   const bearing = qiblaBearing(location)
-  const degrees = Math.round(bearing)
   return (
-    <section aria-labelledby="qibla-heading" className={cn(panelClass, "space-y-4")}>
+    <QiblaView
+      headingId="qibla-heading"
+      bearing={bearing}
+      direction={COMPASS_WORDS[compassPoint(bearing)] ?? ""}
+    />
+  )
+}
+
+function QiblaView({
+  headingId,
+  bearing,
+  direction,
+}: {
+  headingId?: string
+  bearing: number
+  direction: string
+}) {
+  return (
+    <section aria-labelledby={headingId} className={cn(panelClass, "space-y-4")}>
       <CornerLattice />
-      <h2 id="qibla-heading" className={factClass}>
+      <h2 id={headingId} className={factClass}>
         Qibla
       </h2>
       <div className="flex items-center gap-5">
@@ -369,10 +506,8 @@ function Qibla({ location }: { location: PrayerLocation }) {
           <circle cx="60" cy="60" r="3.5" className="fill-foreground" />
         </svg>
         <div className="space-y-1">
-          <p className="text-3xl font-semibold tabular-nums">{degrees}°</p>
-          <p className="text-sm text-muted-foreground">
-            From true north, towards the {COMPASS_WORDS[compassPoint(bearing)]}.
-          </p>
+          <p className="text-3xl font-semibold tabular-nums">{Math.round(bearing)}°</p>
+          <p className="text-sm text-muted-foreground">From true north, towards the {direction}.</p>
         </div>
       </div>
       <p className="text-xs text-muted-foreground">
@@ -382,41 +517,82 @@ function Qibla({ location }: { location: PrayerLocation }) {
   )
 }
 
+/** The Qibla panel with the longest directions, for its sizer. */
+const QIBLA_SHAPES = [
+  { bearing: 315, direction: "north-west" },
+  { bearing: 135, direction: "south-east" },
+]
+
+interface TimeTile {
+  name: PrayerName
+  label: ReactNode
+  time: ReactNode
+  status: string
+  current: boolean
+}
+
 function TimeTiles({ schedule, location }: { schedule: Schedule; location: PrayerLocation }) {
   const { today, current, next } = schedule
   return (
-    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-      {PRAYER_NAMES.map((name) => {
+    <TimeTilesView
+      tiles={PRAYER_NAMES.map((name) => {
         const isCurrent = name === current
         const isNext = name === next.name && next.date === today.date
-        return (
-          <li
-            key={name}
-            aria-current={isCurrent ? "time" : undefined}
-            className={cn(
-              "relative rounded-2xl bg-card p-4 ring-1 ring-foreground/10",
-              isCurrent && "bg-gold/5 ring-2 ring-gold/60",
-              name === "sunrise" && "bg-muted/40"
-            )}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-medium">{prayerLabel(name, today.date)}</p>
-              <p lang="ar" dir="rtl" aria-hidden="true" className="text-lg text-gold">
-                <span className="arabic-glyph-centred">{PRAYERS[name].arabic}</span>
-              </p>
-            </div>
-            <p className="mt-2 text-2xl font-semibold tabular-nums">
-              {formatTime(today[name], location.timeZone)}
-            </p>
-            <p className="mt-1 h-4 text-xs font-medium tracking-wide text-gold uppercase">
-              {isCurrent ? "Now" : isNext ? "Next" : name === "sunrise" ? "Fajr ends" : ""}
-            </p>
-          </li>
-        )
+        return {
+          name,
+          label: prayerLabel(name, today.date),
+          time: formatTime(today[name], location.timeZone),
+          status: isCurrent ? "Now" : isNext ? "Next" : name === "sunrise" ? "Fajr ends" : "",
+          current: isCurrent,
+        }
       })}
+    />
+  )
+}
+
+function TimeTilesView({ tiles }: { tiles: readonly TimeTile[] }) {
+  return (
+    <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      {tiles.map(({ name, label, time, status, current }) => (
+        <li
+          key={name}
+          aria-current={current ? "time" : undefined}
+          className={cn(
+            "relative rounded-2xl bg-card p-4 ring-1 ring-foreground/10",
+            current && "bg-gold/5 ring-2 ring-gold/60",
+            name === "sunrise" && "bg-muted/40"
+          )}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-medium">{label}</p>
+            <p lang="ar" dir="rtl" aria-hidden="true" className="text-lg text-gold">
+              <span className="arabic-glyph-centred">{PRAYERS[name].arabic}</span>
+            </p>
+          </div>
+          <p className="mt-2 text-2xl font-semibold tabular-nums">{time}</p>
+          <p className="mt-1 h-4 text-xs font-medium tracking-wide text-gold uppercase">{status}</p>
+        </li>
+      ))}
     </ul>
   )
 }
+
+/** The tiles with the widest labels and times, for their sizer. */
+const WIDEST_TILES: TimeTile[] = PRAYER_NAMES.map((name) => ({
+  name,
+  label: name === "dhuhr" ? "Jumu'ah" : PRAYERS[name].label,
+  time: WIDEST_TIME,
+  status: "Fajr ends",
+  current: false,
+}))
+
+/** The tiles while loading: the same tiles, with skeleton text. */
+const SKELETON_TILES: TimeTile[] = WIDEST_TILES.map((tile) => ({
+  ...tile,
+  label: <SkeletonText>{tile.label}</SkeletonText>,
+  time: <SkeletonText>{WIDEST_TIME}</SkeletonText>,
+  status: "",
+}))
 
 /** "Wed 25 Nov", or "Wed 25" on phones. */
 function ShortDate({ date }: { date: CalendarDate }) {
@@ -429,6 +605,12 @@ function ShortDate({ date }: { date: CalendarDate }) {
       <span className="hidden sm:inline"> {month}</span>
     </>
   )
+}
+
+interface WeekRow {
+  key: string
+  day: ReactNode
+  times: Record<PrayerName, ReactNode>
 }
 
 function Week({
@@ -446,9 +628,24 @@ function Week({
   // biome-ignore lint/correctness/useExhaustiveDependencies: `key` stands for `now`'s date.
   const week = useMemo(() => weekAt(now, location, settings), [key, location, settings])
   return (
-    <section aria-labelledby="week-heading" className={cn(panelClass, "space-y-4")}>
+    <WeekView
+      headingId="week-heading"
+      rows={week.map((times, index) => ({
+        key: `${times.date.month}-${times.date.day}`,
+        day: index === 0 ? "Today" : <ShortDate date={times.date} />,
+        times: Object.fromEntries(
+          PRAYER_NAMES.map((name) => [name, formatClock(times[name], location.timeZone)])
+        ) as Record<PrayerName, string>,
+      }))}
+    />
+  )
+}
+
+function WeekView({ headingId, rows }: { headingId?: string; rows: readonly WeekRow[] }) {
+  return (
+    <section aria-labelledby={headingId} className={cn(panelClass, "space-y-4")}>
       <CornerLattice />
-      <h2 id="week-heading" className={factClass}>
+      <h2 id={headingId} className={factClass}>
         The week ahead
       </h2>
       {/* On phones the Sunrise column is left out, so the five prayers fit without scrolling. */}
@@ -474,16 +671,16 @@ function Week({
             </tr>
           </thead>
           <tbody>
-            {week.map((times, index) => (
+            {rows.map((row, index) => (
               <tr
-                key={`${times.date.month}-${times.date.day}`}
+                key={row.key}
                 className={cn("border-t border-border/50", index === 0 && "font-semibold")}
               >
                 <th
                   scope="row"
                   className="px-1 py-2 text-left font-medium whitespace-nowrap sm:px-2"
                 >
-                  {index === 0 ? "Today" : <ShortDate date={times.date} />}
+                  {row.day}
                 </th>
                 {PRAYER_NAMES.map((name) => (
                   <td
@@ -493,7 +690,7 @@ function Week({
                       name === "sunrise" && "hidden text-muted-foreground sm:table-cell"
                     )}
                   >
-                    {formatClock(times[name], location.timeZone)}
+                    {row.times[name]}
                   </td>
                 ))}
               </tr>
@@ -508,86 +705,232 @@ function Week({
   )
 }
 
-/** The prayer-times page body: next prayer, today's times, the week, Qibla and settings. */
-export function PrayerDashboard() {
-  const { state, now, location, settings, schedule } = useSchedule()
+/** The week while loading: the same table, every cell a single line of skeleton text. */
+const SKELETON_WEEK: WeekRow[] = [
+  "Today",
+  "Thu 26",
+  "Fri 27",
+  "Sat 28",
+  "Sun 29",
+  "Mon 30",
+  "Tue 1",
+].map((day) => ({
+  key: day,
+  day: <SkeletonText>{day}</SkeletonText>,
+  times: Object.fromEntries(
+    PRAYER_NAMES.map((name) => [name, <SkeletonText key={name}>{WIDEST_CLOCK}</SkeletonText>])
+  ) as Record<PrayerName, ReactNode>,
+}))
 
-  if (!state || (location && !schedule)) {
-    return <div aria-busy="true" className={cn(panelClass, "min-h-72")} />
-  }
+/** The date line under the next prayer: the date, the Hijri date, and the time-zone note. */
+function DayLine({ day, note }: { day: ReactNode; note: ReactNode }) {
+  return (
+    <p className="text-sm text-muted-foreground">
+      {day}
+      {note ? <span className="block text-xs">{note}</span> : null}
+    </p>
+  )
+}
 
-  if (!location || !schedule || !now) {
-    return (
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <section aria-labelledby="location-heading" className={cn(panelClass, "space-y-5 p-6")}>
-          <CornerLattice className="size-72" />
-          <div className="space-y-1.5">
-            <h2 id="location-heading" className="font-heading text-xl font-semibold">
-              Where are you praying?
-            </h2>
-            <p className="text-sm text-pretty text-muted-foreground">
-              Prayer times depend on where you are. Share your location once, or search for your
-              city, and the times are worked out right here in your browser.
-            </p>
-          </div>
-          <LocationSetup />
-        </section>
-        <section aria-labelledby="calc-heading" className={cn(panelClass, "space-y-4")}>
-          <h2 id="calc-heading" className={factClass}>
-            Calculation
+/** The longest date line, for its sizer; its note only counts where there will be one. */
+const WIDEST_DAY_LINE = (
+  <DayLine
+    day="Wednesday, 30 September · 30 Dhuʻl-Qiʻdah 1448 AH"
+    note={
+      <span data-only-prayer-note="on">
+        Times are in local time there (America/Argentina/ComodRivadavia).
+      </span>
+    }
+  />
+)
+
+/** Where the reader hasn't set a location yet: share it or search a city, and the settings. */
+function PrayerSetup() {
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <section aria-labelledby="location-heading" className={cn(panelClass, "space-y-5 p-6")}>
+        <CornerLattice className="size-72" />
+        <div className="space-y-1.5">
+          <h2 id="location-heading" className="font-heading text-xl font-semibold">
+            Where are you praying?
           </h2>
-          <PrayerSettingsFields />
-        </section>
-      </div>
-    )
-  }
+          <p className="text-sm text-pretty text-muted-foreground">
+            Prayer times depend on where you are. Share your location once, or search for your city,
+            and the times are worked out right here in your browser.
+          </p>
+        </div>
+        <LocationSetup />
+      </section>
+      <CalculationPanel />
+    </div>
+  )
+}
 
-  const today = schedule.today.date
-  const hijri = hijriDate(today)
-  const note = timeZoneNote(location)
+function CalculationPanel() {
+  // Its own id: before the location is read, the page has two (setup and dashboard).
+  const headingId = useId()
+  return (
+    <section aria-labelledby={headingId} className={cn(panelClass, "space-y-4")}>
+      <h2 id={headingId} className={factClass}>
+        Calculation
+      </h2>
+      <PrayerSettingsFields />
+    </section>
+  )
+}
+
+interface DashboardData {
+  schedule: Schedule
+  now: Date
+  location: PrayerLocation
+  settings: PrayerSettings
+}
+
+/**
+ * The dashboard for a saved location, or its skeleton while the times are worked out (`data`
+ * null). Both are the same panels: the skeleton puts skeleton text in the lines, and the
+ * blocks whose height depends on the time of day hold the room of their tallest shape (Sizer),
+ * so the skeleton is exactly the dashboard's height and the dashboard keeps it all day.
+ */
+function LocatedDashboard({ data }: { data: DashboardData | null }) {
+  const today = data?.schedule.today.date
+  const hijri = today ? hijriDate(today) : null
+  const note = data ? timeZoneNote(data.location) : null
 
   return (
-    <div className="animate-in space-y-4 duration-300 fade-in-0 motion-reduce:animate-none">
+    <div className="space-y-4" aria-busy={!data}>
       <section aria-labelledby="next-heading" className={cn(panelClass, "space-y-5 p-6 md:p-8")}>
         <CornerLattice className="size-80" />
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1 space-y-1">
             <h2 id="next-heading" className={factClass}>
-              {headingOf(schedule)}
+              {data ? (
+                headingOf(data.schedule)
+              ) : (
+                <>
+                  <span className="sr-only">Prayer times</span>
+                  <SkeletonText>Current prayer</SkeletonText>
+                </>
+              )}
             </h2>
             <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <MapPin aria-hidden="true" className="size-3.5 shrink-0" />
               <span className="truncate">
-                {location.name}
-                {location.source === "gps" ? ` · ${formatCoordinates(location)}` : ""}
+                {data ? (
+                  <>
+                    {data.location.name}
+                    {data.location.source === "gps" ? ` · ${formatCoordinates(data.location)}` : ""}
+                  </>
+                ) : (
+                  <SkeletonText>Your location · 23.81° N, 90.41° E</SkeletonText>
+                )}
               </span>
             </p>
           </div>
-          <ChangeLocation />
+          {data ? (
+            <ChangeLocation className="shrink-0" />
+          ) : (
+            <Skeleton className="h-7 w-36 shrink-0 rounded-lg" />
+          )}
         </div>
-        <PrayerNow schedule={schedule} now={now} location={location} />
-        <p className="text-sm text-muted-foreground">
-          {formatDay(today)}
-          {hijri ? ` · ${hijri}` : ""}
-          {note ? <span className="block text-xs">{note}</span> : null}
-        </p>
+        <Sizer
+          shapes={PRAYER_NOW_SHAPES.map((shape) => (
+            <PrayerNowView key={`${shape.label}-${"start" in shape.when}`} {...shape} />
+          ))}
+        >
+          {data ? (
+            <PrayerNow schedule={data.schedule} now={data.now} location={data.location} />
+          ) : (
+            <div className="absolute inset-0 flex flex-col gap-4 overflow-hidden">
+              <div className="flex items-end justify-between gap-4">
+                <div className="space-y-2.5">
+                  <Skeleton className="h-10 w-40" />
+                  <Skeleton className="h-4 w-48" />
+                </div>
+                <Skeleton className="h-12 w-24" />
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full" />
+              <Skeleton className="h-4 w-64 max-w-full" />
+            </div>
+          )}
+        </Sizer>
+        <Sizer shapes={[WIDEST_DAY_LINE]}>
+          {data && today ? (
+            <DayLine day={`${formatDay(today)}${hijri ? ` · ${hijri}` : ""}`} note={note} />
+          ) : (
+            <DayLine
+              day={<SkeletonText>Wednesday, 25 November · 4 Jumada II 1448 AH</SkeletonText>}
+              note={null}
+            />
+          )}
+        </Sizer>
       </section>
 
-      <TimeTiles schedule={schedule} location={location} />
+      <Sizer shapes={[<TimeTilesView key="widest" tiles={WIDEST_TILES} />]}>
+        {data ? (
+          <TimeTiles schedule={data.schedule} location={data.location} />
+        ) : (
+          <TimeTilesView tiles={SKELETON_TILES} />
+        )}
+      </Sizer>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Week now={now} location={location} settings={settings} />
+        {data ? (
+          <Week now={data.now} location={data.location} settings={data.settings} />
+        ) : (
+          <WeekView rows={SKELETON_WEEK} />
+        )}
         <div className="space-y-4">
-          <Qibla location={location} />
-          <section aria-labelledby="calc-heading" className={cn(panelClass, "space-y-4")}>
-            <h2 id="calc-heading" className={factClass}>
-              Calculation
-            </h2>
-            <PrayerSettingsFields />
-          </section>
+          <Sizer
+            shapes={QIBLA_SHAPES.map((shape) => <QiblaView key={shape.direction} {...shape} />)}
+          >
+            {data ? (
+              <Qibla location={data.location} />
+            ) : (
+              <div className={cn(panelClass, "absolute inset-0 space-y-4")}>
+                <Skeleton className="h-3 w-16" />
+                <div className="flex items-center gap-5">
+                  <Skeleton className="size-28 shrink-0 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-8 w-20" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </Sizer>
+          <CalculationPanel />
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * The prayer-times page body: next prayer, today's times, the week, Qibla and settings; or,
+ * without a saved location, the setup. Until this browser's location is read (and in the
+ * prerendered page) both are there, and the pre-paint script (src/lib/prepaint.ts) shows the
+ * one that applies, so the page has its final layout from the first paint.
+ */
+export function PrayerDashboard() {
+  const { state, now, location, settings, schedule } = useSchedule()
+  const showSetup = !state || !location
+  const showDashboard = !state || Boolean(location)
+  return (
+    <>
+      {showSetup ? (
+        <div data-only-prayer={state ? undefined : "none"}>
+          <PrayerSetup />
+        </div>
+      ) : null}
+      {showDashboard ? (
+        <div data-only-prayer={state ? undefined : "located"}>
+          <LocatedDashboard
+            data={location && schedule && now ? { schedule, now, location, settings } : null}
+          />
+        </div>
+      ) : null}
+    </>
   )
 }
 
@@ -595,7 +938,7 @@ export function PrayerDashboard() {
 
 /**
  * Home page card: the next prayer with a countdown and today's five times, or a button to
- * share the location. Empty (same size) while prerendered, since it depends on this browser.
+ * share the location. A skeleton of the same size while prerendered: it depends on this browser.
  */
 export function NextPrayerCard({ className }: { className?: string }) {
   const { state, now, location, schedule } = useSchedule()
@@ -612,10 +955,26 @@ export function NextPrayerCard({ className }: { className?: string }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 id="next-prayer-heading" className={factClass}>
-            {schedule ? headingOf(schedule) : location ? "Next prayer" : "Prayer times"}
+            {!ready ? (
+              <>
+                <span className="sr-only">Prayer times</span>
+                <SkeletonText>Current prayer</SkeletonText>
+              </>
+            ) : schedule ? (
+              headingOf(schedule)
+            ) : (
+              "Prayer times"
+            )}
           </h2>
           <p className="mt-0.5 truncate text-sm text-muted-foreground">
-            {location ? location.name : " "}
+            {!ready ? (
+              <SkeletonText>Dhaka, Bangladesh</SkeletonText>
+            ) : location ? (
+              location.name
+            ) : (
+              // A non-breaking space: keeps the line's height when there's no location.
+              " "
+            )}
           </p>
         </div>
         <Link
@@ -630,51 +989,106 @@ export function NextPrayerCard({ className }: { className?: string }) {
         </Link>
       </div>
 
-      {!ready ? null : location && schedule && now ? (
-        <div className="flex flex-1 animate-in flex-col gap-4 duration-300 fade-in-0 motion-reduce:animate-none">
-          <PrayerNow schedule={schedule} now={now} location={location} size="md" />
-          <ul className="mt-auto grid grid-cols-5 gap-1 text-center">
-            {(["fajr", "dhuhr", "asr", "maghrib", "isha"] as const).map((name) => (
-              <li
-                key={name}
-                aria-current={name === schedule.current ? "time" : undefined}
-                className={cn(
-                  "rounded-lg px-0.5 py-1.5",
-                  name === schedule.current && "bg-gold/10 ring-1 ring-gold/50"
-                )}
-              >
-                <span className="block text-2xs text-muted-foreground">
-                  {prayerLabel(name, schedule.today.date)}
-                </span>
-                <span className="block text-sm font-medium tabular-nums">
-                  {formatClock(schedule.today[name], location.timeZone)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="flex flex-1 animate-in flex-col justify-end gap-3 duration-300 fade-in-0 motion-reduce:animate-none">
-          <p className="text-sm text-pretty text-muted-foreground">
-            See today's prayer times and a countdown to the next one, worked out in your browser for
-            where you are.
-          </p>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Button size="sm" onClick={() => locate()} disabled={status.state === "locating"}>
-              {status.state === "locating" ? <Loader2 className="animate-spin" /> : <LocateFixed />}
-              Use my location
-            </Button>
-            <Link to="/prayer-times" className="text-sm font-medium hover:underline">
-              or search for a city
-            </Link>
+      {/* Every state (loading, each prayer, no location) fills the room of the tallest. */}
+      <Sizer
+        className="flex-1"
+        shapes={PRAYER_NOW_SHAPES.map((shape) => (
+          <div key={`${shape.label}-${"start" in shape.when}`} className="flex flex-col gap-4">
+            <PrayerNowView {...shape} size="md" />
+            <TodayTimes times={WIDEST_TODAY_TIMES} />
           </div>
-          {status.state === "error" ? (
-            <p role="alert" className="text-xs text-destructive">
-              {status.message}
+        ))}
+      >
+        {!ready ? (
+          <div className="absolute inset-0 flex flex-col gap-4 overflow-hidden">
+            <div className="flex items-end justify-between gap-4">
+              <div className="space-y-2.5">
+                <Skeleton className="h-8 w-28" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <Skeleton className="h-10 w-20" />
+            </div>
+            <Skeleton className="h-1.5 w-full rounded-full" />
+            <div className="mt-auto grid grid-cols-5 gap-1">
+              {SALAH_NAMES.map((name) => (
+                <div key={name} className="flex flex-col items-center gap-1.5 py-1.5">
+                  <Skeleton className="h-2.5 w-9" />
+                  <Skeleton className="h-4 w-10" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : location && schedule && now ? (
+          <div className="flex animate-in flex-col gap-4 duration-300 fade-in-0 motion-reduce:animate-none">
+            <PrayerNow schedule={schedule} now={now} location={location} size="md" />
+            <TodayTimes
+              times={SALAH_NAMES.map((name) => ({
+                name,
+                label: prayerLabel(name, schedule.today.date),
+                time: formatClock(schedule.today[name], location.timeZone),
+                current: name === schedule.current,
+              }))}
+            />
+          </div>
+        ) : (
+          <div className="flex animate-in flex-col justify-end gap-3 duration-300 fade-in-0 motion-reduce:animate-none">
+            <p className="text-sm text-pretty text-muted-foreground">
+              See today's prayer times and a countdown to the next one, worked out in your browser
+              for where you are.
             </p>
-          ) : null}
-        </div>
-      )}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Button size="sm" onClick={() => locate()} disabled={status.state === "locating"}>
+                {status.state === "locating" ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <LocateFixed />
+                )}
+                Use my location
+              </Button>
+              <Link to="/prayer-times" className="text-sm font-medium hover:underline">
+                or search for a city
+              </Link>
+            </div>
+            {status.state === "error" ? (
+              <p role="alert" className="text-xs text-destructive">
+                {status.message}
+              </p>
+            ) : null}
+          </div>
+        )}
+      </Sizer>
     </section>
   )
 }
+
+const SALAH_NAMES = ["fajr", "dhuhr", "asr", "maghrib", "isha"] as const
+
+/** Today's five times along the bottom of the home card. */
+function TodayTimes({
+  times,
+}: {
+  times: readonly { name: string; label: string; time: string; current: boolean }[]
+}) {
+  return (
+    <ul className="mt-auto grid grid-cols-5 gap-1 text-center">
+      {times.map(({ name, label, time, current }) => (
+        <li
+          key={name}
+          aria-current={current ? "time" : undefined}
+          className={cn("rounded-lg px-0.5 py-1.5", current && "bg-gold/10 ring-1 ring-gold/50")}
+        >
+          <span className="block text-2xs text-muted-foreground">{label}</span>
+          <span className="block text-sm font-medium tabular-nums">{time}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** TodayTimes with the widest labels and times, for the sizer. */
+const WIDEST_TODAY_TIMES = SALAH_NAMES.map((name) => ({
+  name,
+  label: name === "dhuhr" ? "Jumu'ah" : PRAYERS[name].label,
+  time: WIDEST_CLOCK,
+  current: false,
+}))

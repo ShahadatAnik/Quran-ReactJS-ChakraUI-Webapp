@@ -15,11 +15,13 @@ export const READER_STORAGE_KEY = `${STORAGE_PREFIX}reader`
 
 /**
  * Inline script run before first paint: puts the saved Arabic text size on <html> as
- * `data-arabic-size`, so prerendered ayahs never show at the default size first.
+ * `data-arabic-size`, so prerendered ayahs never show at the default size first. Like the
+ * theme script, it puts the size back if React clears the attributes of <html> after a failed
+ * hydration (the reader settings only ever set the attribute, never remove it).
  */
-export const arabicSizeScript = `(function(){try{var s=JSON.parse(localStorage.getItem(${JSON.stringify(
+export const arabicSizeScript = `(function(){var r=document.documentElement;function a(){try{var s=JSON.parse(localStorage.getItem(${JSON.stringify(
   READER_STORAGE_KEY
-)})||"{}").arabicSize;if(${JSON.stringify(ARABIC_SIZES)}.indexOf(s)>-1)document.documentElement.dataset.arabicSize=s}catch(e){}})()`
+)})||"{}").arabicSize;if(${JSON.stringify(ARABIC_SIZES)}.indexOf(s)>-1)r.dataset.arabicSize=s}catch(e){}}a();try{new MutationObserver(function(){if(!r.hasAttribute('data-arabic-size'))a()}).observe(r,{attributes:true})}catch(e){}})()`
 
 export interface ReaderSettings {
   arabicEdition: string

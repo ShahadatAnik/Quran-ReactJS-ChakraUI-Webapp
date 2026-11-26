@@ -94,4 +94,14 @@ describe("arabicSizeScript", () => {
     expect(run(JSON.stringify({ arabicSize: "huge" }))).toBeUndefined()
     expect(run("not json")).toBeUndefined()
   })
+
+  test("puts the size back when React clears the attributes of <html>", async () => {
+    const root = document.documentElement
+    expect(run(JSON.stringify({ arabicSize: "xl" }))).toBe("xl")
+    // What React does to <html> when it renders the page again after a failed hydration.
+    while (root.attributes.length) root.removeAttributeNode(root.attributes[0] as Attr)
+    root.setAttribute("lang", "en")
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(root.dataset.arabicSize).toBe("xl")
+  })
 })

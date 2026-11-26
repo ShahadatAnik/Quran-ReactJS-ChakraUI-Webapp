@@ -147,7 +147,8 @@ export function SurahCard({ page, className }: { page: SurahPage; className?: st
           {surah.revelation} · {surah.ayahs} {surah.ayahs === 1 ? "ayah" : "ayahs"}
         </p>
         <h3 className="truncate text-lg font-semibold tracking-tight">{surah.name}</h3>
-        <p className="truncate text-sm text-muted-foreground">
+        {/* Clipped sideways only, so Bangla vowel signs below the line are never cut off. */}
+        <p className="overflow-x-clip text-sm text-ellipsis whitespace-nowrap text-muted-foreground">
           {surah.meaning} · <span lang="bn">{surah.meaningBn}</span>
         </p>
       </div>

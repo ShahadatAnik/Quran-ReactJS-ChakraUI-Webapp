@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router"
 import { PostCard } from "@/components/page-card"
 import { IconTile, PageLayout } from "@/components/page-layout"
+import { BlogListSkeleton } from "@/components/skeletons"
 import { pageByPath, postPages } from "@/lib/pages"
 import { indexSeo } from "@/lib/seo"
 
@@ -9,6 +10,7 @@ const page = pageByPath.blog
 export const Route = createFileRoute("/blog/")({
   head: () => indexSeo(page, postPages),
   component: BlogIndex,
+  pendingComponent: BlogListSkeleton,
 })
 
 function BlogIndex() {

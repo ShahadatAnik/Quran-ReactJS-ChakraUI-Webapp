@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
 import { PrayerDashboard } from "@/components/prayer-times"
+import { PrayerTimesSkeleton } from "@/components/skeletons"
 import { pageByPath } from "@/lib/pages"
 import { pageSeo } from "@/lib/seo"
 
@@ -10,6 +11,7 @@ const page = pageByPath.prayerTimes
 export const Route = createFileRoute("/prayer-times")({
   head: () => pageSeo(page),
   component: PrayerTimesRoute,
+  pendingComponent: PrayerTimesSkeleton,
 })
 
 /**

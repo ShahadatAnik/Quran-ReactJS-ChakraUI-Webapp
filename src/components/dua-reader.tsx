@@ -8,7 +8,11 @@ import type { Dua } from "@/content/duas"
 import { useReadingTracker } from "@/hooks/use-reading-tracker"
 import { useSurahEditions } from "@/hooks/use-surah-editions"
 import { duaAyahText } from "@/lib/duas"
-import { translationLocale } from "@/lib/editions"
+import {
+  DEFAULT_ARABIC_EDITION,
+  DEFAULT_TRANSLATION_EDITION,
+  translationLocale,
+} from "@/lib/editions"
 import { getSurah } from "@/lib/surahs"
 
 /**
@@ -73,12 +77,19 @@ export function DuaReader({ dua, className }: { dua: Dua; className?: string }) 
     [play, dua.surah, dua.to]
   )
   const current = audio.track?.surah === dua.surah ? audio.track.ayah : null
+  // The reader's own script or translation, while it loads: skeleton lines, not the bundled
+  // text in its place.
+  const loading = editions.status === "loading"
+  const arabicLoading = loading && settings.arabicEdition !== DEFAULT_ARABIC_EDITION
+  const translationLoading = loading && settings.translationEdition !== DEFAULT_TRANSLATION_EDITION
   const arabicTexts = editions.texts[settings.arabicEdition]
   const translationTexts = editions.texts[settings.translationEdition]
   const { lang, dir } = translationLocale(settings.translationEdition, Boolean(translationTexts))
 
   return (
-    <div className={className}>
+    // Until the reader's settings are read, styles.css draws prerendered text they will
+    // replace as skeleton lines (or hides hidden translations), before the first paint.
+    <div className={className} data-reader-pending={restored ? undefined : ""}>
       <ol ref={list} className="divide-y divide-border/50">
         {ayahs.map((ayah) => (
           <li key={ayah.n}>
@@ -90,6 +101,8 @@ export function DuaReader({ dua, className }: { dua: Dua; className?: string }) 
               translation={
                 settings.showTranslation ? (translationTexts?.[ayah.n - 1] ?? ayah.bn) : undefined
               }
+              arabicLoading={arabicLoading}
+              translationLoading={translationLoading}
               translationLang={lang}
               translationDir={dir}
               active={current === ayah.n}

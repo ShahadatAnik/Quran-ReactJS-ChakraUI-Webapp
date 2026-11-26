@@ -5,6 +5,7 @@ import { DuaOfTheDay } from "@/components/dua-of-the-day"
 import { PageCard, PostCard, SurahCard } from "@/components/page-card"
 import { NextPrayerCard } from "@/components/prayer-times"
 import { useFrequentSurahs } from "@/components/reading-history"
+import { HomeSkeleton, SurahCardSkeleton } from "@/components/skeletons"
 import { Button } from "@/components/ui/button"
 import {
   appPages,
@@ -14,13 +15,18 @@ import {
   postPages,
   surahPages,
 } from "@/lib/pages"
+import { prepaintConfig } from "@/lib/prepaint"
 import { homeSeo } from "@/lib/seo"
 import { site } from "@/lib/site"
 
 export const Route = createFileRoute("/")({
   head: () => homeSeo(),
   component: Home,
+  pendingComponent: HomeSkeleton,
 })
+
+/** Most surahs "Your most-read surahs" shows (the pre-paint script counts up to the same). */
+const FREQUENT_LIMIT = prepaintConfig.frequentLimit
 
 function SectionHeading({
   id,
@@ -54,29 +60,43 @@ function SectionHeading({
 }
 
 /**
- * The surahs this reader comes back to most, from the reading history in this browser. Not
- * shown until the history has been read, nor to a reader without one.
+ * The surahs this reader comes back to most, from the reading history in this browser;
+ * nothing for a reader without one. Until the history has been read, skeleton cards: as many
+ * as there will be cards (counted before the first paint, see src/lib/prepaint.ts), or none.
  */
 function FrequentSurahs() {
-  const frequent = useFrequentSurahs(6)
-  if (!frequent?.length) return null
+  const frequent = useFrequentSurahs(FREQUENT_LIMIT)
+  if (frequent?.length === 0) return null
   return (
-    <section aria-labelledby="frequent-heading">
+    <section
+      aria-labelledby="frequent-heading"
+      aria-busy={!frequent}
+      data-needs-history={frequent ? undefined : ""}
+    >
       <SectionHeading
         id="frequent-heading"
         title="Your most-read surahs"
         description="The surahs you read on the most days, from your history in this browser."
         more={{ label: "Your history", link: { to: "/history" } }}
       />
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {frequent.map(({ surah }) => {
-          const page = getSurahPage(surah)
-          return page ? (
-            <li key={surah}>
-              <SurahCard page={page} />
-            </li>
-          ) : null
-        })}
+      <ul
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        data-frequent-skeleton={frequent ? undefined : ""}
+      >
+        {frequent
+          ? frequent.map(({ surah }) => {
+              const page = getSurahPage(surah)
+              return page ? (
+                <li key={surah}>
+                  <SurahCard page={page} />
+                </li>
+              ) : null
+            })
+          : Array.from({ length: FREQUENT_LIMIT }, (_, i) => i + 1).map((n) => (
+              <li key={n}>
+                <SurahCardSkeleton />
+              </li>
+            ))}
       </ul>
     </section>
   )

@@ -3,10 +3,35 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 /* Self-hosted WOFF2 subsets: browsers fetch only the subsets a page actually uses. */
-@import "@fontsource/hind-siliguri/bengali-400.css";
-@import "@fontsource/hind-siliguri/bengali-600.css";
 @import "@fontsource/amiri-quran/arabic-400.css";
 @import "@fontsource/galada/bengali-400.css";
+
+/* Hind Siliguri (Bangla), as @fontsource/hind-siliguri declares it but with font-display:
+   optional: both weights are preloaded (src/routes/__root.tsx), and if one isn't there by the
+   first paint the page keeps the fallback for this visit, instead of swapping it in and
+   re-wrapping Bangla text in front of the reader. */
+@font-face {
+  font-family: "Hind Siliguri";
+  font-style: normal;
+  font-display: optional;
+  font-weight: 400;
+  src:
+    url("../node_modules/@fontsource/hind-siliguri/files/hind-siliguri-bengali-400-normal.woff2")
+    format("woff2"),
+    url("../node_modules/@fontsource/hind-siliguri/files/hind-siliguri-bengali-400-normal.woff")
+    format("woff");
+}
+@font-face {
+  font-family: "Hind Siliguri";
+  font-style: normal;
+  font-display: optional;
+  font-weight: 600;
+  src:
+    url("../node_modules/@fontsource/hind-siliguri/files/hind-siliguri-bengali-600-normal.woff2")
+    format("woff2"),
+    url("../node_modules/@fontsource/hind-siliguri/files/hind-siliguri-bengali-600-normal.woff")
+    format("woff");
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -170,9 +195,15 @@
   ::selection {
     @apply bg-primary/25;
   }
-  /* Bangla runs need more line height than Latin for their vowel signs. */
   :lang(bn) {
     @apply font-bangla;
+  }
+  /* Bangla blocks need more line height than Latin for their vowel signs. Not inline elements:
+     they inherit their block's, since a taller inline box stretches the line it sits in (a
+     <time> or a <span lang="bn"> in a 16px line made it 22px). */
+  :lang(bn):not(
+    :where(span, a, time, b, strong, i, em, mark, small, abbr, cite, q, label, kbd, code, sub, sup)
+  ) {
     line-height: 1.85;
   }
   :lang(ar) {
@@ -372,6 +403,65 @@
   }
   /* Still red, just steady. */
   .ending-soon {
+    animation: none;
+  }
+}
+
+/* ---------- Skeleton text and pre-paint layout ----------
+   .skeleton-text (<SkeletonText>): text standing in for text that is still loading, the same
+   words drawn as a pulsing bar on each line, so it takes exactly the lines the text takes.
+
+   src/lib/prepaint.ts sets data attributes on <html> before the first paint, from what this
+   browser has saved. The prerendered page then already takes the space the real content will
+   take, so nothing moves when it fills in. Prerendered ayahs ([data-reader-pending] until the
+   reader settings are read) draw text that another edition or ayah will replace as skeleton
+   text; a saved filter hides the surah list until it applies. */
+
+.skeleton-text,
+html[data-translation="custom"] [data-reader-pending] [data-ayah-translation] > span,
+html[data-arabic-edition="custom"] [data-reader-pending] [data-ayah-arabic] > span,
+html[data-ayah="custom"] [data-default-ayah] [data-ayah-arabic] > span,
+html[data-ayah="custom"] [data-default-ayah] [data-ayah-translation] > span {
+  border-radius: 0.25rem;
+  background-color: color-mix(in oklab, var(--foreground) 10%, transparent);
+  color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  user-select: none;
+  animation: var(--animate-pulse);
+}
+.skeleton-text *,
+html[data-ayah="custom"] [data-default-ayah] [data-ayah-arabic] > span * {
+  color: transparent;
+}
+
+html:not([data-platform="mac"]) [data-only-platform="mac"],
+html[data-platform="mac"] [data-only-platform="other"],
+html:not([data-prayer="located"]) [data-only-prayer="located"],
+html[data-prayer="located"] [data-only-prayer="none"],
+html:not([data-prayer-note="on"]) [data-only-prayer-note="on"],
+html:not([data-search="query"]) [data-only-search="query"],
+html:not([data-frequent]) [data-needs-history],
+html[data-frequent="0"] [data-needs-history],
+html[data-frequent]:not([data-frequent="0"]) [data-no-history],
+html[data-frequent="1"] [data-frequent-skeleton] > :nth-child(n + 2),
+html[data-frequent="2"] [data-frequent-skeleton] > :nth-child(n + 3),
+html[data-frequent="3"] [data-frequent-skeleton] > :nth-child(n + 4),
+html[data-frequent="4"] [data-frequent-skeleton] > :nth-child(n + 5),
+html[data-frequent="5"] [data-frequent-skeleton] > :nth-child(n + 6),
+html[data-translation="hidden"] [data-reader-pending] [data-ayah-translation] {
+  display: none;
+}
+html[data-surah-filter="on"] [data-surah-list] {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-text,
+  html [data-reader-pending] [data-ayah-arabic] > span,
+  html [data-reader-pending] [data-ayah-translation] > span,
+  html [data-default-ayah] [data-ayah-arabic] > span,
+  html [data-default-ayah] [data-ayah-translation] > span {
     animation: none;
   }
 }

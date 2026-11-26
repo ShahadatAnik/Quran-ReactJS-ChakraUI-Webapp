@@ -1,4 +1,4 @@
-import { ExternalLink, Loader2 } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 import { useState } from "react"
 import {
   Dialog,
@@ -7,9 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useTafsir } from "@/hooks/use-tafsir"
 import { getSurah } from "@/lib/surahs"
 import { type TafsirParagraph, tafsirPageUrl, tafsirSource } from "@/lib/tafsir"
+import { cn } from "@/lib/utils"
 
 function Segments({ paragraph }: { paragraph: TafsirParagraph }) {
   return paragraph.segments.map((segment, index) =>
@@ -66,10 +68,25 @@ export function TafsirDialog({ surah, ayah: requested, arabic, onClose }: Tafsir
           ) : null}
 
           {tafsir.status === "loading" || tafsir.status === "idle" ? (
-            <p className="flex items-center gap-2 py-8 text-sm text-muted-foreground" lang="en">
-              <Loader2 className="size-4 animate-spin motion-reduce:animate-none" />
-              Loading the tafsir…
-            </p>
+            <div aria-busy="true" className="space-y-4">
+              <span className="sr-only" lang="en">
+                Loading the tafsir…
+              </span>
+              <div className="space-y-2 rounded-lg bg-muted/60 p-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-11/12" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+              {["w-11/12", "w-4/5", "w-3/4"].map((width) => (
+                <div key={width} className="flex gap-2.5">
+                  <Skeleton className="size-6 shrink-0 rounded-full" />
+                  <div className="flex-1 space-y-2 pt-0.5">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className={cn("h-4", width)} />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : null}
 
           {tafsir.status === "error" ? (

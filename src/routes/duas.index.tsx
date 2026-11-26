@@ -3,6 +3,7 @@ import { useState } from "react"
 import { DuaCard } from "@/components/page-card"
 import { PageGuide } from "@/components/page-guide"
 import { IconTile, PageLayout } from "@/components/page-layout"
+import { DuaListSkeleton } from "@/components/skeletons"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { type DuaCategoryId, duaCategories } from "@/content/duas"
 import { duaPages, pageByPath } from "@/lib/pages"
@@ -14,6 +15,7 @@ type Filter = DuaCategoryId | "all"
 export const Route = createFileRoute("/duas/")({
   head: () => indexSeo(page, duaPages),
   component: DuasIndex,
+  pendingComponent: DuaListSkeleton,
 })
 
 function DuasIndex() {

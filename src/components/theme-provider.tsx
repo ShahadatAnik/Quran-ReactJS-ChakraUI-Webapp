@@ -11,12 +11,19 @@ const DARK_QUERY = "(prefers-color-scheme: dark)"
  * Inline script run before first paint (via `ScriptOnce`) so the correct theme class
  * is on <html> before any content renders — no flash of the wrong theme. It also records
  * the chosen mode as `data-theme-mode`, so the theme button shows the right icon at once.
+ *
+ * It then keeps the theme there. When hydration fails (a browser extension such as an ad
+ * blocker adding scripts to <head> can cause it), React renders the page again and clears
+ * every attribute of <html>, dark class included; the theme would come back only after a
+ * light frame, with outline buttons fading from light to dark. `data-theme-mode` is never
+ * removed otherwise, so its absence means the attributes were cleared: the observer puts
+ * the theme back in the same task, before the browser paints.
  */
-export const themeScript = `(function(){try{var t=localStorage.getItem(${JSON.stringify(
+export const themeScript = `(function(){var r=document.documentElement;function a(){try{var t=localStorage.getItem(${JSON.stringify(
   STORAGE_KEY
 )});var d=t==='"dark"'||((!t||t==='"system"')&&matchMedia(${JSON.stringify(
   DARK_QUERY
-)}).matches);var r=document.documentElement;r.classList.toggle('dark',d);r.style.colorScheme=d?'dark':'light';r.dataset.themeMode=t==='"light"'?'light':t==='"dark"'?'dark':'system'}catch(e){}})()`
+)}).matches);r.classList.toggle('dark',d);r.style.colorScheme=d?'dark':'light';r.dataset.themeMode=t==='"light"'?'light':t==='"dark"'?'dark':'system'}catch(e){}}a();try{new MutationObserver(function(){if(!r.hasAttribute('data-theme-mode'))a()}).observe(r,{attributes:true})}catch(e){}})()`
 
 interface ThemeContextValue {
   theme: Theme

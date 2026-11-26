@@ -5,6 +5,7 @@ import { SurahNumber } from "@/components/page-card"
 import { PageGuide } from "@/components/page-guide"
 import { PageLayout } from "@/components/page-layout"
 import { ArabicNameAside, HeaderFacts, ReadingActions } from "@/components/reading-header"
+import { SurahSkeleton } from "@/components/skeletons"
 import { SurahPlayButton } from "@/components/surah-play-button"
 import { SurahReader } from "@/components/surah-reader"
 import { SurahStickyBar } from "@/components/surah-sticky-bar"
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/surah/$number")({
     return page ? pageSeo(page) : {}
   },
   component: SurahRoute,
+  pendingComponent: SurahSkeleton,
 })
 
 const neighbourClass =
